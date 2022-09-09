@@ -10,6 +10,7 @@ Will contain the main game loop and functionality.
 # import section ------------------------------------------------------------ #
 import pygame as pg
 import sys
+from sprites import Spritesheet
 
 # settings section ---------------------------------------------------------- #
 # screen dimensions
@@ -18,6 +19,10 @@ WIN_HEIGHT = 480 #720
 
 # times the screen is updated per min
 FPS = 60
+
+# tilesize
+TILE_WIDTH = 64
+TILE_HEIGHT = 64
 
 # game class ---------------------------------------------------------------- #
 class Game:
@@ -32,6 +37,15 @@ class Game:
         self.caption = pg.display.set_caption('Space Control')
         self.window_icon = pg.display.set_icon(pg.image.load('./img/window_icon.png'))
         self.clock = pg.time.Clock()
+        
+        # spritesheets ------------------------------------------------------ #
+        self.terrain_sheet = Spritesheet('img/hex_terrain_sheet.png')
+
+        # terrain sprites --------------------------------------------------- #
+        self.sprite_space = self.terrain_sheet.get_sprite(0, 0, TILE_WIDTH, TILE_HEIGHT)
+        self.sprite_asteroids = self.terrain_sheet.get_sprite(65, 0, TILE_WIDTH, TILE_HEIGHT)
+        self.sprite_big_roid = self.terrain_sheet.get_sprite(130, 0, TILE_WIDTH, TILE_HEIGHT)
+        self.sprite_micro_roids = self.terrain_sheet.get_sprite(195, 0, TILE_WIDTH, TILE_HEIGHT)
         
     def new_battle(self):
         self.playing = True
