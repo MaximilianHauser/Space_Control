@@ -10,7 +10,8 @@ Will contain the main game loop and functionality.
 # import section ------------------------------------------------------------ #
 import pygame as pg
 import sys
-from sprites import Spritesheet
+import sprites as sp
+from hexlogic import HexLogic as hl
 
 # settings section ---------------------------------------------------------- #
 # screen dimensions
