@@ -9,10 +9,7 @@ Will contain sprite objects and logic
 
 # import section ------------------------------------------------------------ #
 import pygame as pg
-
-# settings section ---------------------------------------------------------- #
-# transparency color
-T_PURPLE = (255, 0, 255)
+from settings import T_PURPLE
 
 # loads images as img or spritesheet, saves them as attributes -------------- #
 class Spritesheet:

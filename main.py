@@ -12,18 +12,7 @@ import pygame as pg
 import sys
 import sprites as sp
 from hexlogic import HexLogic as hl
-
-# settings section ---------------------------------------------------------- #
-# screen dimensions
-WIN_WIDTH = 640 #324
-WIN_HEIGHT = 480 #720
-
-# times the screen is updated per min
-FPS = 60
-
-# tilesize
-TILE_WIDTH = 64
-TILE_HEIGHT = 64
+from settings import WIN_WIDTH, WIN_HEIGHT, TILE_WIDTH, TILE_HEIGHT, FPS
 
 # game class ---------------------------------------------------------------- #
 class Game:
@@ -40,7 +29,7 @@ class Game:
         self.clock = pg.time.Clock()
         
         # spritesheets ------------------------------------------------------ #
-        self.terrain_sheet = Spritesheet('img/hex_terrain_sheet.png')
+        self.terrain_sheet = sp.Spritesheet('img/hex_terrain_sheet.png')
 
         # terrain sprites --------------------------------------------------- #
         self.sprite_space = self.terrain_sheet.get_sprite(0, 0, TILE_WIDTH, TILE_HEIGHT)

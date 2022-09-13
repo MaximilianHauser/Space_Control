@@ -2,16 +2,47 @@
 """
 Created on Fri Sep  9 07:19:00 2022
 
-Will contain all hextile logic, such as distances, neighbors, range
+Will contain all hextile logic, such as distances, neighbors, range, etc.
 
 @author: Maximilian
 """
 
 # import section ------------------------------------------------------------ #
-from main import TILE_WIDTH, TILE_HEIGHT
+from settings import TILE_WIDTH, TILE_HEIGHT
 
 # class responsible for handling hexagon specific logic --------------------- #
 class HexLogic:
+    
+    # helper functions ------------------------------------------------------ #
+    # linear interpolation returns point at t of distance between a and b --- #
+    def linint(a, b, t):
+        return a + (b - a) * t
+
+    # linint for cube coords ------------------------------------------------ #
+    def cube_linint(obj_a, obj_b, t):
+        q = HexLogic.linint(obj_a.q, obj_b.q, t)
+        r = HexLogic.linint(obj_a.r, obj_b.r, t)
+        s = HexLogic.linint(obj_a.s, obj_b.s, t)
+        return q,r,s
+
+    # returns the nearest full hex coordinate in case of float(qrs) --------- #
+    def round_hex(q_f,r_f,s_f):
+        q = round(q_f)
+        r = round(r_f)
+        s = round(s_f)
+
+        q_diff = abs(q - q_f)
+        r_diff = abs(r - r_f)
+        s_diff = abs(s - s_f)
+
+        if q_diff > r_diff and q_diff > s_diff:
+            q = -r-s
+        elif r_diff > s_diff:
+            r = -q-s
+        else:
+            s = -q-r
+
+        return (q, r, s)
     
     # function return qrs_coords of object ---------------------------------- #
     def get_qrs(obj):
@@ -40,20 +71,19 @@ class HexLogic:
         return q, r, s
     
     # function return coords of neighboring hexes --------------------------- #
-    def nbors(obj):
-        (q,r,s) = HexLogic.get_qrs(obj)
+    def neighbors(q,r,s):
         nbors_lst = [(q+1,r,s-1), (q+1,r-1,s), (q,r-1,s+1), (q-1,r,s+1), (q-1,r+1,s), (q,r+1,s-1)]
         return nbors_lst
     
     # function returns distance from one hex to another --------------------- #
-    def dist(obj_a, obj_b):
+    def distance(obj_a, obj_b):
         q_diff, r_diff, s_diff = abs(obj_a.q - obj_b.q), abs(obj_a.r - obj_b.r), abs(obj_a.s - obj_b.s)
         ab_dist = max(q_diff, r_diff, s_diff)
         return ab_dist
     
     # function returns every hex within a distance from a hex --------------- #
     # hex_coords within range n of hex_center ------------------------------- #
-    def rnge(obj, n):
+    def in_range(obj, n):
         hex_in_range_lst = []
         for q in range(-n, n):
             for r in range(max(-n, -q-n), min(n, -q+n)):
@@ -62,12 +92,36 @@ class HexLogic:
         return hex_in_range_lst
     
     # function draws a line from one hex to another converted to hexes ------ #
-    def line_draw(obj_a, obj_b, t):
-        pass
+    def line_draw(obj_a, obj_b):
+        ab_dist = HexLogic.distance(obj_a, obj_b)
+        line_hexes_coords_lst = []
+        for i in range(0, ab_dist):
+            item = HexLogic.round_hex(HexLogic.cube_linint(obj_a, obj_b, 1.0/ab_dist * i))
+            line_hexes_coords_lst.append(item)
+        return line_hexes_coords_lst
     
     # distance from a hex, factoring in obstacles --------------------------- #
-    def dist_lim_flood_fill(start, moves):
-        pass
+    def dist_lim_flood_fill(start_obj, moves, obj_lst, block_var):
+        start =  (start_obj.q, start_obj.r, start_obj.s)
+        visited = set() # set so duplicate values are ignored
+        visited.append(start)
+        fringes = []
+        fringes.append([start])
+
+        for k in range(1, moves):
+            fringes.append([])
+            for hex in fringes[k-1]:
+                for d in range(0,6): # 6 neighbors per hex => 6 items in nbors_lst
+                    
+                    neighbor = HexLogic.neighbors(hex)[dir]
+                    for obj in obj_lst:
+                        if (obj.q, obj.r, obj.s) == hex:
+                            blocked = obj.block_var
+                    if neighbor not in visited and not blocked:
+                        visited.append(neighbor)
+                        fringes[k].append(neighbor)
+
+        return visited
     
     
     
