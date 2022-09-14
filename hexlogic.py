@@ -59,14 +59,14 @@ class HexLogic:
     
     # function converts hex_coords to pixel_coords -------------------------- #
     def hex_to_pixel(q,r,s):
-        x = TILE_WIDTH * (3 / 2 * q)
-        y = TILE_HEIGHT * (3 ** 0.5 / 2 * q  +  3 ** 0.5 * r)
+        x = ((4/3)*q - (2/3)*r - (2/3)*s) * TILE_WIDTH * 0.375
+        y = (r - s) * TILE_HEIGHT * 0.5
         return x, y
     
-    # function converts pixel_coords to hex_coords -------------------------- #    
+    # function converts pixel_coords to hex_coords -------------------------- #
     def pixel_to_hex(x, y):
-        q = ( 2./3 * x ) / TILE_WIDTH
-        r = (-1./3 * x  +  3 ** 0.5 /3 * y) / TILE_HEIGHT
+        q = (x / 2) / TILE_WIDTH * (8 / 3)
+        r = (y / 2 - x / 4) / TILE_HEIGHT * 2
         s = -q-r
         return q, r, s
     
@@ -77,7 +77,9 @@ class HexLogic:
     
     # function returns distance from one hex to another --------------------- #
     def distance(obj_a, obj_b):
-        q_diff, r_diff, s_diff = abs(obj_a.q - obj_b.q), abs(obj_a.r - obj_b.r), abs(obj_a.s - obj_b.s)
+        q_diff = abs(obj_a.q - obj_b.q)
+        r_diff = abs(obj_a.r - obj_b.r)
+        s_diff = abs(obj_a.s - obj_b.s)
         ab_dist = max(q_diff, r_diff, s_diff)
         return ab_dist
     
@@ -103,7 +105,7 @@ class HexLogic:
     # distance from a hex, factoring in obstacles --------------------------- #
     def dist_lim_flood_fill(start_obj, moves, obj_lst, block_var):
         start =  (start_obj.q, start_obj.r, start_obj.s)
-        visited = set() # set so duplicate values are ignored
+        visited = set() # set, so duplicate values are ignored
         visited.append(start)
         fringes = []
         fringes.append([start])

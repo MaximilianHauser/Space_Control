@@ -12,7 +12,7 @@ import pygame as pg
 import sys
 import sprites as sp
 from hexlogic import HexLogic as hl
-from settings import WIN_WIDTH, WIN_HEIGHT, TILE_WIDTH, TILE_HEIGHT, FPS
+from settings import WIN_WIDTH, WIN_HEIGHT, TILE_WIDTH, TILE_HEIGHT, FPS, FONTSIZE
 
 # game class ---------------------------------------------------------------- #
 class Game:
@@ -28,8 +28,13 @@ class Game:
         self.window_icon = pg.display.set_icon(pg.image.load('./img/window_icon.png'))
         self.clock = pg.time.Clock()
         
+        # fonts ------------------------------------------------------------- #
+        self.font = pg.font.Font('img/coalition.ttf', FONTSIZE)
+        
         # spritesheets ------------------------------------------------------ #
         self.terrain_sheet = sp.Spritesheet('img/hex_terrain_sheet.png')
+        self.blufor_sheet = sp.Spritesheet('img/hex_blufor_sheet.png')
+        self.redfor_sheet = sp.Spritesheet('img/hex_redfor_sheet.png')
 
         # terrain sprites --------------------------------------------------- #
         self.sprite_space = self.terrain_sheet.get_sprite(0, 0, TILE_WIDTH, TILE_HEIGHT)
@@ -37,8 +42,36 @@ class Game:
         self.sprite_big_roid = self.terrain_sheet.get_sprite(130, 0, TILE_WIDTH, TILE_HEIGHT)
         self.sprite_micro_roids = self.terrain_sheet.get_sprite(195, 0, TILE_WIDTH, TILE_HEIGHT)
         
+        # unit sprites ------------------------------------------------------ #
+        # BLUFOR ------------------------------------------------------------ #
+        self.sprite_blufor_CC = self.blufor_sheet.get_sprite(65, 0, TILE_WIDTH, TILE_HEIGHT)
+        # REDFOR ------------------------------------------------------------ #
+        self.sprite_redfor_CC = self.redfor_sheet.get_sprite(65, 0, TILE_WIDTH, TILE_HEIGHT)
+        
     def new_battle(self):
         self.playing = True
+        
+        # setup sprite groups ----------------------------------------------- #
+        self.all_sprites = pg.sprite.LayeredUpdates()
+        self.tile_grp = pg.sprite.Group()
+        self.unit_blufor_grp = pg.sprite.Group()
+        self.unit_redfor_grp = pg.sprite.Group()
+        self.ui_buttons_grp = pg.sprite.Group()
+        
+        # sprite initialization --------------------------------------------- #
+        self.map_running_dict = {}
+        self.map_setup_lst = [(0,0,0,"b",None), (0,-1,1,"s",None), (1,-1,0,"b",None), (1,0,-1,"a",None), (0,1,-1,"s",None), (-1, 1, 0, "m", None), (-1, 0, 1, "a", None), (0,-2,2,"s",None), (1,-2,1,"s",None), (2,-2,0,"s",None), (2,-1,-1,"s",None), (2,0,-2,"s",None), (1,1,-2,"s",None), (0,2,-2,"s","b_cc"), (-1,2,-1,"s",None), (-2,2,0,"s",None), (-2,1,1,"s",None), (-2,0,2,"s",None), (-1,-1,2,"s",None)]
+        
+        for i in range(len(self.map_setup_lst)):
+            q, r, s, t, u = self.map_setup_lst[i]
+            
+            self.map_running_dict.update({(q,r,s):[t,u]})
+            
+            sp.Tile(self, q, r, s, t)
+            
+            if u != None:
+                sp.Unit(self, q, r, s, u)
+           
                                 
     def events(self):
         
@@ -54,11 +87,12 @@ class Game:
     
     def update(self):
         # update ------------------------------------------------------------ #
-        pass
+        self.all_sprites.update()
     
     def draw(self):
         # draw/render ------------------------------------------------------- #
         self.screen.fill('black')
+        self.all_sprites.draw(self.screen)
         
         # after drawing / flip display -------------------------------------- #
         pg.display.flip()
