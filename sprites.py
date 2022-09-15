@@ -12,6 +12,10 @@ import pygame as pg
 from hexlogic import HexLogic as hl
 from settings import T_PURPLE, TERRAIN_LAYER, UNIT_LAYER, WIN_WIDTH, WIN_HEIGHT, TILE_WIDTH, TILE_HEIGHT
 
+# sprite type specific attributes dicts ------------------------------------- #
+from t_attr import t_dict
+from u_attr import u_dict
+
 # loads images as img or spritesheet, saves them as attributes -------------- #
 class Spritesheet:
     def __init__(self, file):
@@ -49,40 +53,18 @@ class Tile(pg.sprite.Sprite):
         self.x = x + WIN_WIDTH / 2
         self.y = y + WIN_HEIGHT / 2
         
-        if t == "s":
-            self.image = self.game.sprite_space
-            self.dmg_to_light = 0
-            self.dmg_to_medium = 0
-            self.dmg_to_heavy = 0
-            self.block_move = False
-            self.block_sight = False
-        if t == "m":
-            self.image = self.game.sprite_micro_roids
-            self.dmg_to_light = 0.25
-            self.dmg_to_medium = 0
-            self.dmg_to_heavy = 0
-            self.block_move = False
-            self.block_sight = False
-        if t == "a":
-            self.image = self.game.sprite_asteroids
-            self.dmg_to_light = 0
-            self.dmg_to_medium = 0.5
-            self.dmg_to_heavy = 0.05
-            self.block_move = False
-            self.block_sight = False
-        if t == "b":
-            self.image = self.game.sprite_big_roid
-            self.dmg_to_light = 0
-            self.dmg_to_medium = 0
-            self.dmg_to_heavy = 0
-            self.block_move = True
-            self.block_sight = True
-            
+        for k, v in t_dict[t].items():
+            if isinstance(v, str):
+                setattr(self, k, eval(v))
+            else:
+                setattr(self, k, v)
+        
         self.mask = pg.mask.from_surface(self.image)
         self.rect = self.mask.get_rect()
         self.rect.center = (self.x, self.y)
         
         self.last_click_time = pg.time.get_ticks()
+        
         
     def update(self):
         self.rect.center = (self.x, self.y)
@@ -123,17 +105,11 @@ class Unit(pg.sprite.Sprite):
         self.x = x + WIN_WIDTH / 2
         self.y = y + WIN_HEIGHT / 2
         
-        if u == "b_cc":
-            self.image = self.game.sprite_blufor_CC
-            self.ship_size_light = False
-            self.ship_size_medium = False
-            self.ship_size_heavy = True
-            
-            self.max_health = 10
-            self.health = 10
-            self.dmg_per_shot = 10
-            self.starting_ap = 1
-            self.action_points = 1
+        for k, v in u_dict[u].items():
+            if isinstance(v, str):
+                setattr(self, k, eval(v))
+            else:
+                setattr(self, k, v)
         
         self.rect = self.image.get_rect()
         self.rect.center = (self.x, self.y)
@@ -146,3 +122,4 @@ class Unit(pg.sprite.Sprite):
             self.r = n_r
             self.s = n_s
             self.action_points -= 1
+            

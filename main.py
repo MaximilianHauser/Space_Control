@@ -58,15 +58,18 @@ class Game:
         self.unit_redfor_grp = pg.sprite.Group()
         self.ui_buttons_grp = pg.sprite.Group()
         
-        # sprite initialization --------------------------------------------- #
+        # map loading from file --------------------------------------------- #
         self.map_running_dict = {}
         self.map_setup_lst = [(0,0,0,"b",None), (0,-1,1,"s",None), (1,-1,0,"b",None), (1,0,-1,"a",None), (0,1,-1,"s",None), (-1, 1, 0, "m", None), (-1, 0, 1, "a", None), (0,-2,2,"s",None), (1,-2,1,"s",None), (2,-2,0,"s",None), (2,-1,-1,"s",None), (2,0,-2,"s",None), (1,1,-2,"s",None), (0,2,-2,"s","b_cc"), (-1,2,-1,"s",None), (-2,2,0,"s",None), (-2,1,1,"s",None), (-2,0,2,"s",None), (-1,-1,2,"s",None)]
         
+        # sprite initialization --------------------------------------------- #
         for i in range(len(self.map_setup_lst)):
             q, r, s, t, u = self.map_setup_lst[i]
             
+            # adding map logic to running_dict ------------------------------ #
             self.map_running_dict.update({(q,r,s):[t,u]})
             
+            # creating Tile and Unit sprite objects ------------------------- #
             sp.Tile(self, q, r, s, t)
             
             if u != None:
@@ -110,3 +113,4 @@ g.main_loop()
 
 pg.quit()
 sys.exit()
+
