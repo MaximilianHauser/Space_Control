@@ -115,11 +115,14 @@ class Unit(pg.sprite.Sprite):
         self.rect.center = (self.x, self.y)
         
         self.activated = False
+            
+    def update(self):
+        for tile in self.game.tile_grp:
+            if tile.q == self.q:
+                if tile.r == self.r:
+                    if tile.s == self.s:
+                        self.x = tile.x
+                        self.y = tile.y
         
-    def move(self, n_q, n_r, n_s):
-        if self.action_points >= 1:
-            self.q = n_q
-            self.r = n_r
-            self.s = n_s
-            self.action_points -= 1
+        self.rect.center = (self.x, self.y)
             
