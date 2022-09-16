@@ -25,6 +25,9 @@ class Observer:
     def subscribe(self, event, subscriber):
         # get subscribers assigned to event from subscribers_dict ----------- #
         subscribers = self.subscribers_dict.get(event)
+        # add new key : value pair to sub_layers_dict ----------------------- #
+        if isinstance(subscriber, object):
+            self.sub_layers_dict.update({subscriber:subscriber._layer})
         # if subscribers list is assigned as key to value, append subscriber  #
         if subscribers:
             subscribers.append(subscriber)
@@ -51,7 +54,24 @@ class Observer:
                 elif isinstance(subscriber, object):
                     subscriber.handle_events(event)
             
+    # function to handle mouseclicks during a running game ------------------ #
+    def click_mngr(self, mousebuttondown):
+        pos, button, touch = mousebuttondown
+        l_start = max(self.sub_layers_dict.values())
+        l_stop = min(self.sub_layers_dict.values())
+        # from top layer starts checking subs if clicked, if yes end loop --- #
+        for l in range(l_start, l_stop, -1):
+            for subscriber in self.subscribers_dict:
+                if isinstance(subscriber, object):
+                    if subscriber._layer == l:
+                        if subscriber.msbtn_down(pos, button):
+                            return
             
-            
-            
-            
+        
+        
+        
+        
+        
+        
+
+
