@@ -8,6 +8,12 @@ need to add layers, so map logic is only executed if the same event hasn't calle
 @author: Maximilian
 """
 
+# import section ------------------------------------------------------------ #
+import pygame as pg
+
+
+
+# Observer class, contains observer pattern logic --------------------------- #
 class Observer:
     def __init__(self):
         self.subscribers_dict = dict()
@@ -52,7 +58,11 @@ class Observer:
                     subscriber()
                 # handles objects (methods) subscribed to event ------------- #
                 elif isinstance(subscriber, object):
-                    subscriber.handle_events(event)
+                    # seperate logic for msbtn down ------------------------- #
+                    if event == pg.MOUSEBUTTONDOWN:
+                        self.click_mngr(event)
+                    else:
+                        subscriber.handle_events(event)
             
     # function to handle mouseclicks during a running game ------------------ #
     def click_mngr(self, mousebuttondown):

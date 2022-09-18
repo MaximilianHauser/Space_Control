@@ -5,7 +5,7 @@ Created on Tue Sep 13 10:33:21 2022
 @author: Maximilian
 """
 
-# global variables ---------------------------------------------------------- #
+# global settings ----------------------------------------------------------- #
 
 # screen dimensions
 WIN_WIDTH = 640 #324
@@ -23,6 +23,10 @@ T_PURPLE = (255, 0, 255)
 
 # fontsize
 FONTSIZE = 14
+
+# ui_transparency
+UI_TRANSPARENCY = 100
+UI_TRANSPARENCY_PRESSED = 200
 
 # layers for animation
 BACKGROUND_LAYER = 1

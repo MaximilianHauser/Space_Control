@@ -10,7 +10,7 @@ Will contain sprite objects and logic
 # import section ------------------------------------------------------------ #
 import pygame as pg
 from hexlogic import HexLogic as hl
-from settings import T_PURPLE, TERRAIN_LAYER, UNIT_LAYER, WIN_WIDTH, WIN_HEIGHT, TILE_WIDTH, TILE_HEIGHT
+from settings import T_PURPLE, TERRAIN_LAYER, UNIT_LAYER, WIN_WIDTH, WIN_HEIGHT, UI_TRANSPARENCY, FONTSIZE
 
 # sprite type specific attributes dicts ------------------------------------- #
 from t_attr import t_dict
@@ -30,7 +30,48 @@ class Spritesheet:
     
 # Button class -------------------------------------------------------------- #
 class Button:
-    pass
+    def __init__(self,game, text, x, y, width, height, enabled, m_pos, m_click):
+        self.game = game
+        
+        self.text = text
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        
+        self.enabled = enabled
+        self.m_pos = m_pos
+        self.m_click = m_click
+        
+        self.surface = pg.Surface((self.width, self.height))
+        self.surface.set_alpha(UI_TRANSPARENCY)
+        self.surface.fill(T_PURPLE)
+        self.surface.set_colorkey(T_PURPLE)
+        self.rect = self.surface.get_rect()
+        self.rect.topleft = (self.x, self.y)
+        
+    def draw(self):    
+        button_text = self.game.font.render(self.text, True, 'white')
+        if self.enabled:
+            if self.msbtn_down(self.m_pos) and self.m_click:
+                pg.draw.rect(self.surface, 'darkslategray4', ((0,0), (self.width, self.height)), 0, 5)
+                pg.draw.rect(self.surface, 'darkslategray1', ((0,0), (self.width, self.height)), 2, 5)
+            else:
+                pg.draw.rect(self.surface, 'darkslategray3', ((0,0), (self.width, self.height)), 0, 5)
+                pg.draw.rect(self.surface, 'darkslategray1', ((0,0), (self.width, self.height)), 2, 5)
+        else:
+            self.kill()
+        pg.draw.rect(self.surface, 'darkslategray1', ((0,0), (self.width, self.height)), 2, 5)
+        self.surface.blit(button_text, (10, (self.height - FONTSIZE) * 0.75))
+        
+        self.game.screen.blit(self.surface, (self.x, self.y))
+        
+    def msbtn_down(self, pos):
+        
+        if self.rect.collidepoint(pos) and self.enabled:
+            return True
+        else:
+            return False
 
 # Tile class ---------------------------------------------------------------- #
 # qrs: coordinates, t: terrain_type ----------------------------------------- #
