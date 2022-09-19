@@ -10,7 +10,7 @@ Will contain sprite objects and logic
 # import section ------------------------------------------------------------ #
 import pygame as pg
 from hexlogic import HexLogic as hl
-from settings import T_PURPLE, TERRAIN_LAYER, UNIT_LAYER, WIN_WIDTH, WIN_HEIGHT, UI_TRANSPARENCY, FONTSIZE
+from settings import T_PURPLE, TERRAIN_LAYER, UNIT_LAYER, WIN_WIDTH, WIN_HEIGHT, UI_TRANSPARENCY, FONTSIZE, UI_INTERFACE_LAYER
 
 # sprite type specific attributes dicts ------------------------------------- #
 from t_attr import t_dict
@@ -66,7 +66,7 @@ class Button:
         
         self.game.screen.blit(self.surface, (self.x, self.y))
         
-    def msbtn_down(self, pos):
+    def msbtn_down(self, pos, button):
         
         if self.rect.collidepoint(pos) and self.enabled:
             return True
@@ -120,7 +120,7 @@ class Tile(pg.sprite.Sprite):
             self.last_click_time = current_click_time
             if touching:
                 current_click_time = pg.time.get_ticks()
-                return (self.q, self.r, self.s)
+                return True
             return False
         return False
 

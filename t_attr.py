@@ -50,10 +50,4 @@ t_dict = {
             "block_sight" : True
             
             },
-    
-    
-    
-
-    
-
     }

@@ -69,7 +69,7 @@ class Observer:
         pos, button, touch = mousebuttondown
         l_start = max(self.sub_layers_dict.values())
         l_stop = min(self.sub_layers_dict.values())
-        # from top layer starts checking subs if clicked, if yes end loop --- #
+        # from top layer starts checking subs if clicked, if yes: end loop -- #
         for l in range(l_start, l_stop, -1):
             for subscriber in self.subscribers_dict:
                 if isinstance(subscriber, object):
