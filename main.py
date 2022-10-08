@@ -12,6 +12,7 @@ import pygame as pg
 import sys
 import sprites as sp
 from hexlogic import HexLogic as hl
+from observer import Observer as ob
 from settings import WIN_WIDTH, WIN_HEIGHT, TILE_WIDTH, TILE_HEIGHT, FPS, FONTSIZE
 
 # game class ---------------------------------------------------------------- #
