@@ -12,7 +12,7 @@ import pygame as pg
 import sys
 import sprites as sp
 from hexlogic import HexLogic as hl
-from observer import Observer as ob
+import observer as ob
 from settings import WIN_WIDTH, WIN_HEIGHT, TILE_WIDTH, TILE_HEIGHT, FPS, FONTSIZE
 
 # game class ---------------------------------------------------------------- #
@@ -59,6 +59,12 @@ class Game:
         self.unit_redfor_grp = pg.sprite.Group()
         self.ui_buttons_grp = pg.sprite.Group()
         
+        # init Observer ----------------------------------------------------- #
+        self.observer = ob.Observer()
+        
+        # function subsriptions to Observer --------------------------------- #
+        self.observer.subscribe(pg.QUIT, g)
+        
         # map loading from file --------------------------------------------- #
         self.map_running_dict = {}
         self.map_setup_lst = [(0,0,0,"b",None), (0,-1,1,"s",None), (1,-1,0,"b",None), (1,0,-1,"a",None), (0,1,-1,"s",None), (-1, 1, 0, "m", None), (-1, 0, 1, "a", None), (0,-2,2,"s",None), (1,-2,1,"s",None), (2,-2,0,"s",None), (2,-1,-1,"s",None), (2,0,-2,"s",None), (1,1,-2,"s",None), (0,2,-2,"s","b_cc"), (-1,2,-1,"s",None), (-2,2,0,"s",None), (-2,1,1,"s",None), (-2,0,2,"s",None), (-1,-1,2,"s",None)]
@@ -71,20 +77,18 @@ class Game:
             self.map_running_dict.update({(q,r,s):[t,u]})
             
             # creating Tile and Unit sprite objects ------------------------- #
-            sp.Tile(self, q, r, s, t)
+            tile = sp.Tile(self, q, r, s, t)
+            self.observer.subscribe(pg.MOUSEBUTTONDOWN, tile)
             
             if u != None:
                 sp.Unit(self, q, r, s, u)
-           
+                
                                 
     def events(self):
         
         # process input / events -------------------------------------------- #
-        for event in pg.event.get():
-            
-            # handles exiting the program via red, right, top x ------------- #
-            if event.type == pg.QUIT:
-                self.playing = False
+        events = pg.event.get()
+        self.observer.event_mngr(events)
         
         # restricts speed of loop ------------------------------------------- #
         self.clock.tick(FPS)
@@ -106,7 +110,16 @@ class Game:
             self.events()
             self.update()
             self.draw()
-           
+            
+
+    # event management functions -------------------------------------------- #
+    def handle_events(self, event):
+        if event.type == pg.QUIT:
+            self.playing = False
+        
+
+
+# top layer ----------------------------------------------------------------- #
 g = Game()
 
 g.new_battle()

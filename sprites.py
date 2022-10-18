@@ -104,25 +104,37 @@ class Tile(pg.sprite.Sprite):
         self.rect = self.mask.get_rect()
         self.rect.center = (self.x, self.y)
         
-        self.last_click_time = pg.time.get_ticks()
+        self.last_click_time = 0
         
         
     def update(self):
         self.rect.center = (self.x, self.y)
     
+    # checks if click is touching tile and click cooldown ------------------- #
     def msbtn_down(self, pos, button):
+
         pos_in_mask = pos[0] - self.rect.x, pos[1] - self.rect.y
         touching = self.rect.collidepoint(pos) and self.mask.get_at(pos_in_mask)
         
         current_click_time = pg.time.get_ticks()
 
         if current_click_time - self.last_click_time >= 500:
-            self.last_click_time = current_click_time
+
             if touching:
-                current_click_time = pg.time.get_ticks()
+
+                self.last_click_time = pg.time.get_ticks()
                 return True
             return False
         return False
+    
+    # click on maptile management ------------------------------------------- #
+    def handle_events(self, event):
+        
+        if event.type == pg.MOUSEBUTTONDOWN:
+            print(event.pos)
+            print(event.button)
+    
+    
 
 # Unit class ---------------------------------------------------------------- #
 # qrs: coordinates, u: unit_type, f: faction -------------------------------- #
