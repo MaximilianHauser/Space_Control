@@ -130,9 +130,50 @@ class Tile(pg.sprite.Sprite):
     # click on maptile management ------------------------------------------- #
     def handle_events(self, event):
         
+        # handle events related to mouse clicks on tile --------------------- #
         if event.type == pg.MOUSEBUTTONDOWN:
-            print(event.pos)
-            print(event.button)
+            
+            # variables for wether or not there is a unit on the tile ------- #
+            blufor_activated = None
+            blufor_on_tile = False
+            unit_on_tile = None
+            for unit in self.game.unit_blufor_grp:
+                if unit.q == self.q and unit.r == self.r and unit.s == self.s:
+                    blufor_on_tile = True
+                    unit_on_tile = unit
+                if unit.activated == True:
+                    blufor_activated = unit
+                    
+            redfor_on_tile = False
+            for unit in self.game.unit_redfor_grp:
+                if unit.q == self.q and unit.r == self.r and unit.s == self.s:
+                    redfor_on_tile = True
+                    unit_on_tile = unit
+                    
+            # left click on tile -------------------------------------------- #
+            if event.button == 1:
+                
+                # blufor unit on tile --------------------------------------- #
+                if blufor_on_tile:
+                    for unit in self.game.unit_blufor_grp:
+                        if unit is not unit_on_tile:
+                            unit.activated = False
+                    unit_on_tile.activated = not unit_on_tile.activated                  
+                
+                # redfor unit on tile --------------------------------------- #
+                if redfor_on_tile:
+                    pass
+                
+                # no unit on tile ------------------------------------------- #
+                if unit_on_tile is None:
+                    if blufor_activated is not None:
+                        blufor_activated.q = self.q
+                        blufor_activated.r = self.r
+                        blufor_activated.s = self.s
+                        
+                
+            if event.button == 3:
+                pass
     
     
 
