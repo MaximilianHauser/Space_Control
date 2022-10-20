@@ -10,6 +10,7 @@ Will contain sprite objects and logic
 # import section ------------------------------------------------------------ #
 import pygame as pg
 from hexlogic import HexLogic as hl
+from animations_logic import Animations as an
 from settings import T_PURPLE, TERRAIN_LAYER, UNIT_LAYER, WIN_WIDTH, WIN_HEIGHT, UI_TRANSPARENCY, FONTSIZE, UI_INTERFACE_LAYER
 
 # sprite type specific attributes dicts ------------------------------------- #
@@ -100,14 +101,34 @@ class Tile(pg.sprite.Sprite):
             else:
                 setattr(self, k, v)
         
+        self.image = self.original_image
         self.mask = pg.mask.from_surface(self.image)
         self.rect = self.mask.get_rect()
         self.rect.center = (self.x, self.y)
         
         self.last_click_time = 0
+        self.unit = None
         
         
     def update(self):
+        # attaching unit to tile if occupied -------------------------------- #
+        for unit in self.game.unit_blufor_grp:
+            if unit.q == self.q and unit.r == self.r and unit.s == self.s:
+                self.unit = unit
+            else:
+                self.unit = None
+           
+        # tints tile in case of activated unit on it ------------------------ #
+        if self.unit is not None:
+            if self.unit.activated == True:
+                self.image = an.tint_image(self.original_image, "azure2")
+                
+            else:
+                self.image = self.original_image
+        else:
+            self.image = self.original_image
+           
+        # updates position -------------------------------------------------- #
         self.rect.center = (self.x, self.y)
     
     # checks if click is touching tile and click cooldown ------------------- #
@@ -192,8 +213,10 @@ class Unit(pg.sprite.Sprite):
         self.game.all_sprites.add(self)
         if u[0] == "r":
             self.game.unit_redfor_grp.add(self)
+            self.faction = "redfor"
         if u[0] == "b":
             self.game.unit_blufor_grp.add(self)
+            self.faction = "blufor"
         
         x, y = hl.hex_to_pixel(q,r,s)
         self.x = x + WIN_WIDTH / 2

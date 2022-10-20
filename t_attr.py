@@ -13,7 +13,7 @@ Created on Wed Sep 14 09:25:52 2022
 t_dict = {
     "s":
         {
-            "image" : "game.sprite_space",
+            "original_image" : "game.sprite_space",
             "dmg_to_light" : 0,
             "dmg_to_medium" : 0,
             "dmg_to_heavy" : 0,
@@ -22,7 +22,7 @@ t_dict = {
             },
     "m":
         {
-            "image" : "game.sprite_micro_roids",
+            "original_image" : "game.sprite_micro_roids",
             "dmg_to_light" : 0.25,
             "dmg_to_medium" : 0,
             "dmg_to_heavy" : 0,
@@ -32,7 +32,7 @@ t_dict = {
             },
     "a":
         {
-            "image" : "game.sprite_asteroids",
+            "original_image" : "game.sprite_asteroids",
             "dmg_to_light" : 0,
             "dmg_to_medium" : 0.5,
             "dmg_to_heavy" : 0.05,
@@ -42,7 +42,7 @@ t_dict = {
             },
     "b":
         {
-            "image" : "game.sprite_big_roid",
+            "original_image" : "game.sprite_big_roid",
             "dmg_to_light" : 0,
             "dmg_to_medium" : 0,
             "dmg_to_heavy" : 0,
