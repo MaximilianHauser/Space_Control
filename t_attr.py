@@ -26,7 +26,7 @@ t_dict = {
             "dmg_to_light" : 0.25,
             "dmg_to_medium" : 0,
             "dmg_to_heavy" : 0,
-            "block_move" : False,
+            "block_move" : True,
             "block_sight" : False
             
             },
@@ -36,7 +36,7 @@ t_dict = {
             "dmg_to_light" : 0,
             "dmg_to_medium" : 0.5,
             "dmg_to_heavy" : 0.05,
-            "block_move" : False,
+            "block_move" : True,
             "block_sight" : True
             
             },

@@ -10,6 +10,7 @@ Will contain sprite objects and logic
 # import section ------------------------------------------------------------ #
 import pygame as pg
 from hexlogic import HexLogic as hl
+from game_logic import GameLogic as gl
 from animations_logic import Animations as an
 from settings import T_PURPLE, TERRAIN_LAYER, UNIT_LAYER, WIN_WIDTH, WIN_HEIGHT, UI_TRANSPARENCY, FONTSIZE, UI_INTERFACE_LAYER
 
@@ -119,10 +120,19 @@ class Tile(pg.sprite.Sprite):
                 self.unit = None
            
         # tints tile in case of activated unit on it ------------------------ #
+        activated_unit = gl.is_activated_unit(self.game.unit_blufor_grp)
+        
         if self.unit is not None:
             if self.unit.activated == True:
                 self.image = an.tint_image(self.original_image, "azure2")
-                
+            else:
+                self.image = self.original_image
+        
+        # tints tile in case of in movement range of an activated unit ------ #
+        elif activated_unit is not None:
+            in_range = gl.in_mov_range(self, self.game.unit_blufor_grp, self.game.tile_grp, "block_move")
+            if in_range:
+                self.image = an.tint_image(self.original_image, "yellow")
             else:
                 self.image = self.original_image
         else:
@@ -188,10 +198,7 @@ class Tile(pg.sprite.Sprite):
                 # no unit on tile ------------------------------------------- #
                 if unit_on_tile is None:
                     if blufor_activated is not None:
-                        blufor_activated.q = self.q
-                        blufor_activated.r = self.r
-                        blufor_activated.s = self.s
-                        
+                        hl.set_qrs(blufor_activated, self.q, self.r, self.s)
                 
             if event.button == 3:
                 pass
