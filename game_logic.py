@@ -62,6 +62,11 @@ class GameLogic:
         return in_range
     
     
+    
+    # handles unit movement, subtraction of action points ------------------- #
+    def unit_move():
+        pass
+    
 
 
 

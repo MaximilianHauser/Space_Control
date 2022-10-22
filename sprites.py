@@ -14,9 +14,11 @@ from game_logic import GameLogic as gl
 from animations_logic import Animations as an
 from settings import T_PURPLE, TERRAIN_LAYER, UNIT_LAYER, WIN_WIDTH, WIN_HEIGHT, UI_TRANSPARENCY, FONTSIZE, UI_INTERFACE_LAYER
 
+
 # sprite type specific attributes dicts ------------------------------------- #
 from t_attr import t_dict
 from u_attr import u_dict
+
 
 # loads images as img or spritesheet, saves them as attributes -------------- #
 class Spritesheet:
@@ -29,6 +31,7 @@ class Spritesheet:
         sprite.blit(self.sheet, (0, 0), (x, y, width, height))
         sprite.set_colorkey(T_PURPLE)
         return sprite
+    
     
 # Button class -------------------------------------------------------------- #
 class Button:
@@ -75,6 +78,7 @@ class Button:
         else:
             return False
 
+
 # Tile class ---------------------------------------------------------------- #
 # qrs: coordinates, t: terrain_type ----------------------------------------- #
 class Tile(pg.sprite.Sprite):
@@ -112,6 +116,7 @@ class Tile(pg.sprite.Sprite):
         
         
     def update(self):
+        
         # attaching unit to tile if occupied -------------------------------- #
         for unit in self.game.unit_blufor_grp:
             if unit.q == self.q and unit.r == self.r and unit.s == self.s:
@@ -198,7 +203,11 @@ class Tile(pg.sprite.Sprite):
                 # no unit on tile ------------------------------------------- #
                 if unit_on_tile is None:
                     if blufor_activated is not None:
-                        hl.set_qrs(blufor_activated, self.q, self.r, self.s)
+                        in_range = gl.in_mov_range(self, self.game.unit_blufor_grp, self.game.tile_grp, "block_move")
+                        if in_range:
+                            distance_movement = hl.distance(blufor_activated, self)
+                            hl.set_qrs(blufor_activated, self.q, self.r, self.s)
+                            blufor_activated.action_points -= distance_movement
                 
             if event.button == 3:
                 pass

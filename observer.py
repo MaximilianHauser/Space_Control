@@ -11,11 +11,13 @@ need to add layers, so map logic is only executed if the same event hasn't calle
 # import section ------------------------------------------------------------ #
 import pygame as pg
 
+
 # Observer class, contains observer pattern logic --------------------------- #
 class Observer:
     def __init__(self):
         self.subscribers_dict = dict()
         self.sub_layers_dict = dict()
+        
         
     # helper function to ensure a list is appended to an event(key) --------- #
     def get_subscribers(self, event_type):
@@ -24,6 +26,7 @@ class Observer:
             return list()
         else:
             return subscribers
+        
         
     # subscribe an object(method) or a function to an event ----------------- #
     def subscribe(self, event, subscriber):
@@ -69,6 +72,7 @@ class Observer:
                         self.click_mngr(event)
                     else:
                         subscriber.handle_events(event)
+            
             
     # function to handle mouseclicks during a running game ------------------ #
     def click_mngr(self, event):

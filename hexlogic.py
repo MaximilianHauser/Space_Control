@@ -110,21 +110,20 @@ class HexLogic:
         fringes = []
         fringes.append([start])
         
-        print("Start coord: " + str(start))
 
         for k in range(1, moves + 1):
+
             fringes.append([])
             for t_coords in fringes[k-1]:
                 for d in range(0,6): # 6 neighbors per hex => 6 items in nbors_lst
                     
                     neighbor = HexLogic.neighbors(t_coords[0], t_coords[1], t_coords[2])[d]
                     for obj in obj_lst:
-                        if (obj.q, obj.r, obj.s) == t_coords:
+                        if (obj.q, obj.r, obj.s) == neighbor:
                             blocked = getattr(obj, block_var)
-                    if not blocked:
-                        visited.add(t_coords)
-                        fringes[k].append(neighbor)
-                        print("Not blocked added to visited " + str(t_coords))
+                            if not blocked:
+                                visited.add(neighbor)
+                                fringes[k].append(neighbor)
 
         return visited
     

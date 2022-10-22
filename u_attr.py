@@ -32,8 +32,8 @@ u_dict = {
             "max_health" : 10,
             "health" : 10,
             "dmg_per_shot" : 6,
-            "starting_ap" : 2,
-            "action_points" : 2,
+            "starting_ap" : 3,
+            "action_points" : 3,
             },
         
     "b_bc":
