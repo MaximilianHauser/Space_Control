@@ -11,8 +11,6 @@ will handle game logic, meaning interactions between units in game and tile attr
 from hexlogic import HexLogic as hl
 
 
-
-
 # class responsible for handling game logic specifics ----------------------- #
 class GameLogic:
     
@@ -64,8 +62,10 @@ class GameLogic:
     
     
     # handles unit movement, subtraction of action points ------------------- #
-    def unit_move():
-        pass
+    def move_unit(clicked_tile, unit_on_tile):
+        distance_movement = hl.distance(unit_on_tile, clicked_tile)
+        hl.set_qrs(unit_on_tile, clicked_tile.q, clicked_tile.r, clicked_tile.s)
+        unit_on_tile.action_points -= distance_movement
     
 
 

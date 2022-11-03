@@ -205,9 +205,7 @@ class Tile(pg.sprite.Sprite):
                     if blufor_activated is not None:
                         in_range = gl.in_mov_range(self, self.game.unit_blufor_grp, self.game.tile_grp, "block_move")
                         if in_range:
-                            distance_movement = hl.distance(blufor_activated, self)
-                            hl.set_qrs(blufor_activated, self.q, self.r, self.s)
-                            blufor_activated.action_points -= distance_movement
+                            gl.move_unit(self, blufor_activated)
                 
             if event.button == 3:
                 pass

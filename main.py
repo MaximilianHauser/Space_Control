@@ -8,11 +8,15 @@ Will contain the main game loop and functionality.
 """
 
 # import section ------------------------------------------------------------ #
+# libraries ----------------------------------------------------------------- #
 import pygame as pg
 import sys
+
+# game files ---------------------------------------------------------------- #
 import sprites as sp
 from hexlogic import HexLogic as hl
 import observer as ob
+from map_logic import MapLogic as ml
 from settings import WIN_WIDTH, WIN_HEIGHT, TILE_WIDTH, TILE_HEIGHT, FPS, FONTSIZE
 
 # game class ---------------------------------------------------------------- #
@@ -66,8 +70,9 @@ class Game:
         self.observer.subscribe(pg.QUIT, g)
         
         # map loading from file --------------------------------------------- #
+        test_map = ml.load_from_json("./missions/test_map/test_map.json")
         self.map_running_dict = {}
-        self.map_setup_lst = [(0,0,0,"b",None), (0,-1,1,"s",None), (1,-1,0,"b",None), (1,0,-1,"a",None), (0,1,-1,"s",None), (-1, 1, 0, "m", None), (-1, 0, 1, "a", None), (0,-2,2,"s",None), (1,-2,1,"s",None), (2,-2,0,"s",None), (2,-1,-1,"s",None), (2,0,-2,"s",None), (1,1,-2,"s",None), (0,2,-2,"s","b_cc"), (-1,2,-1,"s",None), (-2,2,0,"s",None), (-2,1,1,"s",None), (-2,0,2,"s",None), (-1,-1,2,"s",None)]
+        self.map_setup_lst = ml.assign_qrs(test_map)
         
         # sprite initialization --------------------------------------------- #
         for i in range(len(self.map_setup_lst)):
