@@ -8,8 +8,8 @@ Created on Tue Sep 13 10:33:21 2022
 # global settings ----------------------------------------------------------- #
 
 # screen dimensions
-WIN_WIDTH = 999 #324 #640
-WIN_HEIGHT = 666 #720 #480
+WIN_WIDTH = 1000 #324 #640
+WIN_HEIGHT = 1000 #720 #480
 
 # times the screen is updated per min
 FPS = 60
@@ -37,3 +37,7 @@ U_ANIMATION_LAYER = 5
 UI_MAPINFO_LAYER = 6
 UI_INTERFACE_LAYER = 7
 
+# attributes, related to scrolling the map
+SCROLL_SPEED = 2
+SCROLL_AREA = 48
+SCROLL_BUFFER = 48

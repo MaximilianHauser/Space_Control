@@ -16,7 +16,6 @@ class MapLogic:
         json_o = open(json_file)
         map_raw = json.load(json_o)
         json_o.close()
-        print(map_raw)
         return map_raw
 
     def get_dim(map_lst):
@@ -44,7 +43,6 @@ class MapLogic:
                     u = map_raw[r][q][1]
                     map_setup_lst.append((q, r, s, t, u))
     
-        print(map_setup_lst)
         return map_setup_lst
 
     

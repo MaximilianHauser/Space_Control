@@ -17,7 +17,8 @@ import sprites as sp
 from hexlogic import HexLogic as hl
 import observer as ob
 from map_logic import MapLogic as ml
-from settings import WIN_WIDTH, WIN_HEIGHT, TILE_WIDTH, TILE_HEIGHT, FPS, FONTSIZE
+from game_logic import GameLogic as gl
+from settings import WIN_WIDTH, WIN_HEIGHT, TILE_WIDTH, TILE_HEIGHT, FPS, FONTSIZE, SCROLL_SPEED, SCROLL_AREA, SCROLL_BUFFER
 
 # game class ---------------------------------------------------------------- #
 class Game:
@@ -68,6 +69,7 @@ class Game:
         
         # function subsriptions to Observer --------------------------------- #
         self.observer.subscribe(pg.QUIT, g)
+        self.observer.subscribe(pg.MOUSEMOTION, g)
         
         # map loading from file --------------------------------------------- #
         test_map = ml.load_from_json("./missions/test_map/test_map.json")
@@ -83,6 +85,7 @@ class Game:
             
             # creating Tile and Unit sprite objects ------------------------- #
             tile = sp.Tile(self, q, r, s, t)
+            print("Tile x,y on ini" + str(tile.x) + ", " + str(tile.y))
             self.observer.subscribe(pg.MOUSEBUTTONDOWN, tile)
             
             if u != None:
@@ -119,8 +122,36 @@ class Game:
 
     # event management functions -------------------------------------------- #
     def handle_events(self, event):
+        
+        # exiting the game via the red x in the top right corner ------------ #
         if event.type == pg.QUIT:
             self.playing = False
+            
+        # map scrolling ----------------------------------------------------- #
+        if event.type == pg.MOUSEMOTION:
+            mouse_pos_x, mouse_pos_y = event.pos
+            max_x, min_x, max_y, min_y = gl.get_map_borders(self.tile_grp)
+            
+            if mouse_pos_x < SCROLL_AREA:
+                if max_x < WIN_WIDTH - SCROLL_BUFFER:
+                    for sprite in self.all_sprites:
+                        sprite.x += SCROLL_SPEED
+            
+            if mouse_pos_x > WIN_WIDTH - SCROLL_AREA:
+                if min_x > SCROLL_BUFFER:
+                    for sprite in self.all_sprites:
+                        sprite.x -= SCROLL_SPEED
+            
+            if mouse_pos_y < SCROLL_AREA:
+                if max_y < WIN_HEIGHT - SCROLL_BUFFER:
+                    for sprite in self.all_sprites:
+                        sprite.y += SCROLL_SPEED
+            
+            if mouse_pos_y > WIN_HEIGHT - SCROLL_AREA:
+                if min_y > SCROLL_BUFFER:
+                    for sprite in self.all_sprites:
+                        sprite.y -= SCROLL_SPEED
+        
         
 
 

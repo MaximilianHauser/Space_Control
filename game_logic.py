@@ -9,10 +9,32 @@ will handle game logic, meaning interactions between units in game and tile attr
 
 # import section ------------------------------------------------------------ #
 from hexlogic import HexLogic as hl
+from settings import WIN_WIDTH, WIN_HEIGHT
 
 
 # class responsible for handling game logic specifics ----------------------- #
 class GameLogic:
+    
+    # get the max or min value along an axis from a tile -------------------- #
+    # max_x = right map border, min_x = left map border --------------------- #
+    # max_y = bottom map border, min_y = top map border --------------------- #
+    def get_map_borders(tile_grp):
+        max_x = 0
+        min_x = WIN_WIDTH
+        max_y = 0
+        min_y = WIN_HEIGHT
+        
+        for tile in tile_grp:
+            if tile.x > max_x:
+                max_x = tile.x
+            if tile.x < min_x:
+                min_x = tile.x
+            if tile.y > max_y:
+                max_y = tile.y
+            if tile.y < min_y:
+                min_y = tile.y
+                
+        return max_x, min_x, max_y, min_y
     
     # function determines, wether or not a unit is on the tile -------------- #
     # and if there is, assigns the unit as attribute to the tile ------------ #
@@ -68,5 +90,5 @@ class GameLogic:
         unit_on_tile.action_points -= distance_movement
     
 
-
+    
 
