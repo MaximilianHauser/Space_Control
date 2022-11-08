@@ -19,6 +19,7 @@ class GameLogic:
     # max_x = right map border, min_x = left map border --------------------- #
     # max_y = bottom map border, min_y = top map border --------------------- #
     def get_map_borders(tile_grp):
+        
         max_x = 0
         min_x = WIN_WIDTH
         max_y = 0
@@ -39,6 +40,7 @@ class GameLogic:
     # function determines, wether or not a unit is on the tile -------------- #
     # and if there is, assigns the unit as attribute to the tile ------------ #
     def tile_has_unit(tile, unit_sprite_groups_lst):
+        
         on_tile = None
         for group in unit_sprite_groups_lst:
             for unit in group:
@@ -53,6 +55,7 @@ class GameLogic:
     # function determines, if there currently is an activated blufor_unit --- #
     # and if yes, returns it ------------------------------------------------ #
     def is_activated_unit(unit_blufor_grp):
+        
         activated_unit = None
         for unit in unit_blufor_grp:
             if unit.activated:
@@ -85,10 +88,27 @@ class GameLogic:
     
     # handles unit movement, subtraction of action points ------------------- #
     def move_unit(clicked_tile, unit_on_tile):
+        
         distance_movement = hl.distance(unit_on_tile, clicked_tile)
         hl.set_qrs(unit_on_tile, clicked_tile.q, clicked_tile.r, clicked_tile.s)
         unit_on_tile.action_points -= distance_movement
     
 
-    
+    # function determines if a tile is covered by fog of war ---------------- #
+    def check_fog_of_war(tile, blufor_grp, tile_grp):
+        fog_of_war = True
+        
+        for unit in blufor_grp:
+            line_coords = hl.line_draw(unit, tile)
+            coords_visible = list()
+            for coords in line_coords:
+                for tile in tile_grp:
+                    if tile.q == coords[0]:
+                        if tile.r == coords[1]:
+                            if tile.s == coords[2]:
+                                coords_visible.append(tile.block_sight)
+            if all(c is False for c in coords_visible):
+                fog_of_war = False
+                
+        return fog_of_war
 

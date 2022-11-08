@@ -8,8 +8,8 @@ Created on Tue Sep 13 10:33:21 2022
 # global settings ----------------------------------------------------------- #
 
 # screen dimensions
-WIN_WIDTH = 1000 #324 #640
-WIN_HEIGHT = 1000 #720 #480
+WIN_WIDTH = 640 #324 #640
+WIN_HEIGHT = 480 #720 #480
 
 # times the screen is updated per min
 FPS = 60

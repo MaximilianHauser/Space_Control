@@ -113,6 +113,7 @@ class Tile(pg.sprite.Sprite):
         
         self.last_click_time = 0
         self.unit = None
+        self.fog_of_war = True
         
         
     def update(self):
@@ -135,13 +136,21 @@ class Tile(pg.sprite.Sprite):
         
         # tints tile in case of in movement range of an activated unit ------ #
         elif activated_unit is not None:
-            in_range = gl.in_mov_range(self, self.game.unit_blufor_grp, self.game.tile_grp, "block_move")
-            if in_range:
+            in_movement_range = gl.in_mov_range(self, self.game.unit_blufor_grp, self.game.tile_grp, "block_move")
+            if in_movement_range:
                 self.image = an.tint_image(self.original_image, "yellow")
             else:
                 self.image = self.original_image
         else:
             self.image = self.original_image
+            
+        # tints tile, if it is not within visible range by a unit ----------- #
+        self.fog_of_war = gl.check_fog_of_war(self, self.game.unit_blufor_grp, self.game.tile_grp)
+        
+        if self.fog_of_war is True:
+            self.image = an.tint_image(self.image, "grey")
+            
+                    
            
         # updates position -------------------------------------------------- #
         self.rect.center = (self.x, self.y)

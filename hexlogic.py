@@ -98,7 +98,8 @@ class HexLogic:
         ab_dist = HexLogic.distance(obj_a, obj_b)
         line_hexes_coords_lst = []
         for i in range(0, ab_dist):
-            item = HexLogic.round_hex(HexLogic.cube_linint(obj_a, obj_b, 1.0/ab_dist * i))
+            q_f,r_f,s_f = HexLogic.cube_linint(obj_a, obj_b, 1.0/ab_dist * i)
+            item = HexLogic.round_hex(q_f,r_f,s_f)
             line_hexes_coords_lst.append(item)
         return line_hexes_coords_lst
     

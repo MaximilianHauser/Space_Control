@@ -27,7 +27,7 @@ t_dict = {
             "dmg_to_medium" : 0,
             "dmg_to_heavy" : 0,
             "block_move" : True,
-            "block_sight" : False
+            "block_sight" : True
             
             },
     "a":

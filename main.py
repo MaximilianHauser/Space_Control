@@ -85,7 +85,6 @@ class Game:
             
             # creating Tile and Unit sprite objects ------------------------- #
             tile = sp.Tile(self, q, r, s, t)
-            print("Tile x,y on ini" + str(tile.x) + ", " + str(tile.y))
             self.observer.subscribe(pg.MOUSEBUTTONDOWN, tile)
             
             if u != None:
@@ -96,6 +95,11 @@ class Game:
         
         # process input / events -------------------------------------------- #
         events = pg.event.get()
+        
+        # force event MOUSEMOTION ------------------------------------------- #
+        #if not pg.event.peek(pg.MOUSEMOTION):
+        #    pg.event.post(pg.event.Event(pg.MOUSEMOTION))
+        
         self.observer.event_mngr(events)
         
         # restricts speed of loop ------------------------------------------- #
