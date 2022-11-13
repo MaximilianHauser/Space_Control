@@ -33,9 +33,10 @@ class Spritesheet:
         return sprite
     
     
-# Button class -------------------------------------------------------------- #
-class Button:
-    def __init__(self,game, text, x, y, width, height, enabled, m_pos, m_click):
+# Button Class -------------------------------------------------------------- #
+class Button(pg.sprite.Sprite):
+    def __init__(self,game, text, x, y, width, height, enabled, function):
+        pg.sprite.Sprite.__init__(self)
         self.game = game
         
         self.text = text
@@ -43,40 +44,71 @@ class Button:
         self.y = y
         self.width = width
         self.height = height
+        self._layer = UI_INTERFACE_LAYER
+        
+        self.game.all_sprites.add(self)
+        self.game.ui_buttons_grp.add(self)
         
         self.enabled = enabled
-        self.m_pos = m_pos
-        self.m_click = m_click
+        self.state = "unpressed"
+        self.function = function
         
-        self.surface = pg.Surface((self.width, self.height))
-        self.surface.set_alpha(UI_TRANSPARENCY)
-        self.surface.fill(T_PURPLE)
-        self.surface.set_colorkey(T_PURPLE)
-        self.rect = self.surface.get_rect()
+        self.image = pg.Surface((self.width, self.height))
+        self.image.set_alpha(UI_TRANSPARENCY)
+        self.image.fill(T_PURPLE)
+        self.image.set_colorkey(T_PURPLE)
+        self.mask = None
+        self.rect = self.image.get_rect()
+        
         self.rect.topleft = (self.x, self.y)
         
-    def draw(self):    
+    def update(self):    
         button_text = self.game.font.render(self.text, True, 'white')
         if self.enabled:
-            if self.msbtn_down(self.m_pos) and self.m_click:
-                pg.draw.rect(self.surface, 'darkslategray4', ((0,0), (self.width, self.height)), 0, 5)
-                pg.draw.rect(self.surface, 'darkslategray1', ((0,0), (self.width, self.height)), 2, 5)
+            if self.state == "pressed":
+                pg.draw.rect(self.image, 'darkslategray4', ((0,0), (self.width, self.height)), 0, 5)
+                pg.draw.rect(self.image, 'darkslategray1', ((0,0), (self.width, self.height)), 2, 5)
             else:
-                pg.draw.rect(self.surface, 'darkslategray3', ((0,0), (self.width, self.height)), 0, 5)
-                pg.draw.rect(self.surface, 'darkslategray1', ((0,0), (self.width, self.height)), 2, 5)
+                pg.draw.rect(self.image, 'darkslategray3', ((0,0), (self.width, self.height)), 0, 5)
+                pg.draw.rect(self.image, 'darkslategray1', ((0,0), (self.width, self.height)), 2, 5)
         else:
             self.kill()
-        pg.draw.rect(self.surface, 'darkslategray1', ((0,0), (self.width, self.height)), 2, 5)
-        self.surface.blit(button_text, (10, (self.height - FONTSIZE) * 0.75))
+        pg.draw.rect(self.image, 'darkslategray1', ((0,0), (self.width, self.height)), 2, 5)
+        self.image.blit(button_text, (10, (self.height - FONTSIZE) * 0.75))
         
-        self.game.screen.blit(self.surface, (self.x, self.y))
+        self.mask = pg.mask.from_surface(self.image)
         
+        self.game.screen.blit(self.image, (self.x, self.y))
+        
+    # checks if click is touching tile and click cooldown ------------------- #
     def msbtn_down(self, pos, button):
-        
-        if self.rect.collidepoint(pos) and self.enabled:
+
+        pos_in_mask = pos[0] - self.rect.x, pos[1] - self.rect.y
+        touching = self.rect.collidepoint(pos) and self.mask.get_at(pos_in_mask)
+
+        if touching:
+
             return True
-        else:
-            return False
+        return False
+
+
+    def handle_events(self, event):
+        # handle events related to mouse clicks on tile --------------------- #
+        if self.state == "unpressed":
+            if event.type == pg.MOUSEBUTTONDOWN:
+                self.state = "pressed"
+                
+        if self.state == "pressed":
+            if event.type == pg.MOUSEBUTTONUP:
+                self.state = "unpressed"
+                eval(self.function)
+                
+        if self.state == "pressed":
+            if event.type == self.game.E_IDLE:
+                pos_in_mask = event.pos[0] - self.rect.x, event.pos[1] - self.rect.y
+                touching = self.rect.collidepoint(event.pos) and self.mask.get_at(pos_in_mask)
+                if not touching:
+                    self.state = "unpressed"
 
 
 # Tile class ---------------------------------------------------------------- #

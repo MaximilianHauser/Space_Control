@@ -64,12 +64,19 @@ class Game:
         self.unit_redfor_grp = pg.sprite.Group()
         self.ui_buttons_grp = pg.sprite.Group()
         
+        # game mechanics variables ------------------------------------------ #
+        self.round_counter = 0
+        
         # init Observer ----------------------------------------------------- #
         self.observer = ob.Observer()
+        
+        # define custom_events ---------------------------------------------- #
+        self.E_IDLE = pg.event.custom_type() + 0
         
         # function subsriptions to Observer --------------------------------- #
         self.observer.subscribe(pg.QUIT, g)
         self.observer.subscribe(pg.MOUSEMOTION, g)
+        self.observer.subscribe(self.E_IDLE, g)
         
         # map loading from file --------------------------------------------- #
         test_map = ml.load_from_json("./missions/test_map/test_map.json")
@@ -89,17 +96,26 @@ class Game:
             
             if u != None:
                 sp.Unit(self, q, r, s, u)
-                
+          
+        # UI initialization ------------------------------------------------- #        
+        end_turn_button = sp.Button(self, "end turn: " + str(self.round_counter), 480, 445, 150, 25, True, "gl.end_turn(self.game.round_counter, self.game.unit_blufor_grp)")
+        self.observer.subscribe(pg.MOUSEBUTTONDOWN, end_turn_button)
+        self.observer.subscribe(pg.MOUSEBUTTONUP, end_turn_button)
+        self.observer.subscribe(self.E_IDLE, end_turn_button)
                                 
     def events(self):
         
+        # post custom_event "IDLE" ------------------------------------------ #
+        if not pg.event.peek(pg.MOUSEMOTION):
+            if not pg.event.peek(pg.MOUSEBUTTONDOWN):
+                mouse_pos = pg.mouse.get_pos()
+                event_data = {'pos': mouse_pos}
+                pg.event.post(pg.event.Event(self.E_IDLE, event_data))
+        
         # process input / events -------------------------------------------- #
         events = pg.event.get()
-        
-        # force event MOUSEMOTION ------------------------------------------- #
-        #if not pg.event.peek(pg.MOUSEMOTION):
-        #    pg.event.post(pg.event.Event(pg.MOUSEMOTION))
-        
+    
+        # pass events to observer ------------------------------------------- #
         self.observer.event_mngr(events)
         
         # restricts speed of loop ------------------------------------------- #
@@ -132,7 +148,7 @@ class Game:
             self.playing = False
             
         # map scrolling ----------------------------------------------------- #
-        if event.type == pg.MOUSEMOTION:
+        if event.type == pg.MOUSEMOTION or event.type == self.E_IDLE:
             mouse_pos_x, mouse_pos_y = event.pos
             max_x, min_x, max_y, min_y = gl.get_map_borders(self.tile_grp)
             

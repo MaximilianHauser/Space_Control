@@ -70,6 +70,8 @@ class Observer:
                     # seperate logic for msbtn down ------------------------- #
                     if event.type == pg.MOUSEBUTTONDOWN:
                         self.click_mngr(event)
+                    elif event.type == pg.MOUSEBUTTONUP:
+                        self.click_mngr(event)
                     else:
                         subscriber.handle_events(event)
             
