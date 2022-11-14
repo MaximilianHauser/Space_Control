@@ -28,6 +28,7 @@ u_dict = {
             "ship_size_light" : False,
             "ship_size_medium" : False,
             "ship_size_heavy" : True,
+            "faction" : '"blufor"',
             
             "max_health" : 10,
             "health" : 10,
@@ -42,6 +43,7 @@ u_dict = {
             "ship_size_light" : False,
             "ship_size_medium" : False,
             "ship_size_heavy" : True,
+            "faction" : '"blufor"',
             
             "max_health" : 8,
             "health" : 8,
@@ -56,6 +58,7 @@ u_dict = {
             "ship_size_light" : False,
             "ship_size_medium" : False,
             "ship_size_heavy" : True,
+            "faction" : '"blufor"',
             
             "max_health" : 6,
             "health" : 6,
@@ -70,6 +73,7 @@ u_dict = {
             "ship_size_light" : False,
             "ship_size_medium" : True,
             "ship_size_heavy" : False,
+            "faction" : '"blufor"',
             
             "max_health" : 5,
             "health" : 5,
@@ -84,6 +88,7 @@ u_dict = {
             "ship_size_light" : False,
             "ship_size_medium" : True,
             "ship_size_heavy" : False,
+            "faction" : '"blufor"',
             
             "max_health" : 4,
             "health" : 4,
@@ -98,6 +103,7 @@ u_dict = {
             "ship_size_light" : True,
             "ship_size_medium" : False,
             "ship_size_heavy" : False,
+            "faction" : '"blufor"',
             
             "max_health" : 3,
             "health" : 3,
@@ -112,6 +118,7 @@ u_dict = {
             "ship_size_light" : True,  # adjust ship size for armor?
             "ship_size_medium" : False,
             "ship_size_heavy" : False,
+            "faction" : '"blufor"',
             
             "max_health" : 2,
             "health" : 2,
@@ -126,6 +133,7 @@ u_dict = {
             "ship_size_light" : False,
             "ship_size_medium" : True,
             "ship_size_heavy" : False,
+            "faction" : '"blufor"',
             
             "max_health" : 3,
             "health" : 3,
@@ -138,10 +146,11 @@ u_dict = {
  
     "r_cc":
         {
-            "image" : "game.sprite_blufor_CC",
+            "image" : "game.sprite_redfor_CC",
             "ship_size_light" : False,
             "ship_size_medium" : False,
             "ship_size_heavy" : True,
+            "faction" : '"redfor"',
             
             "max_health" : 10,
             "health" : 10,
@@ -152,10 +161,11 @@ u_dict = {
         
     "r_bc":
         {
-            "image" : "game.sprite_blufor_BC",
+            "image" : "game.sprite_redfor_CC",
             "ship_size_light" : False,
             "ship_size_medium" : False,
             "ship_size_heavy" : True,
+            "faction" : '"redfor"',
             
             "max_health" : 8,
             "health" : 8,
@@ -166,10 +176,11 @@ u_dict = {
         
     "r_ac":
         {
-            "image" : "game.sprite_blufor_AC",
+            "image" : "game.sprite_redfor_CC",
             "ship_size_light" : False,
             "ship_size_medium" : False,
             "ship_size_heavy" : True,
+            "faction" : '"redfor"',
             
             "max_health" : 6,
             "health" : 6,
@@ -180,10 +191,11 @@ u_dict = {
         
     "r_dd":
         {
-            "image" : "game.sprite_blufor_DD",
+            "image" : "game.sprite_redfor_CC",
             "ship_size_light" : False,
             "ship_size_medium" : True,
             "ship_size_heavy" : False,
+            "faction" : '"redfor"',
             
             "max_health" : 5,
             "health" : 5,
@@ -194,10 +206,11 @@ u_dict = {
         
     "r_ff":
         {
-            "image" : "game.sprite_blufor_FF",
+            "image" : "game.sprite_redfor_CC",
             "ship_size_light" : False,
             "ship_size_medium" : True,
             "ship_size_heavy" : False,
+            "faction" : '"redfor"',
             
             "max_health" : 4,
             "health" : 4,
@@ -208,10 +221,11 @@ u_dict = {
         
     "r_cv":
         {
-            "image" : "game.sprite_blufor_CC",
+            "image" : "game.sprite_redfor_CC",
             "ship_size_light" : True,
             "ship_size_medium" : False,
             "ship_size_heavy" : False,
+            "faction" : '"redfor"',
             
             "max_health" : 3,
             "health" : 3,
@@ -222,10 +236,11 @@ u_dict = {
         
     "r_gs":
         {
-            "image" : "game.sprite_blufor_GS",
+            "image" : "game.sprite_redfor_CC",
             "ship_size_light" : True,  # adjust ship size for armor?
             "ship_size_medium" : False,
             "ship_size_heavy" : False,
+            "faction" : '"redfor"',
             
             "max_health" : 2,
             "health" : 2,
@@ -236,10 +251,11 @@ u_dict = {
         
     "r_tt":
         {
-            "image" : "game.sprite_blufor_TT",
+            "image" : "game.sprite_redfor_CC",
             "ship_size_light" : False,
             "ship_size_medium" : True,
             "ship_size_heavy" : False,
+            "faction" : '"redfor"',
             
             "max_health" : 3,
             "health" : 3,

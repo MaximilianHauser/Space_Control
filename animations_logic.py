@@ -9,7 +9,6 @@ will contain animation logic
 
 # import section ------------------------------------------------------------ #
 import pygame as pg
-from settings import T_PURPLE
 
 # Animations class contains animation functions ----------------------------- #
 class Animations:

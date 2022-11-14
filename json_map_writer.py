@@ -11,7 +11,7 @@ import json
 # define map ---------------------------------------------------------------- #
 test_map = [
     
-    [[None], [None], ["s", None], ["s", None], ["s", None]],
+    [[None], [None], ["s", "r_cc"], ["s", None], ["s", None]],
     
     [[None], ["s", None], ["s", None], ["b", None], ["s", None]],
     

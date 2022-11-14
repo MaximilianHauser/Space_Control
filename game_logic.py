@@ -117,6 +117,7 @@ class GameLogic:
         round_counter += 1
         for unit in blufor_grp:
             unit.action_points = unit.starting_ap
+            unit.activated = False
     
 
 

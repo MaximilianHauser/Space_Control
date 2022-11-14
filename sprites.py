@@ -266,12 +266,13 @@ class Unit(pg.sprite.Sprite):
         
         self._layer = UNIT_LAYER
         self.game.all_sprites.add(self)
+        
         if u[0] == "r":
             self.game.unit_redfor_grp.add(self)
-            self.faction = "redfor"
+            
         if u[0] == "b":
             self.game.unit_blufor_grp.add(self)
-            self.faction = "blufor"
+            
         
         x, y = hl.hex_to_pixel(q,r,s)
         self.x = x + WIN_WIDTH / 2
@@ -295,6 +296,12 @@ class Unit(pg.sprite.Sprite):
                     if tile.s == self.s:
                         self.x = tile.x
                         self.y = tile.y
+                        
+                        if tile.fog_of_war == True:
+                            if self.faction == "redfor":
+                                self.image.set_alpha(0)
+                        else:
+                            self.image.set_alpha(255)
         
         self.rect.center = (self.x, self.y)
             

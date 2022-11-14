@@ -14,7 +14,6 @@ import sys
 
 # game files ---------------------------------------------------------------- #
 import sprites as sp
-from hexlogic import HexLogic as hl
 import observer as ob
 from map_logic import MapLogic as ml
 from game_logic import GameLogic as gl
@@ -96,7 +95,11 @@ class Game:
             
             if u != None:
                 sp.Unit(self, q, r, s, u)
-          
+        
+        # set win and loss conditions for the map --------------------------- #
+        win_conditions = []
+        loss_conditions = []
+        
         # UI initialization ------------------------------------------------- #        
         end_turn_button = sp.Button(self, "end turn: " + str(self.round_counter), 480, 445, 150, 25, True, "gl.end_turn(self.game.round_counter, self.game.unit_blufor_grp)")
         self.observer.subscribe(pg.MOUSEBUTTONDOWN, end_turn_button)
