@@ -17,6 +17,7 @@ import sprites as sp
 import observer as ob
 from map_logic import MapLogic as ml
 from game_logic import GameLogic as gl
+from animations_logic import Animations as al
 from settings import WIN_WIDTH, WIN_HEIGHT, TILE_WIDTH, TILE_HEIGHT, FPS, FONTSIZE, SCROLL_SPEED, SCROLL_AREA, SCROLL_BUFFER
 
 # game class ---------------------------------------------------------------- #
@@ -127,6 +128,7 @@ class Game:
     def update(self):
         # update ------------------------------------------------------------ #
         self.all_sprites.update()
+        al.set_animation_state(self.tile_grp, [self.unit_blufor_grp, self.unit_redfor_grp])
     
     def draw(self):
         # draw/render ------------------------------------------------------- #

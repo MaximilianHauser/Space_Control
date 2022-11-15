@@ -17,8 +17,11 @@ t_dict = {
             "dmg_to_light" : 0,
             "dmg_to_medium" : 0,
             "dmg_to_heavy" : 0,
+            "perc_to_negate" : 0,
             "block_move" : False,
-            "block_sight" : False
+            "block_sight" : False,
+            "animation_state" : None
+            
             },
     "m":
         {
@@ -26,8 +29,10 @@ t_dict = {
             "dmg_to_light" : 0.25,
             "dmg_to_medium" : 0,
             "dmg_to_heavy" : 0,
+            "perc_to_negate" : 0.25,
             "block_move" : True,
-            "block_sight" : True
+            "block_sight" : True,
+            "animation_state" : None
             
             },
     "a":
@@ -36,8 +41,10 @@ t_dict = {
             "dmg_to_light" : 0,
             "dmg_to_medium" : 0.5,
             "dmg_to_heavy" : 0.05,
+            "perc_to_negate" : 0.5,
             "block_move" : True,
-            "block_sight" : True
+            "block_sight" : True,
+            "animation_state" : None
             
             },
     "b":
@@ -46,8 +53,10 @@ t_dict = {
             "dmg_to_light" : 0,
             "dmg_to_medium" : 0,
             "dmg_to_heavy" : 0,
+            "perc_to_negate" : 1,
             "block_move" : True,
-            "block_sight" : True
+            "block_sight" : True,
+            "animation_state" : None
             
             },
     }

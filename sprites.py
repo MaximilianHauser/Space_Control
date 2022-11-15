@@ -151,28 +151,16 @@ class Tile(pg.sprite.Sprite):
     def update(self):
         
         # attaching unit to tile if occupied -------------------------------- #
-        for unit in self.game.unit_blufor_grp:
-            if unit.q == self.q and unit.r == self.r and unit.s == self.s:
-                self.unit = unit
-            else:
-                self.unit = None
+        self.unit = gl.tile_has_unit(self, [self.game.unit_blufor_grp, self.game.unit_redfor_grp])
            
-        # tints tile in case of activated unit on it ------------------------ #
-        activated_unit = gl.is_activated_unit(self.game.unit_blufor_grp)
-        
-        if self.unit is not None:
-            if self.unit.activated == True:
+        # tints tile depending on animation_state --------------------------- #
+        if self.animation_state != None:
+            if self.animation_state == "activated_unit_on_tile":
                 self.image = an.tint_image(self.original_image, "azure2")
-            else:
-                self.image = self.original_image
-        
-        # tints tile in case of in movement range of an activated unit ------ #
-        elif activated_unit is not None:
-            in_movement_range = gl.in_mov_range(self, self.game.unit_blufor_grp, self.game.tile_grp, "block_move")
-            if in_movement_range:
+            elif self.animation_state == "enemy_unit_in_range":
+                self.image = an.tint_image(self.original_image, "tomato")
+            elif self.animation_state == "in_movement_range":
                 self.image = an.tint_image(self.original_image, "yellow")
-            else:
-                self.image = self.original_image
         else:
             self.image = self.original_image
             
@@ -183,7 +171,6 @@ class Tile(pg.sprite.Sprite):
             self.image = an.tint_image(self.image, "grey")
             
                     
-           
         # updates position -------------------------------------------------- #
         self.rect.center = (self.x, self.y)
     
@@ -214,13 +201,16 @@ class Tile(pg.sprite.Sprite):
             blufor_activated = None
             blufor_on_tile = False
             unit_on_tile = None
+            
+            # wether there is a blufor unit on tile and if its activated ---- #
             for unit in self.game.unit_blufor_grp:
                 if unit.q == self.q and unit.r == self.r and unit.s == self.s:
                     blufor_on_tile = True
                     unit_on_tile = unit
                 if unit.activated == True:
                     blufor_activated = unit
-                    
+            
+            # wether there is a redfor unit on tile ------------------------- #
             redfor_on_tile = False
             for unit in self.game.unit_redfor_grp:
                 if unit.q == self.q and unit.r == self.r and unit.s == self.s:
@@ -244,7 +234,7 @@ class Tile(pg.sprite.Sprite):
                 # no unit on tile ------------------------------------------- #
                 if unit_on_tile is None:
                     if blufor_activated is not None:
-                        in_range = gl.in_mov_range(self, self.game.unit_blufor_grp, self.game.tile_grp, "block_move")
+                        in_range = gl.in_mov_range(self, blufor_activated, self.game.tile_grp, "block_move")
                         if in_range:
                             gl.move_unit(self, blufor_activated)
                 
@@ -273,7 +263,6 @@ class Unit(pg.sprite.Sprite):
         if u[0] == "b":
             self.game.unit_blufor_grp.add(self)
             
-        
         x, y = hl.hex_to_pixel(q,r,s)
         self.x = x + WIN_WIDTH / 2
         self.y = y + WIN_HEIGHT / 2

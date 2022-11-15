@@ -66,17 +66,16 @@ class GameLogic:
     
     # function determines, wether or not tile is within movement range ------ #
     # of an activated blufor unit ------------------------------------------- #
-    def in_mov_range(tile, blufor_grp, tile_grp, block_var):
+    def in_mov_range(tile, unit, tile_grp, block_var):
         in_range = False
         
         # determine variables for dist_lim_flood_fill ----------------------- #
-        start_obj = GameLogic.is_activated_unit(blufor_grp)
-        moves = start_obj.action_points
+        moves = unit.action_points
         obj_lst = tile_grp
         
         # returns list of coords within movement range ---------------------- #
-        visited = hl.dist_lim_flood_fill(start_obj, moves, obj_lst, block_var)
-        visited.remove((start_obj.q, start_obj.r, start_obj.s))
+        visited = hl.dist_lim_flood_fill(unit, moves, obj_lst, block_var)
+        visited.remove((unit.q, unit.r, unit.s))
         
         # check if tile was visited in floodfil ----------------------------- #
         if hl.get_qrs(tile) in visited:
@@ -92,7 +91,38 @@ class GameLogic:
         distance_movement = hl.distance(unit_on_tile, clicked_tile)
         hl.set_qrs(unit_on_tile, clicked_tile.q, clicked_tile.r, clicked_tile.s)
         unit_on_tile.action_points -= distance_movement
+        
+        
+    # handles a unit firing on another unit --------------------------------- #
+    def attack_unit(attacker, target):
+        
+        target.health -= attacker.dmg_per_shot
+        attacker.action_points -= 1
+        
+    # determine if unit_b is in weapon range of unit_a ---------------------- #
+    def in_weapon_range(unit_a, unit_b):
+        ab_dist = hl.distance(unit_a, unit_b)
+        if ab_dist <= unit_a.range:
+            return True
+        else:
+            return False
     
+    # get the total probability of negated damage from trajectory ----------- #
+    def get_cover(attacker, target, tile_grp):
+        trajectory_coords = hl.line_draw(target, attacker)
+        total_perc_to_negate = 0
+        for coords in trajectory_coords:
+            for tile in tile_grp:
+                if tile.q == coords[0]:
+                    if tile.r == coords[1]:
+                        if tile.s == coords[2]:
+                            if tile.perc_to_negate != 0:
+                                if total_perc_to_negate == 0:
+                                    total_perc_to_negate += tile.perc_to_negate
+                                else:
+                                    total_perc_to_negate *= tile.perc_to_negate
+                                    
+        return total_perc_to_negate
 
     # function determines if a tile is covered by fog of war ---------------- #
     def check_fog_of_war(tile, blufor_grp, tile_grp):
