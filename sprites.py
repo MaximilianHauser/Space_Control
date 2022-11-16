@@ -229,7 +229,9 @@ class Tile(pg.sprite.Sprite):
                 
                 # redfor unit on tile --------------------------------------- #
                 if redfor_on_tile:
-                    pass
+                    if blufor_activated is not None:
+                        if gl.in_weapon_range(blufor_activated, self.unit):
+                            gl.attack_unit(blufor_activated, self.unit)
                 
                 # no unit on tile ------------------------------------------- #
                 if unit_on_tile is None:
@@ -291,6 +293,9 @@ class Unit(pg.sprite.Sprite):
                                 self.image.set_alpha(0)
                         else:
                             self.image.set_alpha(255)
+                            
+        if self.health <= 0:
+            self.kill()
         
         self.rect.center = (self.x, self.y)
             
