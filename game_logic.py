@@ -150,7 +150,11 @@ class GameLogic:
             unit.activated = False
     
 
-
-
+    # get total numerical attribute in sprite_group ------------------------- #
+    def get_group_attr_total_num(attr, sprite_group):
+        attr_total = 0
+        for unit in sprite_group:
+            attr_total += getattr(unit, attr)
+        return attr_total
 
 

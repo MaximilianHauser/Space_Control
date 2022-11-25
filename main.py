@@ -102,7 +102,7 @@ class Game:
         loss_conditions = []
         
         # UI initialization ------------------------------------------------- #        
-        end_turn_button = sp.Button(self, "end turn: " + str(self.round_counter), 480, 445, 150, 25, True, "gl.end_turn(self.game.round_counter, self.game.unit_blufor_grp)")
+        end_turn_button = sp.Button(self, f"end turn: {self.round_counter}", 480, 445, 150, 25, True, "gl.end_turn(self.game.round_counter, self.game.unit_blufor_grp)")
         self.observer.subscribe(pg.MOUSEBUTTONDOWN, end_turn_button)
         self.observer.subscribe(pg.MOUSEBUTTONUP, end_turn_button)
         self.observer.subscribe(self.E_IDLE, end_turn_button)

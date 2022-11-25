@@ -5,6 +5,8 @@ The goal is to make a hextile, turn-based strategy game, without base building, 
  1. after reaching basic functionality, test, streamline, etc. then desigante v0.1 and start actual documentation
  2. write up some kind of organigram
  3. clearly define purpose of each file and functional structure within
+ 4. start building a library of predefined classes functions (Button etc.) for easier reuse in the future
+ 5. implement movement cost (modify dist lim flood fill)
  
  
 ## Files:

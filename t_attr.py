@@ -14,6 +14,7 @@ t_dict = {
     "s":
         {
             "original_image" : "game.sprite_space",
+            "movement_cost" : 1,
             "dmg_to_light" : 0,
             "dmg_to_medium" : 0,
             "dmg_to_heavy" : 0,
@@ -26,6 +27,7 @@ t_dict = {
     "m":
         {
             "original_image" : "game.sprite_micro_roids",
+            "movement_cost" : 1,
             "dmg_to_light" : 0.25,
             "dmg_to_medium" : 0,
             "dmg_to_heavy" : 0,
@@ -38,6 +40,7 @@ t_dict = {
     "a":
         {
             "original_image" : "game.sprite_asteroids",
+            "movement_cost" : 2,
             "dmg_to_light" : 0,
             "dmg_to_medium" : 0.5,
             "dmg_to_heavy" : 0.05,
@@ -50,6 +53,7 @@ t_dict = {
     "b":
         {
             "original_image" : "game.sprite_big_roid",
+            "movement_cost" : 0,
             "dmg_to_light" : 0,
             "dmg_to_medium" : 0,
             "dmg_to_heavy" : 0,
