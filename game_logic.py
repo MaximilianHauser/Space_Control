@@ -143,9 +143,9 @@ class GameLogic:
         return fog_of_war
 
     # function handles mechanics related to turn advancement ---------------- #
-    def end_turn(round_counter, blufor_grp):
-        round_counter += 1
-        for unit in blufor_grp:
+    def end_turn(game):
+        game.round_counter += 1
+        for unit in game.unit_blufor_grp:
             unit.action_points = unit.starting_ap
             unit.activated = False
     

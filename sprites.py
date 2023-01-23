@@ -35,11 +35,21 @@ class Spritesheet:
     
 # Button Class -------------------------------------------------------------- #
 class Button(pg.sprite.Sprite):
-    def __init__(self,game, text, x, y, width, height, enabled, function):
+    def __init__(self, game, text_in, x, y, width, height, enabled, function, **kwargs):
         pg.sprite.Sprite.__init__(self)
         self.game = game
         
-        self.text = text
+        self.text_in = text_in
+        
+        self.var_dict = kwargs
+        self.attr_dict = dict()
+        
+        for k, v in kwargs.items():
+            attr_v = getattr(v[0], v[1])
+            setattr(self, k, attr_v)
+            self.attr_dict.update({k:attr_v}) 
+             
+        self.text_out = text_in.format(**self.attr_dict)
         self.x = x
         self.y = y
         self.width = width
@@ -62,8 +72,17 @@ class Button(pg.sprite.Sprite):
         
         self.rect.topleft = (self.x, self.y)
         
-    def update(self):    
-        button_text = self.game.font.render(self.text, True, 'white')
+    def update(self):
+        
+        self.attr_dict = dict()
+        
+        for k, v in self.var_dict.items():
+            attr_v = getattr(v[0], v[1])
+            setattr(self, k, attr_v)
+            self.attr_dict.update({k:attr_v}) 
+        
+        self.text_out = self.text_in.format(**self.attr_dict)
+        button_text = self.game.font.render(self.text_out, True, 'white')
         if self.enabled:
             if self.state == "pressed":
                 pg.draw.rect(self.image, 'darkslategray4', ((0,0), (self.width, self.height)), 0, 5)

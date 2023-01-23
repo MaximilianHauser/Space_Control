@@ -18,6 +18,7 @@ import observer as ob
 from map_logic import MapLogic as ml
 from game_logic import GameLogic as gl
 from animations_logic import Animations as al
+import win_conditions as rbl
 from settings import WIN_WIDTH, WIN_HEIGHT, TILE_WIDTH, TILE_HEIGHT, FPS, FONTSIZE, SCROLL_SPEED, SCROLL_AREA, SCROLL_BUFFER
 
 # game class ---------------------------------------------------------------- #
@@ -65,13 +66,18 @@ class Game:
         self.ui_buttons_grp = pg.sprite.Group()
         
         # game mechanics variables ------------------------------------------ #
-        self.round_counter = 0
+        self.round_counter = 1
         
         # init Observer ----------------------------------------------------- #
         self.observer = ob.Observer()
         
+        # init ResolveBattleLogic ------------------------------------------- #
+        self.resolver = rbl.ResolveBattleLogic(self)
+        
         # define custom_events ---------------------------------------------- #
         self.E_IDLE = pg.event.custom_type() + 0
+        self.E_VICTORY = pg.event.custom_type() + 1
+        self.E_DEFEAT = pg.event.custom_type() + 2
         
         # function subsriptions to Observer --------------------------------- #
         self.observer.subscribe(pg.QUIT, g)
@@ -97,17 +103,27 @@ class Game:
             if u != None:
                 sp.Unit(self, q, r, s, u)
         
-        # set win and loss conditions for the map --------------------------- #
-        win_conditions = []
-        loss_conditions = []
-        
-        # UI initialization ------------------------------------------------- #        
-        end_turn_button = sp.Button(self, f"end turn: {self.round_counter}", 480, 445, 150, 25, True, "gl.end_turn(self.game.round_counter, self.game.unit_blufor_grp)")
+        # UI initialization ------------------------------------------------- #   
+        # End-Turn-Button --------------------------------------------------- #
+        end_turn_button = sp.Button(self, "end turn: {a}", 480, 445, 150, 25, True, "gl.end_turn(self.game)", a = (self, "round_counter"))
         self.observer.subscribe(pg.MOUSEBUTTONDOWN, end_turn_button)
         self.observer.subscribe(pg.MOUSEBUTTONUP, end_turn_button)
         self.observer.subscribe(self.E_IDLE, end_turn_button)
                                 
     def events(self):
+        
+        # post custom_event "victory" or "defeat" after checking conditions - #
+        game_status = self.resolver.update_gamestatus()
+        if game_status == "victory":
+            event_data = dict()
+            pg.event.post(pg.event.Event(self.E_VICTORY, event_data))
+            print("VVVVV")
+        elif game_status == "defeat":
+            print("DDDDD")
+            event_data = dict()
+            pg.event.post(pg.event.Event(self.E_DEFEAT, event_data))
+        else:
+            pass
         
         # post custom_event "IDLE" ------------------------------------------ #
         if not pg.event.peek(pg.MOUSEMOTION):
