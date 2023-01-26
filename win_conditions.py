@@ -40,7 +40,8 @@ class ResolveBattleLogic:
         
         # values wc/lc are based on, on init -------------------------------- #
         # turn number on init ----------------------------------------------- #
-        self.turn_limit = 12
+        self.turn_limit_blufor = 12
+        self.turn_limit_redfor = 999
         
         # total health of units values on init ------------------------------ #
         self.starting_health_blufor = 1
@@ -77,10 +78,11 @@ class ResolveBattleLogic:
         
         # check wc/lc and return game status -------------------------------- #
         if self.wc_roundslimit:
-            pass
+            if self.game.round_counter > self.turn_limit_redfor:
+                return "victory"
         
         if self.lc_roundslimit:
-            if self.game.round_counter > self.turn_limit:
+            if self.game.round_counter > self.turn_limit_blufor:
                 return "defeat"
             
         if self.wc_perc_dest_health:
@@ -88,13 +90,16 @@ class ResolveBattleLogic:
                 return "victory"
         
         if self.lc_perc_dest_health:
-            pass
+            if self.health_blufor / self.starting_health_blufor <= self.blufor_dest_perc:
+                return "victory"
         
         if self.wc_perc_dest_dmgpt:
-            pass
+            if self.dmgpt_redfor / self.starting_dmgpt_redfor <= self.redfor_crip_perc:
+                return "victory"
         
         if self.lc_perc_dest_dmgpt:
-            pass
+            if self.dmgpt_blufor / self.starting_dmgpt_blufor <= self.blufor_crip_perc:
+                return "defeat"
         
         if self.wc_dest_specific:
             pass

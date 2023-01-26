@@ -7,6 +7,7 @@ The goal is to make a hextile, turn-based strategy game, without base building, 
  3. clearly define purpose of each file and functional structure within
  4. start building a library of predefined classes functions (Button etc.) for easier reuse in the future
  5. implement movement cost (modify dist lim flood fill)
+ 6. switch to initiative based unit movement instead of turns
  
  
 ## Files:
@@ -22,6 +23,7 @@ The goal is to make a hextile, turn-based strategy game, without base building, 
  - hexlogic.py
  - map_logic.py
  - animations_logic.py
+ - win_conditions.py
  - skynet.py
 
  - ./img/Coalition.ttf

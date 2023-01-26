@@ -64,6 +64,7 @@ class Game:
         self.unit_blufor_grp = pg.sprite.Group()
         self.unit_redfor_grp = pg.sprite.Group()
         self.ui_buttons_grp = pg.sprite.Group()
+        self.text_crawl_grp = pg.sprite.Group()
         
         # game mechanics variables ------------------------------------------ #
         self.round_counter = 1
@@ -109,6 +110,10 @@ class Game:
         self.observer.subscribe(pg.MOUSEBUTTONDOWN, end_turn_button)
         self.observer.subscribe(pg.MOUSEBUTTONUP, end_turn_button)
         self.observer.subscribe(self.E_IDLE, end_turn_button)
+        
+        # Test_Dialogue ----------------------------------------------------- #
+        test_text = "Hello World!#Hello World!#Hello World!"
+        typewriter_crawl = sp.TypewriterCrawl(self, 100, 50, 300, 400, test_text)
                                 
     def events(self):
         
@@ -145,11 +150,13 @@ class Game:
         # update ------------------------------------------------------------ #
         self.all_sprites.update()
         al.set_animation_state(self.tile_grp, [self.unit_blufor_grp, self.unit_redfor_grp])
+        self.text_crawl_grp.update()
     
     def draw(self):
         # draw/render ------------------------------------------------------- #
         self.screen.fill('black')
         self.all_sprites.draw(self.screen)
+        self.text_crawl_grp.draw(self.screen)
         
         # after drawing / flip display -------------------------------------- #
         pg.display.flip()
@@ -159,6 +166,15 @@ class Game:
             self.events()
             self.update()
             self.draw()
+    
+    def briefing(self):
+        pass
+    
+    def debriefing(self):
+        pass
+    
+    def defeat(self):
+        pass
             
 
     # event management functions -------------------------------------------- #
@@ -167,6 +183,8 @@ class Game:
         # exiting the game via the red x in the top right corner ------------ #
         if event.type == pg.QUIT:
             self.playing = False
+            pg.quit()
+            sys.exit()
             
         # map scrolling ----------------------------------------------------- #
         if event.type == pg.MOUSEMOTION or event.type == self.E_IDLE:
@@ -202,6 +220,4 @@ g = Game()
 g.new_battle()
 g.main_loop()
 
-pg.quit()
-sys.exit()
 

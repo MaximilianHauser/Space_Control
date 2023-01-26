@@ -8,11 +8,12 @@ Will contain sprite objects and logic
 """
 
 # import section ------------------------------------------------------------ #
+import string as string_module
 import pygame as pg
 from hexlogic import HexLogic as hl
 from game_logic import GameLogic as gl
 from animations_logic import Animations as an
-from settings import T_PURPLE, TERRAIN_LAYER, UNIT_LAYER, WIN_WIDTH, WIN_HEIGHT, UI_TRANSPARENCY, FONTSIZE, UI_INTERFACE_LAYER
+from settings import T_PURPLE, TERRAIN_LAYER, UNIT_LAYER, WIN_WIDTH, WIN_HEIGHT, UI_TRANSPARENCY, UI_TRANSPARENCY_PRESSED, FONTSIZE, UI_INTERFACE_LAYER
 
 
 # sprite type specific attributes dicts ------------------------------------- #
@@ -82,17 +83,17 @@ class Button(pg.sprite.Sprite):
             self.attr_dict.update({k:attr_v}) 
         
         self.text_out = self.text_in.format(**self.attr_dict)
-        button_text = self.game.font.render(self.text_out, True, 'white')
+        button_text = self.game.font.render(self.text_out, True, "white")
         if self.enabled:
             if self.state == "pressed":
-                pg.draw.rect(self.image, 'darkslategray4', ((0,0), (self.width, self.height)), 0, 5)
-                pg.draw.rect(self.image, 'darkslategray1', ((0,0), (self.width, self.height)), 2, 5)
+                pg.draw.rect(self.image, "darkslategray4", ((0,0), (self.width, self.height)), 0, 5)
+                pg.draw.rect(self.image, "darkslategray1", ((0,0), (self.width, self.height)), 2, 5)
             else:
-                pg.draw.rect(self.image, 'darkslategray3', ((0,0), (self.width, self.height)), 0, 5)
-                pg.draw.rect(self.image, 'darkslategray1', ((0,0), (self.width, self.height)), 2, 5)
+                pg.draw.rect(self.image, "darkslategray3", ((0,0), (self.width, self.height)), 0, 5)
+                pg.draw.rect(self.image, "darkslategray1", ((0,0), (self.width, self.height)), 2, 5)
         else:
             self.kill()
-        pg.draw.rect(self.image, 'darkslategray1', ((0,0), (self.width, self.height)), 2, 5)
+        pg.draw.rect(self.image, "darkslategray1", ((0,0), (self.width, self.height)), 2, 5)
         self.image.blit(button_text, (10, (self.height - FONTSIZE) * 0.75))
         
         self.mask = pg.mask.from_surface(self.image)
@@ -128,6 +129,84 @@ class Button(pg.sprite.Sprite):
                 touching = self.rect.collidepoint(event.pos) and self.mask.get_at(pos_in_mask)
                 if not touching:
                     self.state = "unpressed"
+
+
+class TypewriterCrawl(pg.sprite.Sprite):
+    def __init__(self, game, x, y, width, height, text_in):
+        pg.sprite.Sprite.__init__(self)
+        self.game = game
+        
+        self.text_in = text_in
+        self.text_splitted = text_in.split("#")
+        self.text_rows = len(self.text_splitted)
+        self.colors = ["white", "darkslategray1"]
+
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        
+        self._layer = UI_INTERFACE_LAYER
+        self.game.text_crawl_grp.add(self)
+        
+        self.abc_lst = list(string_module.ascii_lowercase)
+        
+        self.row_dct =dict()
+        for i in range(self.text_rows):
+            current_color = self.colors[(i + 1)%2]
+            self.row_dct.update({self.abc_lst[i]:
+                                 {"row_y" : FONTSIZE * i,
+                                 "letters_printed" : 0,
+                                 "letters_max" : len(self.text_splitted[i]),
+                                 "row_text" : self.text_splitted[i],
+                                 "row_color" : current_color}
+                                 })
+        
+        self.speed = 1
+        self.cooldown = 0
+        self.finished = False
+        
+        self.double_width = ["w", "W"]
+        
+        self.image = pg.Surface((self.width, FONTSIZE * self.text_rows))
+        self.image.fill("black")
+        self.image.set_colorkey("black")
+        self.image.set_alpha(UI_TRANSPARENCY)
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (self.x, self.y)
+        
+    def update(self):
+        
+        # logic for progressive printing of text ---------------------------- #
+        if self.cooldown <= 0 and not self.finished:
+            for i in range(self.text_rows):
+                
+                row_name = self.abc_lst[i]
+                letters_printed = self.row_dct[row_name]["letters_printed"]
+                letters_max = self.row_dct[row_name]["letters_max"]
+                
+                if letters_printed < letters_max:
+                    
+                    self.row_dct[row_name]["letters_printed"] += 1
+                    self.cooldown += 10
+                    break
+                
+                elif i == self.text_rows - 1:
+                    self.finished = True
+            
+        else:
+            self.cooldown -= self.speed
+        
+        # logic for blitting text to screen --------------------------------- #
+        for i in range(self.text_rows):
+            
+            row_name = self.abc_lst[i]
+            row_color = self.row_dct[row_name]["row_color"]
+            last_letter = self.row_dct[row_name]["letters_printed"]
+            row_text = self.row_dct[row_name]["row_text"][0:last_letter]
+            rendered_txt = self.game.font.render(row_text, True, row_color)
+            self.image.blit(rendered_txt, (0, self.row_dct[row_name]["row_y"]))
+     
 
 
 # Tile class ---------------------------------------------------------------- #
