@@ -112,8 +112,9 @@ class Game:
         self.observer.subscribe(self.E_IDLE, end_turn_button)
         
         # Test_Dialogue ----------------------------------------------------- #
-        test_text = "Hello World!#Hello World!#Hello World!"
-        typewriter_crawl = sp.TypewriterCrawl(self, 100, 50, 300, 400, test_text)
+        test_text = "hello world!#hello world!#hello world!#hello world!#hello world!#hello world!"
+        colors_index = [0,0,1,0,0,0]
+        typewriter_crawl = sp.TypewriterCrawl(self, 100, 50, 300, 60, test_text, colors_index)
                                 
     def events(self):
         

@@ -132,7 +132,7 @@ class Button(pg.sprite.Sprite):
 
 
 class TypewriterCrawl(pg.sprite.Sprite):
-    def __init__(self, game, x, y, width, height, text_in):
+    def __init__(self, game, x, y, width, height, text_in, colors_index, delete_frames = False):
         pg.sprite.Sprite.__init__(self)
         self.game = game
         
@@ -140,6 +140,7 @@ class TypewriterCrawl(pg.sprite.Sprite):
         self.text_splitted = text_in.split("#")
         self.text_rows = len(self.text_splitted)
         self.colors = ["white", "darkslategray1"]
+        self.colors_index = colors_index
 
         self.x = x
         self.y = y
@@ -153,7 +154,7 @@ class TypewriterCrawl(pg.sprite.Sprite):
         
         self.row_dct =dict()
         for i in range(self.text_rows):
-            current_color = self.colors[(i + 1)%2]
+            current_color = self.colors[self.colors_index[i]]
             self.row_dct.update({self.abc_lst[i]:
                                  {"row_y" : FONTSIZE * i,
                                  "letters_printed" : 0,
@@ -162,13 +163,15 @@ class TypewriterCrawl(pg.sprite.Sprite):
                                  "row_color" : current_color}
                                  })
         
-        self.speed = 1
+        self.speed = 0.5
         self.cooldown = 0
         self.finished = False
+        self.last_printed_row = 0
+        self.delete_frames = delete_frames
         
         self.double_width = ["w", "W"]
         
-        self.image = pg.Surface((self.width, FONTSIZE * self.text_rows))
+        self.image = pg.Surface((self.width, self.height))
         self.image.fill("black")
         self.image.set_colorkey("black")
         self.image.set_alpha(UI_TRANSPARENCY)
@@ -176,6 +179,21 @@ class TypewriterCrawl(pg.sprite.Sprite):
         self.rect.topleft = (self.x, self.y)
         
     def update(self):
+        
+        # logic for having text slowly crawl up, if it gets close to bottom - #
+        for i in range(self.text_rows):
+            row_name = self.abc_lst[i]
+            letters_printed = self.row_dct[row_name]["letters_printed"]
+            if letters_printed != 0:
+                self.last_printed_row = i
+            else:
+                break
+        
+        lowest_y_printed = self.row_dct[self.abc_lst[self.last_printed_row]]["row_y"]
+        if lowest_y_printed > self.height - 2 * FONTSIZE:
+            for i in range(self.text_rows):
+                row_name = self.abc_lst[i]
+                self.row_dct[row_name]["row_y"] -= self.speed / 10
         
         # logic for progressive printing of text ---------------------------- #
         if self.cooldown <= 0 and not self.finished:
@@ -198,6 +216,8 @@ class TypewriterCrawl(pg.sprite.Sprite):
             self.cooldown -= self.speed
         
         # logic for blitting text to screen --------------------------------- #
+        self.image.fill("black")
+        
         for i in range(self.text_rows):
             
             row_name = self.abc_lst[i]
