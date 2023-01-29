@@ -100,7 +100,7 @@ class Button(pg.sprite.Sprite):
         
         self.game.screen.blit(self.image, (self.x, self.y))
         
-    # checks if click is touching tile and click cooldown ------------------- #
+    # checks if click is touching tile -------------------------------------- #
     def msbtn_down(self, pos, button):
 
         pos_in_mask = pos[0] - self.rect.x, pos[1] - self.rect.y
@@ -132,13 +132,15 @@ class Button(pg.sprite.Sprite):
 
 
 class TypewriterCrawl(pg.sprite.Sprite):
-    def __init__(self, game, x, y, width, height, text_in, colors_index, delete_frames = False):
+    def __init__(self, game, x, y, width, height, text_in, colors_index, delete_frames = None):
         pg.sprite.Sprite.__init__(self)
         self.game = game
         
         self.text_in = text_in
         self.text_splitted = text_in.split("#")
         self.text_rows = len(self.text_splitted)
+        self.height_rows_total = self.text_rows * FONTSIZE
+        self.height_ratio = round(height / self.height_rows_total, 3)
         self.colors = ["white", "darkslategray1"]
         self.colors_index = colors_index
 
@@ -146,6 +148,19 @@ class TypewriterCrawl(pg.sprite.Sprite):
         self.y = y
         self.width = width
         self.height = height
+        
+        if self.height_ratio >= 1:
+            self.scrollbar_height = self.height
+        else:
+            self.scrollbar_height = self.height_ratio * self.height
+        
+        self.sb_d = self.height - self.scrollbar_height
+        self.t_d = self.height_rows_total - self.height
+        
+        if self.sb_d != 0:
+            self.relative_y_traverse = self.t_d / self.sb_d
+        else:
+            self.relative_y_traverse = 0
         
         self._layer = UI_INTERFACE_LAYER
         self.game.text_crawl_grp.add(self)
@@ -163,14 +178,19 @@ class TypewriterCrawl(pg.sprite.Sprite):
                                  "row_color" : current_color}
                                  })
         
-        self.speed = 0.5
+        self.speed = 1
         self.cooldown = 0
         self.finished = False
         self.last_printed_row = 0
         self.delete_frames = delete_frames
+        self.state = "unpressed"
+        self.scrollbar_mask = None
+        
+        self.scrollbar_y = self.height - self.scrollbar_height
         
         self.double_width = ["w", "W"]
         
+        # surface for text -------------------------------------------------- #
         self.image = pg.Surface((self.width, self.height))
         self.image.fill("black")
         self.image.set_colorkey("black")
@@ -178,46 +198,70 @@ class TypewriterCrawl(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
         
+        
     def update(self):
         
-        # logic for having text slowly crawl up, if it gets close to bottom - #
-        for i in range(self.text_rows):
-            row_name = self.abc_lst[i]
-            letters_printed = self.row_dct[row_name]["letters_printed"]
-            if letters_printed != 0:
-                self.last_printed_row = i
-            else:
-                break
-        
-        lowest_y_printed = self.row_dct[self.abc_lst[self.last_printed_row]]["row_y"]
-        if lowest_y_printed > self.height - 2 * FONTSIZE:
+        if not self.finished:
+            # logic for having text slowly crawl up ------------------------- #
             for i in range(self.text_rows):
-                row_name = self.abc_lst[i]
-                self.row_dct[row_name]["row_y"] -= self.speed / 10
-        
-        # logic for progressive printing of text ---------------------------- #
-        if self.cooldown <= 0 and not self.finished:
-            for i in range(self.text_rows):
-                
                 row_name = self.abc_lst[i]
                 letters_printed = self.row_dct[row_name]["letters_printed"]
-                letters_max = self.row_dct[row_name]["letters_max"]
-                
-                if letters_printed < letters_max:
-                    
-                    self.row_dct[row_name]["letters_printed"] += 1
-                    self.cooldown += 10
+                if letters_printed != 0:
+                    self.last_printed_row = i
+                else:
                     break
-                
-                elif i == self.text_rows - 1:
-                    self.finished = True
-            
-        else:
-            self.cooldown -= self.speed
         
-        # logic for blitting text to screen --------------------------------- #
+            lowest_y_printed = self.row_dct[self.abc_lst[self.last_printed_row]]["row_y"]
+            if lowest_y_printed > self.height - 2 * FONTSIZE:
+                for i in range(self.text_rows):
+                    row_name = self.abc_lst[i]
+                    self.row_dct[row_name]["row_y"] -= self.speed / 10
+        
+            # logic for progressive printing of text ------------------------ #
+            if self.cooldown <= 0 and not self.finished:
+                for i in range(self.text_rows):
+                
+                    row_name = self.abc_lst[i]
+                    letters_printed = self.row_dct[row_name]["letters_printed"]
+                    letters_max = self.row_dct[row_name]["letters_max"]
+                
+                    if letters_printed < letters_max:
+                    
+                        self.row_dct[row_name]["letters_printed"] += 1
+                        self.cooldown += 10
+                        break
+                
+                    elif i == self.text_rows - 1:
+                        self.finished = True
+            
+            else:
+                self.cooldown -= self.speed
+        
+        # delete after set time in self.speed frames ------------------------ #
+        elif self.delete_frames != None:
+            if self.delete_frames >= 0:
+                self.delete_frames -= self.speed
+            else:
+                self.kill()
+        
+                
+        # paint over previous image before blitting new image --------------- #
         self.image.fill("black")
         
+        # provide scrollbar to reread hidden text if permanent -------------- #
+        if self.delete_frames == None and self.finished:
+                
+            if self.state == "unpressed":
+                pg.draw.rect(self.image, "darkslategray3", ((self.width - 10, self.scrollbar_y), (10, self.scrollbar_height)), 0, 5)
+                pg.draw.rect(self.image, "darkslategray1", ((self.width - 10, self.scrollbar_y), (10, self.scrollbar_height)), 2, 5)
+            if self.state == "pressed":
+                pg.draw.rect(self.image, "darkslategray4", ((self.width - 10, self.scrollbar_y), (10, self.scrollbar_height)), 0, 5)
+                pg.draw.rect(self.image, "darkslategray1", ((self.width - 10, self.scrollbar_y), (10, self.scrollbar_height)), 2, 5)
+                    
+            self.scrollbar_mask = pg.mask.from_surface(self.image)
+                
+            
+        # logic for blitting text to screen --------------------------------- #
         for i in range(self.text_rows):
             
             row_name = self.abc_lst[i]
@@ -227,6 +271,69 @@ class TypewriterCrawl(pg.sprite.Sprite):
             rendered_txt = self.game.font.render(row_text, True, row_color)
             self.image.blit(rendered_txt, (0, self.row_dct[row_name]["row_y"]))
      
+        
+    def msbtn_down(self, pos, button):
+
+        pos_in_mask = pos[0] - self.rect.x, pos[1] - self.rect.y
+        touching = self.rect.collidepoint(pos) and self.scrollbar_mask.get_at(pos_in_mask)
+
+        if touching:
+
+            return True
+        return False
+
+    def handle_events(self, event):
+        # handle events related to mouse clicks on tile --------------------- #
+        if self.state == "unpressed":
+            if event.type == pg.MOUSEBUTTONDOWN:
+                self.state = "pressed"
+                
+        if self.state == "pressed":
+            if event.type == pg.MOUSEBUTTONUP:
+                self.state = "unpressed"
+                
+            elif event.type == self.game.E_IDLE:
+                pos_in_mask = event.pos[0] - self.rect.x, event.pos[1] - self.rect.y
+                touching = self.rect.collidepoint(event.pos) and self.scrollbar_mask.get_at(pos_in_mask)
+                if not touching:
+                    self.state = "unpressed"        
+                
+            elif event.type == pg.MOUSEMOTION:
+                (rel_x, rel_y) = event.rel
+                
+                # y_mousemovement is up or none ----------------------------- #
+                if rel_y <= 0:
+                    # scrollbar is not in its topmost position -------------- #
+                    if self.scrollbar_y > 0:
+                        
+                        self.scrollbar_y += rel_y
+                        for i in range(self.text_rows):
+                            row_name = self.abc_lst[i]
+                            self.row_dct[row_name]["row_y"] -= rel_y * self.relative_y_traverse
+                     
+                    # scrollbar is in its topmost position or past it ------- #
+                    else:
+                        self.scrollbar_y = 0
+                        for i in range(self.text_rows):
+                            row_name = self.abc_lst[i]
+                            self.row_dct[row_name]["row_y"] = FONTSIZE * i
+                            
+                # y_mousemovement is downwards ------------------------------ #        
+                else:
+                    # scrollbar is not in its downwardmost position --------- #
+                    if self.scrollbar_y < self.height - self.scrollbar_height:
+                        self.scrollbar_y += rel_y
+                        for i in range(self.text_rows):
+                            row_name = self.abc_lst[i]
+                            self.row_dct[row_name]["row_y"] -= rel_y * self.relative_y_traverse
+                    
+                    # scrollbar is in its downwardmost position ------------- #
+                    else:
+                        self.scrollbar_y = self.height - self.scrollbar_height
+                        for i in range(self.text_rows):
+                            row_name = self.abc_lst[i]
+                            self.row_dct[row_name]["row_y"] = (self.height - self.height_rows_total) + (FONTSIZE * i)
+                        
 
 
 # Tile class ---------------------------------------------------------------- #

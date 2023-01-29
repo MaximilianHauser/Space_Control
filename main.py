@@ -114,7 +114,11 @@ class Game:
         # Test_Dialogue ----------------------------------------------------- #
         test_text = "hello world!#hello world!#hello world!#hello world!#hello world!#hello world!"
         colors_index = [0,0,1,0,0,0]
-        typewriter_crawl = sp.TypewriterCrawl(self, 100, 50, 300, 60, test_text, colors_index)
+        typewriter_crawl = sp.TypewriterCrawl(self, 100, 50, 300, 60, test_text, colors_index, delete_frames = None)
+        self.observer.subscribe(pg.MOUSEBUTTONDOWN, typewriter_crawl)
+        self.observer.subscribe(pg.MOUSEBUTTONUP, typewriter_crawl)
+        self.observer.subscribe(pg.MOUSEMOTION, typewriter_crawl)
+        self.observer.subscribe(self.E_IDLE, typewriter_crawl)
                                 
     def events(self):
         
