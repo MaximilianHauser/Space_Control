@@ -19,6 +19,7 @@ from map_logic import MapLogic as ml
 from game_logic import GameLogic as gl
 from animations_logic import Animations as al
 import win_conditions as rbl
+import initiative_queque as iq
 from settings import WIN_WIDTH, WIN_HEIGHT, TILE_WIDTH, TILE_HEIGHT, FPS, FONTSIZE, SCROLL_SPEED, SCROLL_AREA, SCROLL_BUFFER
 
 # game class ---------------------------------------------------------------- #
@@ -104,12 +105,16 @@ class Game:
             if u != None:
                 sp.Unit(self, q, r, s, u)
         
+        # initialize initiative_queque -------------------------------------- #
+        self.initiative_queque = iq.InitiativeQueque(self)
+        self.initiative_queque.set_unit_attr(activated = True)
+        
         # UI initialization ------------------------------------------------- #   
         # End-Turn-Button --------------------------------------------------- #
-        end_turn_button = sp.Button(self, "end turn: {a}", 480, 445, 150, 25, True, "gl.end_turn(self.game)", a = (self, "round_counter"))
-        self.observer.subscribe(pg.MOUSEBUTTONDOWN, end_turn_button)
-        self.observer.subscribe(pg.MOUSEBUTTONUP, end_turn_button)
-        self.observer.subscribe(self.E_IDLE, end_turn_button)
+        skip_turn_button = sp.Button(self, "skip turn {a}", 480, 445, 150, 25, True, "gl.skip_turn(self.game)", a = (self, "round_counter"))
+        self.observer.subscribe(pg.MOUSEBUTTONDOWN, skip_turn_button)
+        self.observer.subscribe(pg.MOUSEBUTTONUP, skip_turn_button)
+        self.observer.subscribe(self.E_IDLE, skip_turn_button)
         
         # Test_Dialogue ----------------------------------------------------- #
         test_text = "hello world!#hello world!#hello world!#hello world!#hello world!#hello world!"
@@ -153,6 +158,7 @@ class Game:
     
     def update(self):
         # update ------------------------------------------------------------ #
+        self.initiative_queque.check_unit_ap()
         self.all_sprites.update()
         al.set_animation_state(self.tile_grp, [self.unit_blufor_grp, self.unit_redfor_grp])
         self.text_crawl_grp.update()
@@ -181,6 +187,8 @@ class Game:
     def defeat(self):
         pass
             
+    def change_instance(self):
+        pass
 
     # event management functions -------------------------------------------- #
     def handle_events(self, event):

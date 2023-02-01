@@ -8,6 +8,7 @@ Will contain sprite objects and logic
 """
 
 # import section ------------------------------------------------------------ #
+import itertools
 import string as string_module
 import pygame as pg
 from hexlogic import HexLogic as hl
@@ -447,10 +448,7 @@ class Tile(pg.sprite.Sprite):
                 
                 # blufor unit on tile --------------------------------------- #
                 if blufor_on_tile:
-                    for unit in self.game.unit_blufor_grp:
-                        if unit is not unit_on_tile:
-                            unit.activated = False
-                    unit_on_tile.activated = not unit_on_tile.activated                  
+                    pass           
                 
                 # redfor unit on tile --------------------------------------- #
                 if redfor_on_tile:
@@ -462,7 +460,8 @@ class Tile(pg.sprite.Sprite):
                 if unit_on_tile is None:
                     if blufor_activated is not None:
                         in_range = gl.in_mov_range(self, blufor_activated, self.game.tile_grp, "block_move")
-                        if in_range:
+                        neighbor = (self.q, self.r, self.s) in hl.neighbors(blufor_activated.q, blufor_activated.r, blufor_activated.s)
+                        if in_range and neighbor:
                             gl.move_unit(self, blufor_activated)
                 
             if event.button == 3:
@@ -473,9 +472,11 @@ class Tile(pg.sprite.Sprite):
 # Unit class ---------------------------------------------------------------- #
 # qrs: coordinates, u: unit_type, f: faction -------------------------------- #
 class Unit(pg.sprite.Sprite):
+    newid = itertools.count(0,1)
     def __init__(self, game, q, r, s, u):
         pg.sprite.Sprite.__init__(self)
         self.game = game
+        self.id = next(self.newid)
         
         self.q = q
         self.r = r

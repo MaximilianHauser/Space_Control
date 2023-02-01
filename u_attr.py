@@ -32,6 +32,7 @@ u_dict = {
             
             "max_health" : 10,
             "health" : 10,
+            "initiative" : 20,
             "dmg_per_shot" : 6,
             "range" : 2,
             "starting_ap" : 3,
@@ -48,6 +49,7 @@ u_dict = {
             
             "max_health" : 8,
             "health" : 8,
+            "initiative" : 10,
             "dmg_per_shot" : 6,
             "range" : 2,
             "starting_ap" : 1,
@@ -64,6 +66,7 @@ u_dict = {
             
             "max_health" : 6,
             "health" : 6,
+            "initiative" : 10,
             "dmg_per_shot" : 1,
             "range" : 2,
             "starting_ap" : 1,
@@ -80,6 +83,7 @@ u_dict = {
             
             "max_health" : 5,
             "health" : 5,
+            "initiative" : 10,
             "dmg_per_shot" : 3,
             "range" : 2,
             "starting_ap" : 1,
@@ -96,6 +100,7 @@ u_dict = {
             
             "max_health" : 4,
             "health" : 4,
+            "initiative" : 10,
             "dmg_per_shot" : 2,
             "range" : 2,
             "starting_ap" : 1,
@@ -112,6 +117,7 @@ u_dict = {
             
             "max_health" : 3,
             "health" : 3,
+            "initiative" : 10,
             "dmg_per_shot" : 2,
             "range" : 2,
             "starting_ap" : 1,
@@ -128,6 +134,7 @@ u_dict = {
             
             "max_health" : 2,
             "health" : 2,
+            "initiative" : 10,
             "dmg_per_shot" : 3,
             "range" : 2,
             "starting_ap" : 1,
@@ -144,6 +151,7 @@ u_dict = {
             
             "max_health" : 3,
             "health" : 3,
+            "initiative" : 10,
             "dmg_per_shot" : 0,
             "range" : 2,
             "starting_ap" : 1,
@@ -162,10 +170,11 @@ u_dict = {
             
             "max_health" : 10,
             "health" : 10,
+            "initiative" : 4,
             "dmg_per_shot" : 6,
             "range" : 2,
-            "starting_ap" : 1,
-            "action_points" : 1,
+            "starting_ap" : 2,
+            "action_points" : 2,
             },
         
     "r_bc":
@@ -178,6 +187,7 @@ u_dict = {
             
             "max_health" : 8,
             "health" : 8,
+            "initiative" : 10,
             "dmg_per_shot" : 6,
             "range" : 2,
             "starting_ap" : 1,
@@ -194,6 +204,7 @@ u_dict = {
             
             "max_health" : 6,
             "health" : 6,
+            "initiative" : 10,
             "dmg_per_shot" : 1,
             "range" : 2,
             "starting_ap" : 1,
@@ -210,6 +221,7 @@ u_dict = {
             
             "max_health" : 5,
             "health" : 5,
+            "initiative" : 10,
             "dmg_per_shot" : 3,
             "range" : 2,
             "starting_ap" : 1,
@@ -226,6 +238,7 @@ u_dict = {
             
             "max_health" : 4,
             "health" : 4,
+            "initiative" : 10,
             "dmg_per_shot" : 2,
             "range" : 2,
             "starting_ap" : 1,
@@ -242,6 +255,7 @@ u_dict = {
             
             "max_health" : 3,
             "health" : 3,
+            "initiative" : 10,
             "dmg_per_shot" : 2,
             "range" : 2,
             "starting_ap" : 1,
@@ -258,6 +272,7 @@ u_dict = {
             
             "max_health" : 2,
             "health" : 2,
+            "initiative" : 10,
             "dmg_per_shot" : 3,
             "range" : 2,
             "starting_ap" : 1,
@@ -274,6 +289,7 @@ u_dict = {
             
             "max_health" : 3,
             "health" : 3,
+            "initiative" : 10,
             "dmg_per_shot" : 0,
             "range" : 2,
             "starting_ap" : 1,

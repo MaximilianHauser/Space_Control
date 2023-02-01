@@ -143,11 +143,10 @@ class GameLogic:
         return fog_of_war
 
     # function handles mechanics related to turn advancement ---------------- #
-    def end_turn(game):
-        game.round_counter += 1
+    def skip_turn(game):
         for unit in game.unit_blufor_grp:
-            unit.action_points = unit.starting_ap
-            unit.activated = False
+            if unit.activated == True:
+                unit.action_points = 0
     
 
     # get total numerical attribute in sprite_group ------------------------- #

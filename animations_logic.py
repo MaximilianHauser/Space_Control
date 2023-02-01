@@ -38,7 +38,7 @@ class Animations:
                 if unit.activated == True:
                     activated_unit = unit
         
-        if activated_unit is not None:
+        if activated_unit is not None and activated_unit.faction == "blufor":
             
         # limit potentially affected tiles ---------------------------------- #        
             for tile in tile_grp:
