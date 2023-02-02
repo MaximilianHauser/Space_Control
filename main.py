@@ -20,6 +20,7 @@ from game_logic import GameLogic as gl
 from animations_logic import Animations as al
 import win_conditions as rbl
 import initiative_queque as iq
+import skynet as sn
 from settings import WIN_WIDTH, WIN_HEIGHT, TILE_WIDTH, TILE_HEIGHT, FPS, FONTSIZE, SCROLL_SPEED, SCROLL_AREA, SCROLL_BUFFER
 
 # game class ---------------------------------------------------------------- #
@@ -109,6 +110,9 @@ class Game:
         self.initiative_queque = iq.InitiativeQueque(self)
         self.initiative_queque.set_unit_attr(activated = True)
         
+        # initialize AI ----------------------------------------------------- #
+        self.skynet = sn.Skynet(self)
+        
         # UI initialization ------------------------------------------------- #   
         # End-Turn-Button --------------------------------------------------- #
         skip_turn_button = sp.Button(self, "skip turn {a}", 480, 445, 150, 25, True, "gl.skip_turn(self.game)", a = (self, "round_counter"))
@@ -124,6 +128,7 @@ class Game:
         self.observer.subscribe(pg.MOUSEBUTTONUP, typewriter_crawl)
         self.observer.subscribe(pg.MOUSEMOTION, typewriter_crawl)
         self.observer.subscribe(self.E_IDLE, typewriter_crawl)
+        
                                 
     def events(self):
         
@@ -159,6 +164,7 @@ class Game:
     def update(self):
         # update ------------------------------------------------------------ #
         self.initiative_queque.check_unit_ap()
+        self.skynet.get_situation()
         self.all_sprites.update()
         al.set_animation_state(self.tile_grp, [self.unit_blufor_grp, self.unit_redfor_grp])
         self.text_crawl_grp.update()
