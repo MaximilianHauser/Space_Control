@@ -7,6 +7,9 @@ Created on Sat Oct 22 18:30:36 2022
 
 # import section ------------------------------------------------------------ #
 import json
+import numpy as np
+import pandas as pd
+from hexlogic import HexLogic as hl
 
 
 # MapLogic class ------------------------------------------------------------ #
@@ -45,6 +48,36 @@ class MapLogic:
     
         return map_setup_lst
 
-    
+    def create_graph_matrix(tile_grp):
+        
+        # individual tile coords for column/index names --------------------- #
+        idx = list()
+        
+        for tile in tile_grp:
+            idx.append((tile.q, tile.r, tile.s))
+        
+        # creating a set with all connections ------------------------------- #
+        edges = set()
+        
+        for tile in tile_grp:
+            tile_qrs = (tile.q, tile.r, tile.s)
+            t_nbors_lst = hl.neighbors(tile_qrs[0], tile_qrs[1], tile_qrs[2])
+            for nbor in t_nbors_lst:
+                nbor_qrs = (nbor[0], nbor[1], nbor[2])
+                for t in tile_grp:
+                    if t.q == nbor[0] and t.r == nbor[1] and t.s == nbor[2]:
+                        edges.add((tile_qrs, nbor_qrs))
+
+        map_matrix = np.identity(len(idx))
+        
+        matrix_df = pd.DataFrame(map_matrix, index=idx, columns=idx)
+        
+        for edge in edges:
+            matrix_df[edge[0]][edge[1]] = 1
+            matrix_df[edge[1]][edge[0]] = 1
+        
+        matrix_df = matrix_df.astype("int64")
+        
+        return matrix_df
 
 

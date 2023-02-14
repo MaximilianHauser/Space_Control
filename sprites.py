@@ -363,9 +363,10 @@ class Tile(pg.sprite.Sprite):
                 setattr(self, k, eval(v))
             else:
                 setattr(self, k, v)
-        
+                
+        self.mask_image = self.game.sprite_tile_mask
         self.image = self.original_image
-        self.mask = pg.mask.from_surface(self.image)
+        self.mask = pg.mask.from_surface(self.mask_image)
         self.rect = self.mask.get_rect()
         self.rect.center = (self.x, self.y)
         

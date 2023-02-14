@@ -40,6 +40,9 @@ class Game:
         # fonts ------------------------------------------------------------- #
         self.font = pg.font.Font('img/coalition.ttf', FONTSIZE)
         
+        # background images ------------------------------------------------- #
+        self.background_battle = pg.image.load('./img/background_battle.png')
+        
         # spritesheets ------------------------------------------------------ #
         self.terrain_sheet = sp.Spritesheet('img/hex_terrain_sheet.png')
         self.blufor_sheet = sp.Spritesheet('img/hex_blufor_sheet.png')
@@ -50,6 +53,7 @@ class Game:
         self.sprite_asteroids = self.terrain_sheet.get_sprite(65, 0, TILE_WIDTH, TILE_HEIGHT)
         self.sprite_big_roid = self.terrain_sheet.get_sprite(130, 0, TILE_WIDTH, TILE_HEIGHT)
         self.sprite_micro_roids = self.terrain_sheet.get_sprite(195, 0, TILE_WIDTH, TILE_HEIGHT)
+        self.sprite_tile_mask = self.terrain_sheet.get_sprite(260, 0, TILE_WIDTH, TILE_HEIGHT)
         
         # unit sprites ------------------------------------------------------ #
         # BLUFOR ------------------------------------------------------------ #
@@ -105,6 +109,9 @@ class Game:
             
             if u != None:
                 sp.Unit(self, q, r, s, u)
+        
+        out = ml.create_graph_matrix(self.tile_grp)
+        print(out)
         
         # initialize initiative_queque -------------------------------------- #
         self.initiative_queque = iq.InitiativeQueque(self)
@@ -171,7 +178,7 @@ class Game:
     
     def draw(self):
         # draw/render ------------------------------------------------------- #
-        self.screen.fill('black')
+        self.screen.blit(self.background_battle, (0, 0))
         self.all_sprites.draw(self.screen)
         self.text_crawl_grp.draw(self.screen)
         
