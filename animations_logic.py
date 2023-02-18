@@ -30,7 +30,7 @@ class Animations:
         return tinted_image
     
     # set animation_state for tiles ----------------------------------------- #
-    def set_animation_state(tile_grp, unit_sprite_groups_lst):
+    def set_animation_state_tiles(tile_grp, unit_sprite_groups_lst):
         
         activated_unit = None
         for units_grp in unit_sprite_groups_lst:

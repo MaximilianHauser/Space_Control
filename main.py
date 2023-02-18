@@ -38,7 +38,8 @@ class Game:
         self.clock = pg.time.Clock()
         
         # fonts ------------------------------------------------------------- #
-        self.font = pg.font.Font('img/coalition.ttf', FONTSIZE)
+        self.font1 = pg.font.Font('img/coalition.ttf', FONTSIZE)
+        self.font2 = pg.font.Font('img/berlinsmallcaps.ttf', FONTSIZE)
         
         # background images ------------------------------------------------- #
         self.background_battle = pg.image.load('./img/background_battle.png')
@@ -69,6 +70,7 @@ class Game:
         self.tile_grp = pg.sprite.Group()
         self.unit_blufor_grp = pg.sprite.Group()
         self.unit_redfor_grp = pg.sprite.Group()
+        self.ui_mapinfo_grp = pg.sprite.Group()
         self.ui_buttons_grp = pg.sprite.Group()
         self.text_crawl_grp = pg.sprite.Group()
         
@@ -110,9 +112,6 @@ class Game:
             if u != None:
                 sp.Unit(self, q, r, s, u)
         
-        out = ml.create_graph_matrix(self.tile_grp)
-        print(out)
-        
         # initialize initiative_queque -------------------------------------- #
         self.initiative_queque = iq.InitiativeQueque(self)
         self.initiative_queque.set_unit_attr(activated = True)
@@ -126,16 +125,9 @@ class Game:
         self.observer.subscribe(pg.MOUSEBUTTONDOWN, skip_turn_button)
         self.observer.subscribe(pg.MOUSEBUTTONUP, skip_turn_button)
         self.observer.subscribe(self.E_IDLE, skip_turn_button)
-        
-        # Test_Dialogue ----------------------------------------------------- #
-        test_text = "hello world!#hello world!#hello world!#hello world!#hello world!#hello world!"
-        colors_index = [0,0,1,0,0,0]
-        typewriter_crawl = sp.TypewriterCrawl(self, 100, 50, 300, 60, test_text, colors_index, delete_frames = None)
-        self.observer.subscribe(pg.MOUSEBUTTONDOWN, typewriter_crawl)
-        self.observer.subscribe(pg.MOUSEBUTTONUP, typewriter_crawl)
-        self.observer.subscribe(pg.MOUSEMOTION, typewriter_crawl)
-        self.observer.subscribe(self.E_IDLE, typewriter_crawl)
-        
+
+        # dropdownmenu_test ------------------------------------------------- #
+        dropdownmenu = sp.DropDownMenu(self, 50, 50, 100, option_1=1, option_2=2, option_3=3)
                                 
     def events(self):
         
@@ -173,7 +165,7 @@ class Game:
         self.initiative_queque.check_unit_ap()
         self.skynet.get_situation()
         self.all_sprites.update()
-        al.set_animation_state(self.tile_grp, [self.unit_blufor_grp, self.unit_redfor_grp])
+        al.set_animation_state_tiles(self.tile_grp, [self.unit_blufor_grp, self.unit_redfor_grp])
         self.text_crawl_grp.update()
     
     def draw(self):

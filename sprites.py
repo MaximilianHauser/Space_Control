@@ -14,7 +14,7 @@ import pygame as pg
 from hexlogic import HexLogic as hl
 from game_logic import GameLogic as gl
 from animations_logic import Animations as an
-from settings import T_PURPLE, TERRAIN_LAYER, UNIT_LAYER, WIN_WIDTH, WIN_HEIGHT, UI_TRANSPARENCY, UI_TRANSPARENCY_PRESSED, FONTSIZE, UI_INTERFACE_LAYER
+from settings import T_PURPLE, TERRAIN_LAYER, UNIT_LAYER, UI_INTERFACE_LAYER, UI_MAPINFO_LAYER, WIN_WIDTH, WIN_HEIGHT, UI_TRANSPARENCY, FONTSIZE
 
 
 # sprite type specific attributes dicts ------------------------------------- #
@@ -84,7 +84,7 @@ class Button(pg.sprite.Sprite):
             self.attr_dict.update({k:attr_v}) 
         
         self.text_out = self.text_in.format(**self.attr_dict)
-        button_text = self.game.font.render(self.text_out, True, "white")
+        button_text = self.game.font1.render(self.text_out, True, "white")
         if self.enabled:
             if self.state == "pressed":
                 pg.draw.rect(self.image, "darkslategray4", ((0,0), (self.width, self.height)), 0, 5)
@@ -130,6 +130,17 @@ class Button(pg.sprite.Sprite):
                 touching = self.rect.collidepoint(event.pos) and self.mask.get_at(pos_in_mask)
                 if not touching:
                     self.state = "unpressed"
+
+
+# TypewriterCrawl class ----------------------------------------------------- #
+# example for typewritercrawl class ----------------------------------------- #
+        #test_text = "hello world!#hello world!#hello world!#hello world!#hello world!#hello world!"
+        #colors_index = [0,0,1,0,0,0]
+        #typewriter_crawl = sp.TypewriterCrawl(self, 100, 50, 300, 60, test_text, colors_index, delete_frames = None)
+        #self.observer.subscribe(pg.MOUSEBUTTONDOWN, typewriter_crawl)
+        #self.observer.subscribe(pg.MOUSEBUTTONUP, typewriter_crawl)
+        #self.observer.subscribe(pg.MOUSEMOTION, typewriter_crawl)
+        #self.observer.subscribe(self.E_IDLE, typewriter_crawl)
 
 
 class TypewriterCrawl(pg.sprite.Sprite):
@@ -269,7 +280,7 @@ class TypewriterCrawl(pg.sprite.Sprite):
             row_color = self.row_dct[row_name]["row_color"]
             last_letter = self.row_dct[row_name]["letters_printed"]
             row_text = self.row_dct[row_name]["row_text"][0:last_letter]
-            rendered_txt = self.game.font.render(row_text, True, row_color)
+            rendered_txt = self.game.font2.render(row_text, True, row_color)
             self.image.blit(rendered_txt, (0, self.row_dct[row_name]["row_y"]))
      
         
@@ -335,6 +346,66 @@ class TypewriterCrawl(pg.sprite.Sprite):
                             row_name = self.abc_lst[i]
                             self.row_dct[row_name]["row_y"] = (self.height - self.height_rows_total) + (FONTSIZE * i)
                         
+
+# DropdownMenu class -------------------------------------------------------- #
+class DropDownMenu(pg.sprite.Sprite):
+    def __init__(self, game, x, y, width, **kwargs):
+        pg.sprite.Sprite.__init__(self)
+        self.game = game
+        
+        self.x = x
+        self.y = y
+        
+        self._layer = UI_MAPINFO_LAYER
+        self.game.ui_mapinfo_grp.add(self)
+        self.game.all_sprites.add(self)
+        
+        self.attr_dict = dict()
+        
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+            self.attr_dict.update({k:v}) 
+        
+        self.num_rows = 0
+        for i in range(len(self.attr_dict)):
+            self.num_rows += 1
+            
+        self.width = width
+        self.heigt_option = FONTSIZE
+        self.height_total = FONTSIZE * self.num_rows
+        
+        # surface for dropdown menu ----------------------------------------- #
+        self.image = pg.Surface((self.width, self.height_total))
+        self.image.fill("blue")
+        self.image.set_colorkey("black")
+        self.image.set_alpha(UI_TRANSPARENCY)
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (self.x, self.y)
+        
+    def update(self):
+        for i in range(self.num_rows):
+            
+            pg.draw.rect(self.image, "darkslategray3", [0, i*FONTSIZE+1, self.width, FONTSIZE])
+            pg.draw.rect(self.image, "darkslategray1", [0, i*FONTSIZE+1, self.width, FONTSIZE], 2)
+            
+            text = list(self.attr_dict.keys())[i].format(**self.attr_dict)
+            
+            text = self.game.font2.render(text, True, "white")
+            
+            self.image.blit(text, (4, i*FONTSIZE-2))
+    
+    def msbtn_down(self, pos, button):
+
+        pos_in_mask = pos[0] - self.rect.x, pos[1] - self.rect.y
+        touching = self.rect.collidepoint(pos) and self.scrollbar_mask.get_at(pos_in_mask)
+
+        if touching:
+
+            return True
+        return False
+    
+    def handle_events(self, event):
+        pass
 
 
 # Tile class ---------------------------------------------------------------- #

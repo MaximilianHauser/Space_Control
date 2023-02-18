@@ -96,7 +96,10 @@ class GameLogic:
     # handles a unit firing on another unit --------------------------------- #
     def attack_unit(attacker, target):
         
-        target.health -= attacker.dmg_per_shot
+        penetration_dmg = attacker.dmg_per_shot - target.armor
+        if penetration_dmg > 0:
+            target.health -= penetration_dmg * attacker.dmg_multiplier
+        
         attacker.action_points -= 1
         
     # determine if unit_b is in weapon range of unit_a ---------------------- #
