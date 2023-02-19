@@ -124,8 +124,7 @@ class Button(pg.sprite.Sprite):
                 self.state = "unpressed"
                 eval(self.function)
                 
-        if self.state == "pressed":
-            if event.type == self.game.E_IDLE:
+            elif event.type == self.game.E_IDLE:
                 pos_in_mask = event.pos[0] - self.rect.x, event.pos[1] - self.rect.y
                 touching = self.rect.collidepoint(event.pos) and self.mask.get_at(pos_in_mask)
                 if not touching:
@@ -381,23 +380,62 @@ class DropDownMenu(pg.sprite.Sprite):
         self.image.set_alpha(UI_TRANSPARENCY)
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
+        self.mask = pg.mask.from_surface(self.image)
         
-    def update(self):
+        # functionality of individual buttons ------------------------------- #
+        self.pressed_lst = ["unpressed" for i in range(self.num_rows)]
+        self.rect_lst = [None for i in range(self.num_rows)]
+        
+        # initial draw, as events get checked before update in main --------- #
         for i in range(self.num_rows):
             
-            pg.draw.rect(self.image, "darkslategray3", [0, i*FONTSIZE+1, self.width, FONTSIZE])
-            pg.draw.rect(self.image, "darkslategray1", [0, i*FONTSIZE+1, self.width, FONTSIZE], 2)
+            if self.pressed_lst[i] == "hover":
+                button_image = pg.draw.rect(self.image, "darkslategray4", [0, i*FONTSIZE+1, self.width, FONTSIZE])
+                pg.draw.rect(self.image, "darkslategray1", [0, i*FONTSIZE+1, self.width, FONTSIZE], 2)
+                
+            elif self.pressed_lst[i] == "pressed":
+                button_image = pg.draw.rect(self.image, "darkslategray", [0, i*FONTSIZE+1, self.width, FONTSIZE])
+                pg.draw.rect(self.image, "darkslategray1", [0, i*FONTSIZE+1, self.width, FONTSIZE], 2)
+                
+            elif self.pressed_lst[i] == "unpressed":
+                button_image = pg.draw.rect(self.image, "darkslategray3", [0, i*FONTSIZE+1, self.width, FONTSIZE])
+                pg.draw.rect(self.image, "darkslategray1", [0, i*FONTSIZE+1, self.width, FONTSIZE], 2)
             
-            text = list(self.attr_dict.keys())[i].format(**self.attr_dict)
-            
+            text = list(self.attr_dict.keys())[i]
             text = self.game.font2.render(text, True, "white")
             
             self.image.blit(text, (4, i*FONTSIZE-2))
+            
+            self.rect_lst[i] = button_image
+        
+    def update(self):
+        
+        for i in range(self.num_rows):
+            
+            if self.pressed_lst[i] == "hover":
+                button_image = pg.draw.rect(self.image, "darkslategray4", [0, i*FONTSIZE+1, self.width, FONTSIZE])
+                pg.draw.rect(self.image, "darkslategray1", [0, i*FONTSIZE+1, self.width, FONTSIZE], 2)
+                
+            elif self.pressed_lst[i] == "pressed":
+                button_image = pg.draw.rect(self.image, "darkslategray", [0, i*FONTSIZE+1, self.width, FONTSIZE])
+                pg.draw.rect(self.image, "darkslategray1", [0, i*FONTSIZE+1, self.width, FONTSIZE], 2)
+                
+            elif self.pressed_lst[i] == "unpressed":
+                button_image = pg.draw.rect(self.image, "darkslategray3", [0, i*FONTSIZE+1, self.width, FONTSIZE])
+                pg.draw.rect(self.image, "darkslategray1", [0, i*FONTSIZE+1, self.width, FONTSIZE], 2)
+            
+            text = list(self.attr_dict.keys())[i]
+            text = self.game.font2.render(text, True, "white")
+            
+            self.image.blit(text, (4, i*FONTSIZE-2))
+            
+            self.rect_lst[i] = button_image
+        
     
     def msbtn_down(self, pos, button):
 
         pos_in_mask = pos[0] - self.rect.x, pos[1] - self.rect.y
-        touching = self.rect.collidepoint(pos) and self.scrollbar_mask.get_at(pos_in_mask)
+        touching = self.rect.collidepoint(pos) and self.mask.get_at(pos_in_mask)
 
         if touching:
 
@@ -405,7 +443,35 @@ class DropDownMenu(pg.sprite.Sprite):
         return False
     
     def handle_events(self, event):
-        pass
+        
+        for i in range(self.num_rows):
+            
+            pos_in_rect = event.pos[0] - self.rect.x, event.pos[1] - self.rect.y
+            
+            if self.pressed_lst[i] == "unpressed":
+                if event.type == self.game.E_IDLE:
+                    if self.rect_lst[i].collidepoint(pos_in_rect):
+                        self.pressed_lst[i] = "hover"
+                
+            elif self.pressed_lst[i] == "hover":
+                if event.type == pg.MOUSEBUTTONDOWN:
+                    if self.rect_lst[i].collidepoint(pos_in_rect):
+                        self.pressed_lst[i] = "pressed"
+                    
+                elif event.type == self.game.E_IDLE:
+                    touching = self.rect_lst[i].collidepoint(pos_in_rect)
+                    if not touching:
+                        self.pressed_lst[i] = "unpressed"
+                
+            elif self.pressed_lst[i] == "pressed":
+                if event.type == pg.MOUSEBUTTONUP:
+                    if self.rect_lst[i].collidepoint(pos_in_rect):
+                        print(i)
+                        
+                elif event.type == self.game.E_IDLE:
+                    touching = self.rect_lst[i].collidepoint(pos_in_rect)
+                    if not touching:
+                        self.pressed_lst[i] = "unpressed"
 
 
 # Tile class ---------------------------------------------------------------- #

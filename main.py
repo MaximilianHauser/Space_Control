@@ -128,6 +128,9 @@ class Game:
 
         # dropdownmenu_test ------------------------------------------------- #
         dropdownmenu = sp.DropDownMenu(self, 50, 50, 100, option_1=1, option_2=2, option_3=3)
+        self.observer.subscribe(pg.MOUSEBUTTONDOWN, dropdownmenu)
+        self.observer.subscribe(pg.MOUSEBUTTONUP, dropdownmenu)
+        self.observer.subscribe(self.E_IDLE, dropdownmenu)
                                 
     def events(self):
         
