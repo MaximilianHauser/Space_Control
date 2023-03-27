@@ -67,7 +67,6 @@ class GameLogic:
     # function determines, wether or not tile is within movement range ------ #
     # of an activated blufor unit ------------------------------------------- #
     def in_mov_range(tile, unit, tile_grp, block_var):
-        in_range = False
         
         # determine variables for dist_lim_flood_fill ----------------------- #
         moves = unit.action_points
@@ -78,12 +77,7 @@ class GameLogic:
         visited.remove((unit.q, unit.r, unit.s))
         
         # check if tile was visited in floodfil ----------------------------- #
-        if hl.get_qrs(tile) in visited:
-            in_range = True
-        
-        return in_range
-    
-    
+        return hl.get_qrs(tile) in visited
     
     # handles unit movement, subtraction of action points ------------------- #
     def move_unit(clicked_tile, unit_on_tile):
@@ -105,10 +99,7 @@ class GameLogic:
     # determine if unit_b is in weapon range of unit_a ---------------------- #
     def in_weapon_range(unit_a, unit_b):
         ab_dist = hl.distance(unit_a, unit_b)
-        if ab_dist <= unit_a.range:
-            return True
-        else:
-            return False
+        return ab_dist <= unit_a.range
     
     # get the total probability of negated damage from trajectory ----------- #
     def get_cover(attacker, target, tile_grp):
@@ -158,5 +149,9 @@ class GameLogic:
         for unit in sprite_group:
             attr_total += getattr(unit, attr)
         return attr_total
+    
+    # get the possible actions to be performed, after right clicking tile --- #
+    def get_kwargs_ddm():
+        pass
 
 

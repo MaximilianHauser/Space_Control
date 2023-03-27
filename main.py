@@ -127,7 +127,7 @@ class Game:
         self.observer.subscribe(self.E_IDLE, skip_turn_button)
 
         # dropdownmenu_test ------------------------------------------------- #
-        dropdownmenu = sp.DropDownMenu(self, 50, 50, 100, option_1=1, option_2=2, option_3=3)
+        dropdownmenu = sp.DropDownMenu(self, 50, 50, 100, option_1="a", option_2="b", option_3="c")
         self.observer.subscribe(pg.MOUSEBUTTONDOWN, dropdownmenu)
         self.observer.subscribe(pg.MOUSEBUTTONUP, dropdownmenu)
         self.observer.subscribe(self.E_IDLE, dropdownmenu)
