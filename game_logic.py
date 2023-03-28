@@ -150,8 +150,17 @@ class GameLogic:
             attr_total += getattr(unit, attr)
         return attr_total
     
+    
     # get the possible actions to be performed, after right clicking tile --- #
-    def get_kwargs_ddm():
-        pass
-
+    def get_kwargs_ddm(tile, blufor_activated, blufor_grp, tile_grp):
+        
+        kwargs_lst = list()
+        
+        fog_bool = GameLogic.check_fog_of_war(tile, blufor_grp, tile_grp)
+        nbors_lst = hl.neighbors(tile.q, tile.r, tile.s)
+        if (blufor_activated.q, blufor_activated.r, blufor_activated.s) in nbors_lst:
+            kwargs_lst.append('Move="gl.move_unit(self, self.unit_on_tile"')
+        
+        
+        return kwargs_lst
 

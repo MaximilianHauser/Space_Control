@@ -403,6 +403,8 @@ class DropDownMenu(pg.sprite.Sprite):
             self.image.blit(text, (4, i*FONTSIZE-2))
             
             self.rect_lst[i] = button_image
+            
+            self.rect.topleft = (self.x, self.y)
         
     
     def msbtn_down(self, pos, button):
@@ -556,10 +558,6 @@ class Tile(pg.sprite.Sprite):
             # left click on tile -------------------------------------------- #
             if event.button == 1:
                 
-                # blufor unit on tile --------------------------------------- #
-                if blufor_on_tile:
-                    pass           
-                
                 # redfor unit on tile --------------------------------------- #
                 if redfor_on_tile:
                     if blufor_activated is not None:
@@ -575,7 +573,15 @@ class Tile(pg.sprite.Sprite):
                             gl.move_unit(self, blufor_activated)
                 
             if event.button == 3:
-                pass
+                
+                m_x, m_y = event.pos
+                #kwargs = gl.get_kwargs_ddm(self, blufor_activated, self.game.unit_blufor_grp, self.game.tile_grp)
+                
+                self.game.dropdownmenu = DropDownMenu(self.game, m_x, m_y, 100, option_1="a", option_2="b", option_3="c")
+                self.game.observer.subscribe(pg.MOUSEBUTTONDOWN, self.game.dropdownmenu)
+                self.game.observer.subscribe(pg.MOUSEBUTTONUP, self.game.dropdownmenu)
+                self.game.observer.subscribe(self.game.E_IDLE, self.game.dropdownmenu)
+                
     
     
 
