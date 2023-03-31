@@ -49,9 +49,10 @@ class Observer:
             
     # unsubscribe (remove) an object or function from the s..._dict value_lst #
     def unsubscribe(self, event, subscriber):
-        subscribers = self.get_subscribers(event.type)
-        if subscribers:
-            subscribers.remove(subscriber)
+        subscribers = self.subscribers_dict.get(event)
+        for sub in subscribers:
+            if sub is subscriber:
+                subscribers.remove(subscriber)
             
         self.subscribers_dict.update({event:subscribers})
             

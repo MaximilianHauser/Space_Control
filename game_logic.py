@@ -90,11 +90,15 @@ class GameLogic:
     # handles a unit firing on another unit --------------------------------- #
     def attack_unit(attacker, target):
         
-        penetration_dmg = attacker.dmg_per_shot - target.armor
-        if penetration_dmg > 0:
-            target.health -= penetration_dmg * attacker.dmg_multiplier
+        if target != None:
+            penetration_dmg = attacker.dmg_per_shot - target.armor
+            if penetration_dmg > 0:
+                target.health -= penetration_dmg * attacker.dmg_multiplier
         
-        attacker.action_points -= 1
+            attacker.action_points -= 1
+            
+        else:
+            attacker.action_points -= 1
         
     # determine if unit_b is in weapon range of unit_a ---------------------- #
     def in_weapon_range(unit_a, unit_b):
@@ -153,14 +157,23 @@ class GameLogic:
     
     # get the possible actions to be performed, after right clicking tile --- #
     def get_kwargs_ddm(tile, blufor_activated, blufor_grp, tile_grp):
+        kwargs_dct = dict()
         
-        kwargs_lst = list()
-        
-        fog_bool = GameLogic.check_fog_of_war(tile, blufor_grp, tile_grp)
+        # if tile is neighbor, has no unit => movable ----------------------- #
         nbors_lst = hl.neighbors(tile.q, tile.r, tile.s)
         if (blufor_activated.q, blufor_activated.r, blufor_activated.s) in nbors_lst:
-            kwargs_lst.append('Move="gl.move_unit(self, self.unit_on_tile"')
+            if tile.unit == None:
+                kwargs_dct.update({"move":"gl.move_unit(next(t for t in self.game.tile_grp if t.ddm_open == True), next(u for u in self.game.unit_blufor_grp if u.activated == True))"})        
         
+        # if tile has enemy or fog => attackable ---------------------------- #
+        fog_bool = GameLogic.check_fog_of_war(tile, blufor_grp, tile_grp)
         
-        return kwargs_lst
+        if fog_bool:
+            kwargs_dct.update({"attack":"gl.attack_unit(next(u for u in self.game.unit_blufor_grp if u.activated == True), next(t for t in self.game.tile_grp if t.ddm_open == True).unit)"})
+            
+        elif hasattr(tile.unit, "faction"):
+            if tile.unit.faction == "redfor":
+                kwargs_dct.update({"attack":"gl.attack_unit(next(u for u in self.game.unit_blufor_grp if u.activated == True), next(t for t in self.game.tile_grp if t.ddm_open == True).unit)"})
+        
+        return kwargs_dct
 

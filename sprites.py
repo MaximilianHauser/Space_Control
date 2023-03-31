@@ -438,9 +438,13 @@ class DropDownMenu(pg.sprite.Sprite):
             elif self.pressed_lst[i] == "pressed":
                 if event.type == pg.MOUSEBUTTONUP:
                     if self.rect_lst[i].collidepoint(pos_in_rect):
-                        print(i)
+                        exec(getattr(self, list(self.attr_dict.keys())[i]))
+                        setattr(next(t for t in self.game.tile_grp if t.ddm_open == True), "ddm_open", False)
+                        self.game.observer.unsubscribe(pg.MOUSEBUTTONDOWN, self.game.dropdownmenu)
+                        self.game.observer.unsubscribe(pg.MOUSEBUTTONUP, self.game.dropdownmenu)
+                        self.game.observer.unsubscribe(self.game.E_IDLE, self.game.dropdownmenu)
                         self.kill()
-                        self.pressed_lst[i] = "unpressed"
+                        delattr(self.game, "dropdownmenu")
                         
                 elif event.type == self.game.E_IDLE:
                     touching = self.rect_lst[i].collidepoint(pos_in_rect)
@@ -484,6 +488,7 @@ class Tile(pg.sprite.Sprite):
         self.last_click_time = 0
         self.unit = None
         self.fog_of_war = True
+        self.ddm_open = False
         
         
     def update(self):
@@ -537,13 +542,11 @@ class Tile(pg.sprite.Sprite):
             
             # variables for wether or not there is a unit on the tile ------- #
             blufor_activated = None
-            blufor_on_tile = False
             unit_on_tile = None
             
             # wether there is a blufor unit on tile and if its activated ---- #
             for unit in self.game.unit_blufor_grp:
                 if unit.q == self.q and unit.r == self.r and unit.s == self.s:
-                    blufor_on_tile = True
                     unit_on_tile = unit
                 if unit.activated == True:
                     blufor_activated = unit
@@ -574,10 +577,10 @@ class Tile(pg.sprite.Sprite):
                 
             if event.button == 3:
                 
+                self.ddm_open = True
                 m_x, m_y = event.pos
-                #kwargs = gl.get_kwargs_ddm(self, blufor_activated, self.game.unit_blufor_grp, self.game.tile_grp)
-                
-                self.game.dropdownmenu = DropDownMenu(self.game, m_x, m_y, 100, option_1="a", option_2="b", option_3="c")
+                kwargs = gl.get_kwargs_ddm(self, blufor_activated, self.game.unit_blufor_grp, self.game.tile_grp)
+                setattr(self.game, "dropdownmenu", DropDownMenu(self.game, m_x, m_y, 100, **kwargs))
                 self.game.observer.subscribe(pg.MOUSEBUTTONDOWN, self.game.dropdownmenu)
                 self.game.observer.subscribe(pg.MOUSEBUTTONUP, self.game.dropdownmenu)
                 self.game.observer.subscribe(self.game.E_IDLE, self.game.dropdownmenu)

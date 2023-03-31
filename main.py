@@ -8,6 +8,7 @@ Will contain the main game loop and functionality.
 """
 
 # import section ------------------------------------------------------------ #
+
 # libraries ----------------------------------------------------------------- #
 import pygame as pg
 import sys
@@ -135,9 +136,9 @@ class Game:
             pg.event.post(pg.event.Event(self.E_VICTORY, event_data))
             print("VVVVV")
         elif game_status == "defeat":
-            print("DDDDD")
             event_data = dict()
             pg.event.post(pg.event.Event(self.E_DEFEAT, event_data))
+            print("DDDDD")
         else:
             pass
         
