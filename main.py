@@ -126,6 +126,7 @@ class Game:
         self.observer.subscribe(pg.MOUSEBUTTONDOWN, skip_turn_button)
         self.observer.subscribe(pg.MOUSEBUTTONUP, skip_turn_button)
         self.observer.subscribe(self.E_IDLE, skip_turn_button)
+        
                                 
     def events(self):
         
@@ -176,6 +177,9 @@ class Game:
         pg.display.flip()
     
     def main_loop(self):
+        """
+        Decouple the progression of game time from user input and processor speed.
+        """
         while self.playing:
             self.events()
             self.update()

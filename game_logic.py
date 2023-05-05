@@ -160,10 +160,11 @@ class GameLogic:
         kwargs_dct = dict()
         
         # if tile is neighbor, has no unit => movable ----------------------- #
-        nbors_lst = hl.neighbors(tile.q, tile.r, tile.s)
+        nbors_lst = hl.neighbors((tile.q, tile.r, tile.s))
         if (blufor_activated.q, blufor_activated.r, blufor_activated.s) in nbors_lst:
-            if tile.unit == None:
-                kwargs_dct.update({"move":"gl.move_unit(next(t for t in self.game.tile_grp if t.ddm_open == True), next(u for u in self.game.unit_blufor_grp if u.activated == True))"})        
+            if GameLogic.in_mov_range(tile, blufor_activated, tile_grp, "block_move"):
+                if tile.unit == None:
+                    kwargs_dct.update({"move":"gl.move_unit(next(t for t in self.game.tile_grp if t.ddm_open == True), next(u for u in self.game.unit_blufor_grp if u.activated == True))"})        
         
         # if tile has enemy or fog => attackable ---------------------------- #
         fog_bool = GameLogic.check_fog_of_war(tile, blufor_grp, tile_grp)

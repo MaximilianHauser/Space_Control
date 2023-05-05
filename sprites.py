@@ -469,7 +469,7 @@ class Tile(pg.sprite.Sprite):
         self.game.all_sprites.add(self)
         self.game.tile_grp.add(self)
         
-        x, y = hl.hex_to_pixel(q,r,s)
+        x, y = hl.hex_to_pixel((q,r,s))
         self.x = x + WIN_WIDTH / 2
         self.y = y + WIN_HEIGHT / 2
         
@@ -571,7 +571,7 @@ class Tile(pg.sprite.Sprite):
                 if unit_on_tile is None:
                     if blufor_activated is not None:
                         in_range = gl.in_mov_range(self, blufor_activated, self.game.tile_grp, "block_move")
-                        neighbor = (self.q, self.r, self.s) in hl.neighbors(blufor_activated.q, blufor_activated.r, blufor_activated.s)
+                        neighbor = ((self.q, self.r, self.s)) in hl.neighbors((blufor_activated.q, blufor_activated.r, blufor_activated.s))
                         if in_range and neighbor:
                             gl.move_unit(self, blufor_activated)
                 
@@ -610,7 +610,7 @@ class Unit(pg.sprite.Sprite):
         if u[0] == "b":
             self.game.unit_blufor_grp.add(self)
             
-        x, y = hl.hex_to_pixel(q,r,s)
+        x, y = hl.hex_to_pixel((q,r,s))
         self.x = x + WIN_WIDTH / 2
         self.y = y + WIN_HEIGHT / 2
         
