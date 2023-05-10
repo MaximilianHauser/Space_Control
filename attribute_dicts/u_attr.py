@@ -2,6 +2,8 @@
 """
 Created on Wed Sep 14 17:41:16 2022
 
+Contains a dictionary with all type specific unit attributes.
+
 @author: Maximilian
 """
 

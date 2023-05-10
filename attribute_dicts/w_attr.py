@@ -2,6 +2,8 @@
 """
 Created on Fri Feb 17 20:31:19 2023
 
+Contains a dictionary with all type specific weapon attributes.
+
 @author: Maximilian
 """
 

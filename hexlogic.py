@@ -2,7 +2,7 @@
 """
 Created on Fri Sep  9 07:19:00 2022
 
-Will contain all hextile logic, specified as logic handling the relationship 
+Contains all hextile logic, specified as logic handling the relationship 
 between cartesian coordinates and cube coordinates, for the purpose of defining 
 the relative position of hexagon tiles on the screen. In addition it provides
 calculations in regards to hextile map related formulas and algorythms.

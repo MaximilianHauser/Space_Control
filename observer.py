@@ -22,7 +22,7 @@ pygame - Community Edition
 # import section ------------------------------------------------------------ #
 import pygame as pg
 
-
+# Observer class ------------------------------------------------------------ #
 class Observer:
     """
     Creates an object holding 2 dictionaries, with which the pygame event queque

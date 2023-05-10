@@ -4,7 +4,7 @@ Created on Thu Oct 20 16:49:27 2022
 
 will handle game logic, meaning interactions between units in game and tile attributes, etc.
 
-@author: Maximilian
+@author: Maximilian Hauser
 """
 
 # import section ------------------------------------------------------------ #

@@ -4,7 +4,7 @@ Created on Thu Oct 20 10:54:56 2022
 
 will contain animation logic
 
-@author: Maximilian
+@author: Maximilian Hauser
 """
 
 # import section ------------------------------------------------------------ #

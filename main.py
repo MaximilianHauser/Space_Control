@@ -2,7 +2,7 @@
 """
 Created on Thu Sep  8 10:03:53 2022
 
-Will contain the main game loop and functionality.
+Will contain the main game loop and functionality. Top level script.
 
 @author: Maximilian
 """
@@ -14,7 +14,7 @@ import pygame as pg
 import sys
 
 # game files ---------------------------------------------------------------- #
-import sprites as sp
+import spritelogic as sl
 import observer as ob
 from map_logic import MapLogic as ml
 from game_logic import GameLogic as gl
@@ -23,6 +23,13 @@ import win_conditions as rbl
 import initiative_queque as iq
 import skynet as sn
 from settings import WIN_WIDTH, WIN_HEIGHT, TILE_WIDTH, TILE_HEIGHT, FPS, FONTSIZE, SCROLL_SPEED, SCROLL_AREA, SCROLL_BUFFER
+
+# sprite objects ------------------------------------------------------------ #
+from tile import Tile
+from unit import Unit
+from button import Button
+#from typewritercrawl import TypeWriterCrawl
+#from dropdownmenu import DropDownMenu
 
 # game class ---------------------------------------------------------------- #
 class Game:
@@ -46,9 +53,9 @@ class Game:
         self.background_battle = pg.image.load('./img/background_battle.png')
         
         # spritesheets ------------------------------------------------------ #
-        self.terrain_sheet = sp.Spritesheet('img/hex_terrain_sheet.png')
-        self.blufor_sheet = sp.Spritesheet('img/hex_blufor_sheet.png')
-        self.redfor_sheet = sp.Spritesheet('img/hex_redfor_sheet.png')
+        self.terrain_sheet = sl.Spritesheet('img/hex_terrain_sheet.png')
+        self.blufor_sheet = sl.Spritesheet('img/hex_blufor_sheet.png')
+        self.redfor_sheet = sl.Spritesheet('img/hex_redfor_sheet.png')
 
         # terrain sprites --------------------------------------------------- #
         self.sprite_space = self.terrain_sheet.get_sprite(0, 0, TILE_WIDTH, TILE_HEIGHT)
@@ -107,11 +114,11 @@ class Game:
             self.map_running_dict.update({(q,r,s):[t,u]})
             
             # creating Tile and Unit sprite objects ------------------------- #
-            tile = sp.Tile(self, q, r, s, t)
+            tile = Tile(self, q, r, s, t)
             self.observer.subscribe(pg.MOUSEBUTTONDOWN, tile)
             
             if u != None:
-                sp.Unit(self, q, r, s, u)
+                Unit(self, q, r, s, u)
         
         # initialize initiative_queque -------------------------------------- #
         self.initiative_queque = iq.InitiativeQueque(self)
@@ -122,7 +129,7 @@ class Game:
         
         # UI initialization ------------------------------------------------- #   
         # End-Turn-Button --------------------------------------------------- #
-        skip_turn_button = sp.Button(self, "skip turn {a}", 480, 445, 150, 25, True, "gl.skip_turn(self.game)", a = (self, "round_counter"))
+        skip_turn_button = Button(self, "skip turn {a}", 480, 445, 150, 25, True, "gl.skip_turn(self.game)", a = (self, "round_counter"))
         self.observer.subscribe(pg.MOUSEBUTTONDOWN, skip_turn_button)
         self.observer.subscribe(pg.MOUSEBUTTONUP, skip_turn_button)
         self.observer.subscribe(self.E_IDLE, skip_turn_button)
