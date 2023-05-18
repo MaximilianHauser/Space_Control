@@ -4,7 +4,7 @@ Created on Wed Sep 14 09:25:52 2022
 
 Contains a dictionary with all type specific terrain attributes.
 
-@author: Maximilian
+@author: Maximilian Hauser
 """
 
 

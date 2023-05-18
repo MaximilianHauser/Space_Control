@@ -9,6 +9,7 @@ will handle game logic, meaning interactions between units in game and tile attr
 
 # import section ------------------------------------------------------------ #
 from hexlogic import HexLogic as hl
+from attribute_dicts.w_attr import w_dict
 from settings import WIN_WIDTH, WIN_HEIGHT
 
 
@@ -88,22 +89,39 @@ class GameLogic:
         
         
     # handles a unit firing on another unit --------------------------------- #
-    def attack_unit(attacker, target):
+    def attack_unit(attacker, target, weapon="b_light_coilgun"):
         
         if target != None:
-            penetration_dmg = attacker.dmg_per_shot - target.armor
-            if penetration_dmg > 0:
-                target.health -= penetration_dmg * attacker.dmg_multiplier
+            dmg_armor_div = w_dict[weapon]["dmg"] - target.armor
+            penetrating_dmg = dmg_armor_div if dmg_armor_div > 0 else 0
+            if penetrating_dmg > 0:
+                target.health -= penetrating_dmg * w_dict[weapon]["dmg_multiplier"]
         
             attacker.action_points -= 1
+            attacker.ammunition[weapon] -= 1
             
         else:
             attacker.action_points -= 1
-        
+            attacker.ammunition[weapon] -= 1
+    
+    
     # determine if unit_b is in weapon range of unit_a ---------------------- #
-    def in_weapon_range(unit_a, unit_b):
+    def in_weapon_range(unit_a, unit_b, weapon="b_light_coilgun"):
         ab_dist = hl.distance(unit_a, unit_b)
-        return ab_dist <= unit_a.range
+        return ab_dist <= w_dict[weapon]["max_range"]
+    
+    
+    # range of the weapon with the longest range which is available --------- #
+    def get_max_weapon_range(unit):
+        max_range = 0
+        for weapon in unit.ammunition:
+            has_ammo = unit.ammunition[weapon] > 0
+            ammo_range = w_dict[weapon]["max_range"]
+            if has_ammo and ammo_range > max_range:
+                max_range = ammo_range
+                
+        return max_range
+    
     
     # get the total probability of negated damage from trajectory ----------- #
     def get_cover(attacker, target, tile_grp):
@@ -153,6 +171,19 @@ class GameLogic:
         for unit in sprite_group:
             attr_total += getattr(unit, attr)
         return attr_total
+    
+    
+    # get total damage potential of all weapons on ships -------------------- #
+    def get_group_total_munition_dmg(sprite_group):
+        potential_dmg_total = 0
+        for unit in sprite_group:
+            ammunition_types = unit.ammunition.keys()
+            for a_type in ammunition_types:
+                potential_dmg = unit.ammunition[a_type] * w_dict[a_type]["dmg"]
+                potential_dmg_total += potential_dmg
+        
+        return potential_dmg_total
+                
     
     
     # get the possible actions to be performed, after right clicking tile --- #

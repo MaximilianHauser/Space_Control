@@ -4,7 +4,7 @@ Created on Fri Feb 17 20:31:19 2023
 
 Contains a dictionary with all type specific weapon attributes.
 
-@author: Maximilian
+@author: Maximilian Hauser
 """
 
 
@@ -18,10 +18,9 @@ w_dict = {
     "b_light_coilgun":
         {
             "type": "projectile",
-            "max_range": 6,
+            "max_range": 3,
             "min_range": 0,
-            "evasian": 0,
-            "armor": 1,
+            "armor": 2,
             "dmg": 2,
             "dmg_multiplier": 1
             },
@@ -29,34 +28,31 @@ w_dict = {
     "b_medium_coilgun":
         {
             "type": "projectile",
-            "max_range": 6,
+            "max_range": 4,
             "min_range": 0,
-            "evasian": 0,
-            "armor": 1,
-            "dmg": 2,
+            "armor": 4,
+            "dmg": 4,
             "dmg_multiplier": 1
             },
         
     "b_heavy_coilgun":
         {
             "type": "projectile",
-            "max_range": 6,
+            "max_range": 5,
             "min_range": 0,
-            "evasian": 0,
-            "armor": 1,
-            "dmg": 2,
+            "armor": 10,
+            "dmg": 10,
             "dmg_multiplier": 1
             },
         
     "b_spinalmount_coilgun":
         {
             "type": "projectile",
-            "max_range": 6,
+            "max_range": 8,
             "min_range": 0,
-            "evasian": 0,
-            "armor": 1,
-            "dmg": 2,
-            "dmg_multiplier": 1
+            "armor": 22,
+            "dmg": 22,
+            "dmg_multiplier": 2
             },
         
     "b_conventional_missile":
@@ -64,10 +60,9 @@ w_dict = {
             "type": "guided",
             "max_range": 6,
             "min_range": 0,
-            "evasian": 0,
             "armor": 1,
             "dmg": 2,
-            "dmg_multiplier": 1
+            "dmg_multiplier": 3
             },
         
     "b_shapedcharge_missile":
@@ -75,53 +70,48 @@ w_dict = {
             "type": "guided",
             "max_range": 6,
             "min_range": 0,
-            "evasian": 0,
             "armor": 1,
-            "dmg": 2,
+            "dmg": 4,
             "dmg_multiplier": 1
             },
         
     "b_conventional_torpedo":
         {
             "type": "guided",
-            "max_range": 6,
+            "max_range": 8,
             "min_range": 0,
-            "evasian": 0,
             "armor": 1,
-            "dmg": 2,
-            "dmg_multiplier": 1
+            "dmg": 4,
+            "dmg_multiplier": 2
             },
         
     "b_shapedcharge_torpedo":
         {
             "type": "guided",
-            "max_range": 6,
+            "max_range": 8,
             "min_range": 0,
-            "evasian": 0,
             "armor": 1,
-            "dmg": 2,
+            "dmg": 6,
             "dmg_multiplier": 1
             },
         
     "b_nuclear_torpedo":
         {
             "type": "guided",
-            "max_range": 6,
+            "max_range": 8,
             "min_range": 0,
-            "evasian": 0,
             "armor": 1,
-            "dmg": 2,
-            "dmg_multiplier": 1
+            "dmg": 30,
+            "dmg_multiplier": 3
             },
         
     "b_shapednuclear_torpedo":
         {
             "type": "guided",
-            "max_range": 6,
+            "max_range": 8,
             "min_range": 0,
-            "evasian": 0,
             "armor": 1,
-            "dmg": 2,
+            "dmg": 40,
             "dmg_multiplier": 1
             },
      
@@ -130,10 +120,9 @@ w_dict = {
     "r_light_plasma":
         {
             "type": "projectile",
-            "max_range": 6,
+            "max_range": 2,
             "min_range": 0,
-            "evasian": 0,
-            "armor": 1,
+            "armor": 99,
             "dmg": 2,
             "dmg_multiplier": 1
             },
@@ -141,22 +130,20 @@ w_dict = {
     "r_medium_plasma":
         {
             "type": "projectile",
-            "max_range": 6,
+            "max_range": 3,
             "min_range": 0,
-            "evasian": 0,
-            "armor": 1,
-            "dmg": 2,
+            "armor": 99,
+            "dmg": 3,
             "dmg_multiplier": 1
             },
         
     "r_heavy_plasma":
         {
             "type": "projectile",
-            "max_range": 6,
+            "max_range": 4,
             "min_range": 0,
-            "evasian": 0,
-            "armor": 1,
-            "dmg": 2,
+            "armor": 99,
+            "dmg": 8,
             "dmg_multiplier": 1
             },
         
@@ -165,75 +152,68 @@ w_dict = {
             "type": "projectile",
             "max_range": 6,
             "min_range": 0,
-            "evasian": 0,
-            "armor": 1,
-            "dmg": 2,
+            "armor": 99,
+            "dmg": 16,
             "dmg_multiplier": 1
             },
         
     "r_conventional_missile":
         {
             "type": "guided",
-            "max_range": 6,
+            "max_range": 5,
             "min_range": 0,
-            "evasian": 0,
             "armor": 1,
             "dmg": 2,
-            "dmg_multiplier": 1
+            "dmg_multiplier": 3
             },
         
     "r_shapedcharge_missile":
         {
             "type": "guided",
-            "max_range": 6,
+            "max_range": 5,
             "min_range": 0,
-            "evasian": 0,
             "armor": 1,
-            "dmg": 2,
+            "dmg": 4,
             "dmg_multiplier": 1
             },
         
     "r_conventional_torpedo":
         {
             "type": "guided",
-            "max_range": 6,
+            "max_range": 7,
             "min_range": 0,
-            "evasian": 0,
             "armor": 1,
-            "dmg": 2,
-            "dmg_multiplier": 1
+            "dmg": 4,
+            "dmg_multiplier": 3
             },
         
     "r_shapedcharge_torpedo":
         {
             "type": "guided",
-            "max_range": 6,
+            "max_range": 7,
             "min_range": 0,
-            "evasian": 0,
             "armor": 1,
-            "dmg": 2,
+            "dmg": 6,
             "dmg_multiplier": 1
             },
         
     "r_nuclear_torpedo":
         {
             "type": "guided",
-            "max_range": 6,
+            "max_range": 7,
             "min_range": 0,
-            "evasian": 0,
             "armor": 1,
-            "dmg": 2,
-            "dmg_multiplier": 1
+            "dmg": 30,
+            "dmg_multiplier": 3
             },
         
     "r_shapednuclear_torpedo":
         {
             "type": "guided",
-            "max_range": 6,
+            "max_range": 7,
             "min_range": 0,
-            "evasian": 0,
             "armor": 1,
-            "dmg": 2,
+            "dmg": 40,
             "dmg_multiplier": 1
             }
         }

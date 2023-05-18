@@ -24,6 +24,7 @@ observer.py
 
 # import section ------------------------------------------------------------ #
 import pygame as pg
+from game_logic import GameLogic as gl
 from settings import UI_MAPINFO_LAYER, FONTSIZE, UI_TRANSPARENCY
 
 # DropdownMenu class -------------------------------------------------------- #

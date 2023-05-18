@@ -21,6 +21,7 @@ observer.py optional
 
 # import section ------------------------------------------------------------ #
 import pygame as pg
+from game_logic import GameLogic as gl
 from settings import UI_INTERFACE_LAYER, UI_TRANSPARENCY, T_PURPLE, FONTSIZE
 
 

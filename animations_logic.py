@@ -44,7 +44,7 @@ class Animations:
             for tile in tile_grp:
 
                 distance_to_activated = hl.distance(activated_unit, tile)
-                active_unit_reach = activated_unit.action_points - 1 + activated_unit.range
+                active_unit_reach = activated_unit.action_points - 1 + gl.get_max_weapon_range(activated_unit)
                 
                 if distance_to_activated <= active_unit_reach:
                     if tile.unit != None:

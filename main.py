@@ -28,8 +28,8 @@ from settings import WIN_WIDTH, WIN_HEIGHT, TILE_WIDTH, TILE_HEIGHT, FPS, FONTSI
 from tile import Tile
 from unit import Unit
 from button import Button
-#from typewritercrawl import TypeWriterCrawl
-#from dropdownmenu import DropDownMenu
+from typewritercrawl import TypewriterCrawl
+from dropdownmenu import DropDownMenu
 
 # game class ---------------------------------------------------------------- #
 class Game:
