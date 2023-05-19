@@ -27,6 +27,7 @@ from settings import WIN_WIDTH, WIN_HEIGHT, TILE_WIDTH, TILE_HEIGHT, FPS, FONTSI
 # sprite objects ------------------------------------------------------------ #
 from tile import Tile
 from unit import Unit
+from munition import Munition
 from button import Button
 from typewritercrawl import TypewriterCrawl
 from dropdownmenu import DropDownMenu
@@ -78,6 +79,7 @@ class Game:
         self.tile_grp = pg.sprite.Group()
         self.unit_blufor_grp = pg.sprite.Group()
         self.unit_redfor_grp = pg.sprite.Group()
+        self.munition_grp = pg.sprite.Group()
         self.ui_mapinfo_grp = pg.sprite.Group()
         self.ui_buttons_grp = pg.sprite.Group()
         self.text_crawl_grp = pg.sprite.Group()
@@ -133,8 +135,8 @@ class Game:
         self.observer.subscribe(pg.MOUSEBUTTONDOWN, skip_turn_button)
         self.observer.subscribe(pg.MOUSEBUTTONUP, skip_turn_button)
         self.observer.subscribe(self.E_IDLE, skip_turn_button)
-        
-                                
+
+                       
     def events(self):
         
         # post custom_event "victory" or "defeat" after checking conditions - #

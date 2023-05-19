@@ -27,6 +27,10 @@ class HexLogic:
     linint(a : int, b : int, t : float) -> float:
         Linear interpolation returns point at t of distance between a and b.
         
+    cartesian_linint(xy_a:tuple, xy_b:tuple, t:float) -> tuple:
+        Linear interpolation returns point at t of distance between a and b on
+        a cartesian coordinates system.
+        
     cube_linint(obj_a:object, obj_b:object, t:float) -> tuple:
         Returns the hextile coordinates of a point situated at t part of the way from obj_a to obj_b.
         
@@ -87,7 +91,39 @@ class HexLogic:
         
         linint = a + (b - a) * t
         return linint
-
+    
+    
+    def cartesian_linint(xy_a:tuple, xy_b:tuple, t:float) -> tuple:
+        """
+        Linear interpolation returns point at t of distance between a and b on
+        a cartesian coordinates system.
+        
+        Parameters:
+        -----------
+        xy_a : tuple
+            A tuple consisting of an integer for the x and y value.
+        
+        xy_b : tuple
+            A tuple consisting of an integer for the x and y value.
+        
+        t : float
+            Float denominating the distance between 
+        
+        Raises:
+        -------
+        TypeError: If the input is not an integer for a and b or a float for t.
+        
+        Returns:
+        --------
+        cartesian_linint(tuple): Linear interpolation t part of the way from a to b.
+        """
+        x = HexLogic.linint(xy_a[0], xy_b[0], t)
+        y = HexLogic.linint(xy_a[1], xy_b[1], t)
+        
+        cartesian_linint = (x, y)
+        
+        return cartesian_linint
+    
 
     def cube_linint(obj_a:object, obj_b:object, t:float) -> tuple:
         """
@@ -471,5 +507,4 @@ class HexLogic:
                                 fringes[k].append(neighbor)
 
         return visited
-    
     

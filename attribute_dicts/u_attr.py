@@ -42,7 +42,7 @@ u_dict = {
             "ciws_charge" : 8,
             "evasion": 0,
             "starting_ap" : 1,
-            "action_points" : 5,
+            "action_points" : 1,
             
             "ammunition" : {
             "b_light_coilgun": 99,

@@ -127,6 +127,8 @@ class Tile(pg.sprite.Sprite):
         self.r = r
         self.s = s
         
+        self.qrs = (q, r, s)
+        
         self.t = t
         
         self._layer = TERRAIN_LAYER
@@ -154,6 +156,8 @@ class Tile(pg.sprite.Sprite):
         self.fog_of_war = True
         self.ddm_open = False
         
+        # attributes for ciws mechanics ------------------------------------- #
+        self.ciws_dict = dict()
         
     def update(self) -> None:
         """
@@ -188,7 +192,9 @@ class Tile(pg.sprite.Sprite):
         
         if self.fog_of_war is True:
             self.image = an.tint_image(self.image, "grey")
-            
+        
+        # update ciws dict -------------------------------------------------- #
+        self.ciws_dict = gl.get_ciws_cover(self)
                     
         # updates position -------------------------------------------------- #
         self.rect.center = (self.x, self.y)
@@ -284,12 +290,13 @@ class Tile(pg.sprite.Sprite):
                 
             if event.button == 3:
                 
-                self.ddm_open = True
-                m_x, m_y = event.pos
-                kwargs = gl.get_kwargs_ddm(self, blufor_activated, self.game.unit_blufor_grp, self.game.tile_grp)
-                setattr(self.game, "dropdownmenu", DropDownMenu(self.game, m_x, m_y, 100, **kwargs))
-                self.game.observer.subscribe(pg.MOUSEBUTTONDOWN, self.game.dropdownmenu)
-                self.game.observer.subscribe(pg.MOUSEBUTTONUP, self.game.dropdownmenu)
-                self.game.observer.subscribe(self.game.E_IDLE, self.game.dropdownmenu)
+                if blufor_activated is not None:
+                    self.ddm_open = True
+                    m_x, m_y = event.pos
+                    kwargs = gl.get_kwargs_ddm(self, blufor_activated, self.game.unit_blufor_grp, self.game.tile_grp)
+                    setattr(self.game, "dropdownmenu", DropDownMenu(self.game, m_x, m_y, 100, **kwargs))
+                    self.game.observer.subscribe(pg.MOUSEBUTTONDOWN, self.game.dropdownmenu)
+                    self.game.observer.subscribe(pg.MOUSEBUTTONUP, self.game.dropdownmenu)
+                    self.game.observer.subscribe(self.game.E_IDLE, self.game.dropdownmenu)
                 
-    
+

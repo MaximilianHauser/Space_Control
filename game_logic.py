@@ -183,7 +183,27 @@ class GameLogic:
                 potential_dmg_total += potential_dmg
         
         return potential_dmg_total
-                
+    
+    
+    # get ciws cover dict for tile ------------------------------------------ #
+    def get_ciws_cover(tile:object) -> dict:
+        
+        ciws_dict = dict()
+        
+        # get units of attacked faction ------------------------------------- #
+        ciws_units_b = tile.game.unit_blufor_grp
+        ciws_units_r = tile.game.unit_redfor_grp
+
+        # get units covering tile ------------------------------------------- #
+        for unit in ciws_units_b:
+            if unit.ciws_range >= hl.distance(unit, tile):
+                ciws_dict.update({unit.id:{"dmg":unit.ciws_dmg, "range":unit.ciws_range, "faction":unit.faction, "qrs":unit.qrs}})
+        
+        for unit in ciws_units_r:
+            if unit.ciws_range >= hl.distance(unit, tile):
+                ciws_dict.update({unit.id:{"dmg":unit.ciws_dmg, "range":unit.ciws_range, "faction":unit.faction, "qrs":unit.qrs}})        
+        
+        return ciws_dict            
     
     
     # get the possible actions to be performed, after right clicking tile --- #

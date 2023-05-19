@@ -115,6 +115,8 @@ class Unit(pg.sprite.Sprite):
         self.r = r
         self.s = s
         
+        self.qrs = (q,r,s)
+        
         self._layer = UNIT_LAYER
         self.game.all_sprites.add(self)
         
@@ -168,6 +170,8 @@ class Unit(pg.sprite.Sprite):
                             
         if self.health <= 0:
             self.kill()
+        
+        self.qrs = (self.q, self.r, self.s)
         
         self.rect.center = (self.x, self.y)
 
