@@ -4,7 +4,7 @@ Created on Sun Nov 13 18:46:34 2022
 
 'AI' to handle enemy movement during battle
 
-@author: Maximilian
+@author: Maximilian Hauser
 """
 
 
@@ -13,6 +13,7 @@ Created on Sun Nov 13 18:46:34 2022
 import pygame as pg
 from hexlogic import HexLogic as hl
 from game_logic import GameLogic as gl
+
 
 # skynet class -------------------------------------------------------------- #
 class Skynet:

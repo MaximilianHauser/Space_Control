@@ -4,7 +4,7 @@ Created on Thu Sep  8 10:03:53 2022
 
 Will contain the main game loop and functionality. Top level script.
 
-@author: Maximilian
+@author: Maximilian Hauser
 """
 
 # import section ------------------------------------------------------------ #
@@ -12,6 +12,7 @@ Will contain the main game loop and functionality. Top level script.
 # libraries ----------------------------------------------------------------- #
 import pygame as pg
 import sys
+
 
 # game files ---------------------------------------------------------------- #
 import spritelogic as sl
@@ -24,6 +25,7 @@ import initiative_queque as iq
 import skynet as sn
 from settings import WIN_WIDTH, WIN_HEIGHT, TILE_WIDTH, TILE_HEIGHT, FPS, FONTSIZE, SCROLL_SPEED, SCROLL_AREA, SCROLL_BUFFER
 
+
 # sprite objects ------------------------------------------------------------ #
 from tile import Tile
 from unit import Unit
@@ -31,6 +33,7 @@ from munition import Munition
 from button import Button
 from typewritercrawl import TypewriterCrawl
 from dropdownmenu import DropDownMenu
+
 
 # game class ---------------------------------------------------------------- #
 class Game:
@@ -70,6 +73,7 @@ class Game:
         self.sprite_blufor_CC = self.blufor_sheet.get_sprite(65, 0, TILE_WIDTH, TILE_HEIGHT)
         # REDFOR ------------------------------------------------------------ #
         self.sprite_redfor_CC = self.redfor_sheet.get_sprite(65, 0, TILE_WIDTH, TILE_HEIGHT)
+        
         
     def new_battle(self):
         self.playing = True
@@ -168,7 +172,11 @@ class Game:
         # restricts speed of loop ------------------------------------------- #
         self.clock.tick(FPS)
     
+    
     def update(self):
+        """
+        Advances the game simulation one step.
+        """
         # update ------------------------------------------------------------ #
         self.initiative_queque.check_unit_ap()
         self.skynet.get_situation()
@@ -176,7 +184,11 @@ class Game:
         al.set_animation_state_tiles(self.tile_grp, [self.unit_blufor_grp, self.unit_redfor_grp])
         self.text_crawl_grp.update()
     
+    
     def draw(self):
+        """
+        Draws the game so the player can see what happened.
+        """
         # draw/render ------------------------------------------------------- #
         self.screen.blit(self.background_battle, (0, 0))
         self.all_sprites.draw(self.screen)
@@ -184,6 +196,7 @@ class Game:
         
         # after drawing / flip display -------------------------------------- #
         pg.display.flip()
+    
     
     def main_loop(self):
         """
@@ -193,18 +206,24 @@ class Game:
             self.events()
             self.update()
             self.draw()
+            print(self.initiative_queque.initiative_queque.items)
+    
     
     def briefing(self):
         pass
     
+    
     def debriefing(self):
         pass
+    
     
     def defeat(self):
         pass
             
+    
     def change_instance(self):
         pass
+
 
     # event management functions -------------------------------------------- #
     def handle_events(self, event):
@@ -240,8 +259,6 @@ class Game:
                     for sprite in self.all_sprites:
                         sprite.y -= SCROLL_SPEED
         
-        
-
 
 # top layer ----------------------------------------------------------------- #
 g = Game()

@@ -4,7 +4,7 @@ Created on Tue Sep 13 10:33:21 2022
 
 Contains all global constants.
 
-@author: Maximilian
+@author: Maximilian Hauser
 """
 
 # global settings ----------------------------------------------------------- #

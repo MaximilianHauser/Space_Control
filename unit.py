@@ -37,12 +37,14 @@ settings
 @author: Maximilian Hauser
 """
 
+
 # import section ------------------------------------------------------------ #
 import pygame as pg
 import itertools
 from hexlogic import HexLogic as hl
 from attribute_dicts.u_attr import u_dict
 from settings import UNIT_LAYER, WIN_WIDTH, WIN_HEIGHT
+
 
 # Unit class ---------------------------------------------------------------- #
 class Unit(pg.sprite.Sprite):

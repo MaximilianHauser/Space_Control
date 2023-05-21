@@ -38,6 +38,7 @@ class GameLogic:
                 
         return max_x, min_x, max_y, min_y
     
+    
     # function determines, wether or not a unit is on the tile -------------- #
     # and if there is, assigns the unit as attribute to the tile ------------ #
     def tile_has_unit(tile, unit_sprite_groups_lst):
@@ -79,6 +80,7 @@ class GameLogic:
         
         # check if tile was visited in floodfil ----------------------------- #
         return hl.get_qrs(tile) in visited
+    
     
     # handles unit movement, subtraction of action points ------------------- #
     def move_unit(clicked_tile, unit_on_tile):
@@ -188,20 +190,19 @@ class GameLogic:
     # get ciws cover dict for tile ------------------------------------------ #
     def get_ciws_cover(tile:object) -> dict:
         
+        ciws_units = set()
         ciws_dict = dict()
         
         # get units of attacked faction ------------------------------------- #
-        ciws_units_b = tile.game.unit_blufor_grp
-        ciws_units_r = tile.game.unit_redfor_grp
-
+        spritegroup_lst = [tile.game.unit_blufor_grp, tile.game.unit_redfor_grp]
+        for group in spritegroup_lst:
+            for unit in group:
+                ciws_units.add(unit)
+                
         # get units covering tile ------------------------------------------- #
-        for unit in ciws_units_b:
+        for unit in ciws_units:
             if unit.ciws_range >= hl.distance(unit, tile):
                 ciws_dict.update({unit.id:{"dmg":unit.ciws_dmg, "range":unit.ciws_range, "faction":unit.faction, "qrs":unit.qrs}})
-        
-        for unit in ciws_units_r:
-            if unit.ciws_range >= hl.distance(unit, tile):
-                ciws_dict.update({unit.id:{"dmg":unit.ciws_dmg, "range":unit.ciws_range, "faction":unit.faction, "qrs":unit.qrs}})        
         
         return ciws_dict            
     

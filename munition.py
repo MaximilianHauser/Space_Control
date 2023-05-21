@@ -9,13 +9,15 @@ stage.
 @author: Maximilian Hauser
 """
 
+
 # import section ------------------------------------------------------------ #
 import pygame as pg
 from hexlogic import HexLogic as hl
 from attribute_dicts.w_attr import w_dict
 from settings import U_ANIMATION_LAYER, WIN_WIDTH, WIN_HEIGHT
 
-# Unit class ---------------------------------------------------------------- #
+
+# Munition class ------------------------------------------------------------ #
 class Munition(pg.sprite.Sprite):
     
     def __init__(self, game:object, weapon_type:str, launcher:object, target:object) -> object:

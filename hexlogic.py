@@ -16,8 +16,10 @@ settings
 @author: Maximilian Hauser
 """
 
+
 # import section ------------------------------------------------------------ #
 from settings import TILE_WIDTH, TILE_HEIGHT
+
 
 # Hexlogic class ------------------------------------------------------------ #
 class HexLogic:

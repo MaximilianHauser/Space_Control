@@ -2,7 +2,7 @@
 """
 Created on Mon Jan 30 16:19:15 2023
 
-@author: Maximilian
+@author: Maximilian Hauser
 """
 
 # import section ------------------------------------------------------------ #
@@ -15,34 +15,22 @@ class InitiativeQueque:
         self.game = game
         self.unit_set = set()
         
+        # add units from different spritegroups to one set ------------------ #
         spritegroup_lst = [self.game.unit_blufor_grp, self.game.unit_redfor_grp]
         for group in spritegroup_lst:
             for unit in group:
                 self.unit_set.add(unit)
         
+        # setup attributes of queque to be used later ----------------------- #
         temp_lst = list()
         self.initiative_queque = cdt.Queque()
-        self.high_ini = list()
-        self.low_ini_index = None
         self.sorted_lst = None
-
+        
+        
         for unit in self.unit_set:
-            temp_lst.append((unit.id, unit.initiative))
+            temp_lst.append({"Unit_ID":unit.id, "Start_INI":unit.initiative, "Current_INI":unit.initiative, "Faction":unit.faction})
     
-        self.sorted_lst = sorted(temp_lst, key=lambda x:x[1])
-
-        for item in self.sorted_lst:
-            if item[1] > 15:
-                self.high_ini.append(item)
-
-        for i in range(len(self.sorted_lst)):
-            if self.sorted_lst[i][1] < 5:
-                self.low_ini_index = i
-                break
-
-        if self.low_ini_index != None:
-            for i in range(len(self.high_ini)-1, -1, -1):
-                self.sorted_lst.insert(self.low_ini_index, self.high_ini[i])
+        self.sorted_lst = sorted(temp_lst, key=lambda x:x["Start_INI"], reverse=False)
 
         for i in range(len(self.sorted_lst)):
             item = self.sorted_lst.pop(0)
@@ -53,19 +41,21 @@ class InitiativeQueque:
         self.unit_moves_individual_status = list()
         for unit in self.unit_set:
             key = unit.id
-            num_ids = [unit[0] for unit in self.initiative_queque.items]
+            num_ids = [unit["Unit_ID"] for unit in self.initiative_queque.items]
             target = num_ids.count(key)
             self.unit_moves_round.update({key:[target,0]})
          
     def set_unit_attr(self, **kwargs):
         for k in kwargs:
-            unit = next((unit for unit in self.unit_set if unit.id == self.initiative_queque.items[0][0]), None)
+            unit = next((unit for unit in self.unit_set if unit.id == self.initiative_queque.items[0]["Unit_ID"]), None)
             if unit != None:
                 setattr(unit, k, kwargs[k])
+                
     
-    def move_unit_to_end_of_queque(self):
+    def move_unit_to_new_position_in_queque(self):
         unit = self.initiative_queque.dequeque()
-        self.initiative_queque.enqueque(unit)
+        unit["Current_INI"] = unit["Start_INI"]
+        self.initiative_queque.insert_past_value(unit, unit["Start_INI"])
     
     # deals with handing activation to the next unit and round advancement -- #
     def check_unit_ap(self):
@@ -75,7 +65,8 @@ class InitiativeQueque:
             self.unit_moves_round[active_unit.id][1] += 1
             active_unit.activated = False
             active_unit.action_points = active_unit.starting_ap
-            self.move_unit_to_end_of_queque()
+            self.initiative_queque.dict_val_add("Current_INI", 1)
+            self.move_unit_to_new_position_in_queque()
             self.set_unit_attr(activated=True)
             
         for key in self.unit_moves_round.keys():

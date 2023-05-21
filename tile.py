@@ -29,6 +29,7 @@ from dropdownmenu import DropDownMenu
 from attribute_dicts.t_attr import t_dict
 from settings import TERRAIN_LAYER, WIN_WIDTH, WIN_HEIGHT
 
+
 # Tile class ---------------------------------------------------------------- #
 class Tile(pg.sprite.Sprite):
     """
@@ -290,7 +291,7 @@ class Tile(pg.sprite.Sprite):
                 
             if event.button == 3:
                 
-                if blufor_activated is not None:
+                if blufor_activated is not None and hasattr(self.game, "dropdownmenu") == False:
                     self.ddm_open = True
                     m_x, m_y = event.pos
                     kwargs = gl.get_kwargs_ddm(self, blufor_activated, self.game.unit_blufor_grp, self.game.tile_grp)
