@@ -14,6 +14,8 @@ class InitiativeQueque:
     def __init__(self, game):
         self.game = game
         self.unit_set = set()
+        self.initiative_queque = cdt.Queque()
+        self.sorted_lst = None
         
         # add units from different spritegroups to one set ------------------ #
         spritegroup_lst = [self.game.unit_blufor_grp, self.game.unit_redfor_grp]
@@ -22,15 +24,12 @@ class InitiativeQueque:
                 self.unit_set.add(unit)
         
         # setup attributes of queque to be used later ----------------------- #
-        temp_lst = list()
-        self.initiative_queque = cdt.Queque()
-        self.sorted_lst = None
-        
+        temp_lst = list()      
         
         for unit in self.unit_set:
-            temp_lst.append({"Unit_ID":unit.id, "Start_INI":unit.initiative, "Current_INI":unit.initiative, "Faction":unit.faction})
+            temp_lst.append({"Unit_ID":unit.id, "Start_INI":unit.initiative, "Current_INI":unit.initiative})
     
-        self.sorted_lst = sorted(temp_lst, key=lambda x:x["Start_INI"], reverse=False)
+        self.sorted_lst = sorted(temp_lst, key=lambda x:x["Start_INI"], reverse=True)
 
         for i in range(len(self.sorted_lst)):
             item = self.sorted_lst.pop(0)
@@ -44,10 +43,11 @@ class InitiativeQueque:
             num_ids = [unit["Unit_ID"] for unit in self.initiative_queque.items]
             target = num_ids.count(key)
             self.unit_moves_round.update({key:[target,0]})
-         
+            
+
     def set_unit_attr(self, **kwargs):
         for k in kwargs:
-            unit = next((unit for unit in self.unit_set if unit.id == self.initiative_queque.items[0]["Unit_ID"]), None)
+            unit = next((unit for unit in self.unit_set if unit.id == self.initiative_queque.items[-1]["Unit_ID"]), None)
             if unit != None:
                 setattr(unit, k, kwargs[k])
                 
@@ -61,6 +61,10 @@ class InitiativeQueque:
     def check_unit_ap(self):
         # switching to next unit -------------------------------------------- #
         active_unit = next((unit for unit in self.unit_set if unit.activated == True), None)
+        
+        if active_unit is None:
+            self.set_unit_attr(activated=True)
+        
         if active_unit.action_points <= 0:
             self.unit_moves_round[active_unit.id][1] += 1
             active_unit.activated = False

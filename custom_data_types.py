@@ -35,8 +35,11 @@ class Queque:
     def enqueque(self, item):
         self.items.insert(0, item)
         
-    def insert_past_value(self, item, value, dict_key="Current_INI"):
-        res = next(x for x, val in enumerate(self.items) if val[dict_key] > value)
+    def insert_past_value(self, item, value, is_dict=True, dict_key="Current_INI"):
+        if is_dict:
+            res = next((x for x, val in enumerate(self.items) if val[dict_key] > value), len(self.items))
+        else:
+            res = next((x for x, val in enumerate(self.items) if val > value), len(self.items))
         self.items.insert(res, item)
         
     def dict_val_add(self, key, value):
