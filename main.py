@@ -206,7 +206,6 @@ class Game:
             self.events()
             self.update()
             self.draw()
-            print(self.initiative_queque.initiative_queque.items)
     
     
     def briefing(self):

@@ -64,6 +64,8 @@ class Munition(pg.sprite.Sprite):
         if self.cooldown <= 0:
             
             if self.stage == "launch":
+                self.launcher.action_points -= 1
+                self.launcher.ammunition[self.weapon_type] -= 1
                 self.stage = "midcourse"
             
             elif self.stage == "midcourse":

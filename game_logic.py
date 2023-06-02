@@ -91,7 +91,7 @@ class GameLogic:
         
         
     # handles a unit firing on another unit --------------------------------- #
-    def attack_unit(attacker, target, weapon="b_light_coilgun"):
+    def attack_unit(attacker, target, weapon):
         
         if target != None:
             dmg_armor_div = w_dict[weapon]["dmg"] - target.armor
@@ -220,13 +220,20 @@ class GameLogic:
         
         # if tile has enemy or fog => attackable ---------------------------- #
         fog_bool = GameLogic.check_fog_of_war(tile, blufor_grp, tile_grp)
+        available_munition = dict()
         
-        if fog_bool:
-            kwargs_dct.update({"attack":"gl.attack_unit(next(u for u in self.game.unit_blufor_grp if u.activated == True), next(t for t in self.game.tile_grp if t.ddm_open == True).unit)"})
-            
-        elif hasattr(tile.unit, "faction"):
-            if tile.unit.faction == "redfor":
-                kwargs_dct.update({"attack":"gl.attack_unit(next(u for u in self.game.unit_blufor_grp if u.activated == True), next(t for t in self.game.tile_grp if t.ddm_open == True).unit)"})
+        for k in blufor_activated.ammunition.keys():
+            if blufor_activated.ammunition[k] > 0:
+                available_munition.update({k:blufor_activated.ammunition[k]})
+                
+        for k in available_munition.keys():
+            if fog_bool:
+                if GameLogic.in_weapon_range(blufor_activated, tile, weapon=k):
+                    kwargs_dct.update({k:"gl.attack_unit(next(u for u in self.game.unit_blufor_grp if u.activated == True), next(t for t in self.game.tile_grp if t.ddm_open == True).unit, '"+str(k)+"')"})
+                    
+            elif hasattr(tile.unit, "faction"):
+                if GameLogic.in_weapon_range(blufor_activated, tile.unit, weapon=k):
+                    kwargs_dct.update({k:"gl.attack_unit(next(u for u in self.game.unit_blufor_grp if u.activated == True), next(t for t in self.game.tile_grp if t.ddm_open == True).unit, '"+str(k)+"')"})
         
         return kwargs_dct
 

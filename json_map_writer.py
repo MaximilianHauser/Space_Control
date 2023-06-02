@@ -13,7 +13,7 @@ test_map = [
     
     [[None], [None], ["s", "r_cc"], ["s", None], ["s", None]],
     
-    [[None], ["s", "r_gs"], ["s", None], ["b", None], ["s", None]],
+    [[None], ["s", None], ["s", None], ["b", None], ["s", None]],
     
     [["s", None], ["a", None], ["b", None], ["a", None], ["s", None]],
     
