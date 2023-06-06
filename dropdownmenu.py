@@ -24,7 +24,9 @@ observer.py
 
 # import section ------------------------------------------------------------ #
 import pygame as pg
-from game_logic import GameLogic as gl
+import gamelogic as gl # needed for functions executed from kwargs
+from munition import Munition
+from attribute_dicts.w_attr import w_dict
 from settings import UI_MAPINFO_LAYER, FONTSIZE, UI_TRANSPARENCY
 
 # DropdownMenu class -------------------------------------------------------- #
@@ -189,7 +191,11 @@ class DropDownMenu(pg.sprite.Sprite):
                 button_image = pg.draw.rect(self.image, "darkslategray3", [0, i*FONTSIZE+1, self.width, FONTSIZE])
                 pg.draw.rect(self.image, "darkslategray1", [0, i*FONTSIZE+1, self.width, FONTSIZE], 2)
             
-            text = list(self.attr_dict.keys())[i]
+            try:
+                text = w_dict[list(self.attr_dict.keys())[i]]["ddm_name"]
+            except KeyError:
+                text = list(self.attr_dict.keys())[i]
+                
             text = self.game.font2.render(text, True, "white")
             
             self.image.blit(text, (4, i*FONTSIZE-2))
@@ -238,7 +244,7 @@ class DropDownMenu(pg.sprite.Sprite):
         Returns:
         --------
         None
-        """
+        """       
         for i in range(self.num_rows):
             
             pos_in_rect = event.pos[0] - self.rect.x, event.pos[1] - self.rect.y

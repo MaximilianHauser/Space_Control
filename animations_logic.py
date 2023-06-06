@@ -9,8 +9,8 @@ will contain animation logic
 
 # import section ------------------------------------------------------------ #
 import pygame as pg
-from hexlogic import HexLogic as hl
-from game_logic import GameLogic as gl
+import hexlogic as hl
+import gamelogic as gl
 
 
 # Animations class contains animation functions ----------------------------- #

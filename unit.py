@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Created on Mon May  8 08:43:41 2023
 
@@ -41,7 +40,7 @@ settings
 # import section ------------------------------------------------------------ #
 import pygame as pg
 import itertools
-from hexlogic import HexLogic as hl
+import hexlogic as hl
 from attribute_dicts.u_attr import u_dict
 from settings import UNIT_LAYER, WIN_WIDTH, WIN_HEIGHT
 

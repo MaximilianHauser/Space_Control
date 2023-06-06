@@ -9,11 +9,35 @@ Created on Sat Oct 22 18:30:36 2022
 import json
 import numpy as np
 import pandas as pd
-from hexlogic import HexLogic as hl
+import hexlogic as hl
+from settings import WIN_WIDTH, WIN_HEIGHT
 
 
 # MapLogic class ------------------------------------------------------------ #
 class MapLogic:
+    
+    # get the max or min value along an axis from a tile -------------------- #
+    # max_x = right map border, min_x = left map border --------------------- #
+    # max_y = bottom map border, min_y = top map border --------------------- #
+    def get_map_borders(tile_grp):
+        
+        max_x = 0
+        min_x = WIN_WIDTH
+        max_y = 0
+        min_y = WIN_HEIGHT
+        
+        for tile in tile_grp:
+            if tile.x > max_x:
+                max_x = tile.x
+            if tile.x < min_x:
+                min_x = tile.x
+            if tile.y > max_y:
+                max_y = tile.y
+            if tile.y < min_y:
+                min_y = tile.y
+                
+        return max_x, min_x, max_y, min_y
+    
     # open a json-map-file and get the map data ----------------------------- #
     def load_from_json(json_file):
         json_o = open(json_file)

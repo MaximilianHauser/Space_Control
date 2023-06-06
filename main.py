@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Created on Thu Sep  8 10:03:53 2022
 
@@ -18,7 +17,7 @@ import sys
 import spritelogic as sl
 import observer as ob
 from map_logic import MapLogic as ml
-from game_logic import GameLogic as gl
+import gamelogic as gl
 from animations_logic import Animations as al
 import win_conditions as rbl
 import initiative_queque as iq
@@ -236,7 +235,7 @@ class Game:
         # map scrolling ----------------------------------------------------- #
         if event.type == pg.MOUSEMOTION or event.type == self.E_IDLE:
             mouse_pos_x, mouse_pos_y = event.pos
-            max_x, min_x, max_y, min_y = gl.get_map_borders(self.tile_grp)
+            max_x, min_x, max_y, min_y = ml.get_map_borders(self.tile_grp)
             
             if mouse_pos_x < SCROLL_AREA:
                 if max_x < WIN_WIDTH - SCROLL_BUFFER:

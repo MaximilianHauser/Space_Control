@@ -310,7 +310,7 @@ u_dict = {
             "health" : 10,
             "armor" : 1,
             "initiative" : 7,
-            "ciws_dmg" : 14,
+            "ciws_dmg" : 1,
             "ciws_range" : 2,
             "starting_ciws_charge" : 5,
             "ciws_charge" : 5,

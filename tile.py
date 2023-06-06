@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Created on Sat May  6 21:05:53 2023
 
@@ -22,8 +21,8 @@ observer.py
 
 # import section ------------------------------------------------------------ #
 import pygame as pg
-from hexlogic import HexLogic as hl
-from game_logic import GameLogic as gl
+import hexlogic as hl
+import gamelogic as gl
 from animations_logic import Animations as an
 from dropdownmenu import DropDownMenu
 from attribute_dicts.t_attr import t_dict

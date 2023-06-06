@@ -12,7 +12,7 @@ loss_conditions : [turns, red_unit_reaches_coords(specific, one, multiple), redf
 
 
 # import section ------------------------------------------------------------ #
-from game_logic import GameLogic as gl
+import gamelogic as gl
 
 
 # ResolveBattleLogic class -------------------------------------------------- #

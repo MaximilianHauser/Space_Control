@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Created on Fri Sep  9 07:19:00 2022
 
@@ -12,6 +11,47 @@ Dependencies:
 settings
     A custom python file containing the constants TILE_WIDTH and TILE_HEIGHT.
     
+Functions:
+----------
+linint(a : int, b : int, t : float) -> float:
+    Linear interpolation returns point at t of distance between a and b.
+    
+cartesian_linint(xy_a:tuple, xy_b:tuple, t:float) -> tuple:
+    Linear interpolation returns point at t of distance between a and b on
+    a cartesian coordinates system.
+    
+cube_linint(obj_a:object, obj_b:object, t:float) -> tuple:
+    Returns the hextile coordinates of a point situated at t part of the way from obj_a to obj_b.
+    
+round_hex(qrs:tuple) -> tuple:
+    Rounds each of the coordinates to the nearest integer.
+    
+get_qrs(obj:object) -> tuple:
+    Returns values of attributes q, r, s of obj.
+    
+set_qrs(obj:object, q:int, r:int, s:int) -> None:
+    Set q r and s attribute of obj to specified values.
+    
+hex_to_pixel(qrs:tuple) -> tuple:
+    Converts hex_coords to pixel_coords.
+    
+pixel_to_hex(xy:tuple) -> tuple:
+    Converts pixel_coords to hex_coords.
+    
+neighbors(qrs:tuple) -> tuple:
+    Return a list of coordinates of neighboring hexagons.
+    
+distance(obj_a:object, obj_b:object) -> int:
+    Returns distance from one object to another in a cube coordinate system.
+    
+in_range(obj:object, n:int) -> set:
+    Returns a set containing the cube coordinates of every hexagon in distance n from obj.
+    
+line_draw(obj_a:object, obj_b:object) -> tuple:
+    Draws a line from one hexagon to another, returns a tuple containing the hexagons with the center closest to the line.
+    
+dist_lim_flood_fill(start_obj:object, n:int, obj_grp:(list, set, pg.sprite.Group), block_var:str) -> set:
+    All cube coordinates within n distance from an object, factoring in block_var (variable if True blocks object).
 
 @author: Maximilian Hauser
 """
@@ -21,492 +61,442 @@ settings
 from settings import TILE_WIDTH, TILE_HEIGHT
 
 
-# Hexlogic class ------------------------------------------------------------ #
-class HexLogic:
+# Hexlogic functions -------------------------------------------------------- #
+def linint(a:int, b:int, t:float) -> float:
     """
-    Methods:
+    Linear interpolation returns point at t of distance between a and b.
+    
+    Parameters:
+    -----------
+    a : integer
+        A real numeric value, representing a point on a line.
+        
+    b : integer
+        A real numeric value, representing a point on a line.
+        
+    t : float
+        Float denominating the distance between a and b in percent.
+        
+    Raises:
+    -------
+    TypeError: If a, b or t is not numeric.
+        
+    Returns:
     --------
-    linint(a : int, b : int, t : float) -> float:
-        Linear interpolation returns point at t of distance between a and b.
+    linint(float): Linear interpolation t part of the way from a to b.
+    """
+    linint = a + (b - a) * t
+            
+    return linint
+    
+    
+def cartesian_linint(xy_a:tuple, xy_b:tuple, t:float) -> tuple:
+    """
+    Linear interpolation returns point at t distance between a and b in
+    a cartesian coordinates system.
         
-    cartesian_linint(xy_a:tuple, xy_b:tuple, t:float) -> tuple:
-        Linear interpolation returns point at t of distance between a and b on
-        a cartesian coordinates system.
+    Parameters:
+    -----------
+    xy_a : tuple
+        A tuple consisting of an integer for the x and y value.
         
-    cube_linint(obj_a:object, obj_b:object, t:float) -> tuple:
-        Returns the hextile coordinates of a point situated at t part of the way from obj_a to obj_b.
+    xy_b : tuple
+        A tuple consisting of an integer for the x and y value.
         
-    round_hex(qrs:tuple) -> tuple:
-        Rounds each of the coordinates to the nearest integer.
+    t : float
+        Float denominating the distance between point a and b in percent.
         
-    get_qrs(obj:object) -> tuple:
-        Returns values of attributes q, r, s of obj.
+    Raises:
+    -------
+    ValueError: If xy_a or xy_b is not a tuple.
+    UnboundLocalError:
+        If one of the tuples xy_a or xy_b contains more than 2 values
+        or either xy_a or xy_b is not a tuple.
         
-    set_qrs(obj:object, q:int, r:int, s:int) -> None:
-        Set q r and s attribute of obj to specified values.
+    Returns:
+    --------
+    cartesian_linint(tuple): Linear interpolation t part of the way from a to b.
+    """
+    x_a, y_a = xy_a
+    x_b, y_b = xy_b
         
-    hex_to_pixel(qrs:tuple) -> tuple:
-        Converts hex_coords to pixel_coords.
+    x = linint(x_a, x_b, t)
+    y = linint(y_a, y_b, t)
         
-    pixel_to_hex(xy:tuple) -> tuple:
-        Converts pixel_coords to hex_coords.
+    cartesian_linint = (x, y)
         
-    neighbors(qrs:tuple) -> tuple:
-        Return a list of coordinates of neighboring hexagons.
+    return cartesian_linint
+    
+
+def cube_linint(obj_a:object, obj_b:object, t:float) -> tuple:
+    """
+    Returns the hextile coordinates of a point situated at t part of the way from obj_a to obj_b.
         
-    distance(obj_a:object, obj_b:object) -> int:
-        Returns distance from one object to another in a cube coordinate system.
+    Parameters:
+    -----------
+    obj_a : object
+        An object having a q, r and s attribute, with real number values.
         
-    in_range(obj:object, n:int) -> set:
-        Returns a set containing the cube coordinates of every hexagon in distance n from obj.
+    obj_b : object
+        An object having a q, r and s attribute, with real number values.
         
-    line_draw(obj_a:object, obj_b:object) -> tuple:
-        Draws a line from one hexagon to another, returns a tuple containing the hexagons with the center closest to the line.
+    t : float
+        Float denominating the distance between point a and b in percent.
         
-    dist_lim_flood_fill(start_obj:object, n:int, obj_grp:(list, set, pg.sprite.Group), block_var:str) -> set:
-        All cube coordinates within n distance from an object, factoring in block_var (variable if True blocks object).
+    Raises:
+    -------
+    AttributeError: If one of the objects is missing an q, r or s attribute.
+        
+    Returns:
+    --------
+    linint_coords(tuple): The hextile coordinates of a point situated at the t part of the way from obj_a to obj_b.
+    """
+    a_q = obj_a.q
+    b_q = obj_b.q
+    a_r = obj_a.r
+    b_r = obj_b.r
+    a_s = obj_a.s
+    b_s = obj_b.s
+        
+    q = linint(a_q, b_q, t)
+    r = linint(a_r, b_r, t)
+    s = linint(a_s, b_s, t)
+        
+    linint_coords = (q, r, s)
+        
+    return linint_coords
+
+
+def round_hex(qrs:tuple) -> tuple:
+    """
+    Rounds each of the coordinates to the nearest integer.
+        
+    Parameters:
+    -----------
+    qrs : Tuple
+        A Tuple containing 3 real numerical values.
+        
+    Raises:
+    -------
+    ValueError: If the input tuple is empty.
+    UnboundLocalError: If qrs contains more than 3 values or is not a tuple.
+        
+    Returns:
+    --------
+    rounded_qrs(tuple): The input tuple, each element rounded to the nearest integer. 
     """
 
-    def linint(a : int, b : int, t : float) -> float:
-        """
-        Linear interpolation returns point at t of distance between a and b.
+    q_f, r_f, s_f = qrs
         
-        Parameters:
-        -----------
-        a : integer
-            An object having a q, r and s attribute, with real number values.
-        
-        b : integer
-            An object having a q, r and s attribute, with real number values.
-        
-        t : float
-            Float denominating the distance between 
-        
-        Raises:
-        -------
-        TypeError: If the input is not an integer for a and b or a float for t.
-        
-        Returns:
-        --------
-        linint(float): Linear interpolation t part of the way from a to b.
-        """
-        
-        linint = a + (b - a) * t
-        return linint
-    
-    
-    def cartesian_linint(xy_a:tuple, xy_b:tuple, t:float) -> tuple:
-        """
-        Linear interpolation returns point at t of distance between a and b on
-        a cartesian coordinates system.
-        
-        Parameters:
-        -----------
-        xy_a : tuple
-            A tuple consisting of an integer for the x and y value.
-        
-        xy_b : tuple
-            A tuple consisting of an integer for the x and y value.
-        
-        t : float
-            Float denominating the distance between 
-        
-        Raises:
-        -------
-        TypeError: If the input is not an integer for a and b or a float for t.
-        
-        Returns:
-        --------
-        cartesian_linint(tuple): Linear interpolation t part of the way from a to b.
-        """
-        x = HexLogic.linint(xy_a[0], xy_b[0], t)
-        y = HexLogic.linint(xy_a[1], xy_b[1], t)
-        
-        cartesian_linint = (x, y)
-        
-        return cartesian_linint
-    
+    q = round(q_f)
+    r = round(r_f)
+    s = round(s_f)
 
-    def cube_linint(obj_a:object, obj_b:object, t:float) -> tuple:
-        """
-        Returns the hextile coordinates of a point situated at t part of the way from obj_a to obj_b.
-        
-        Parameters:
-        -----------
-        obj_a : object
-            An object having a q, r and s attribute, with real number values.
-        
-        obj_b : object
-            An object having a q, r and s attribute, with real number values.
-        
-        t : float
-            Float denominating the distance between 
-        
-        Raises:
-        -------
-        TypeError: If the input is not an object for obj_a and obj_b or a float for t.
-        ValueError:
-        
-        Returns:
-        --------
-        linint_coords(tuple): The hextile coordinates of a point situated at the t part of the way from obj_a to obj_b.
-        """
-        q = HexLogic.linint(obj_a.q, obj_b.q, t)
-        r = HexLogic.linint(obj_a.r, obj_b.r, t)
-        s = HexLogic.linint(obj_a.s, obj_b.s, t)
-        
-        linint_coords = (q, r, s)
-        
-        return linint_coords
+    q_diff = abs(q - q_f)
+    r_diff = abs(r - r_f)
+    s_diff = abs(s - s_f)
 
-
-    def round_hex(qrs:tuple) -> tuple:
-        """
-        Rounds each of the coordinates to the nearest integer.
-        
-        Parameters:
-        -----------
-        qrs : Tuple
-            A Tuple containing 3 real numerical values.
-        
-        Raises:
-        -------
-        TypeError: If the input is not a tuple.
-        ValueError: If the input tuple is empty.
-        
-        Returns:
-        --------
-        rounded_qrs(tuple): The input tuple, each element rounded to the nearest integer. 
-        """
-        try:
-            q_f, r_f, s_f = qrs
-        except ValueError as ve:
-            print(ve)
-        
-        q = round(q_f)
-        r = round(r_f)
-        s = round(s_f)
-
-        q_diff = abs(q - q_f)
-        r_diff = abs(r - r_f)
-        s_diff = abs(s - s_f)
-
-        if q_diff > r_diff and q_diff > s_diff:
-            q = -r-s
-        elif r_diff > s_diff:
-            r = -q-s
-        else:
-            s = -q-r
-        
-        rounded_qrs = (q, r, s)
-        
-        return rounded_qrs
-    
-
-    def get_qrs(obj:object) -> tuple:
-        """
-        Returns values of attributes q, r, s of obj as tuple.
-        
-        Parameters:
-        -----------
-        obj : object
-            An object having attributes q, r, s, values being integer.
-        
-        Raises:
-        -------
-        TypeError: If the input is not an object, or if the value of q, r or s is not an integer.
-        
-        Returns:
-        --------
-        qrs(tuple): The values of attributes q, r, s of obj as tuple.
-        """
-        try:
-            q = obj.q
-            r = obj.r
-            s = obj.s
-        except AttributeError as ae:
-            print(ae)
-        
-        try:
-            q:int
-            r:int
-            s:int
-        except TypeError as te:
-            print(te)
-            
-        qrs = (q, r, s)
-        
-        return qrs
-    
-
-    def set_qrs(obj:object, q:int, r:int, s:int) -> None:
-        """
-        Set q r and s attribute of obj to specified values.
-        
-        Parameters:
-        -----------
-        obj : object
-            An object having attributes q, r, s, values being integer.
-        
-        Raises:
-        -------
-        TypeError: If obj input is not an object, or q, r or s is not an integer.
-        AttributeError: If obj is missing q, r or s as attribute.
-        
-        Returns:
-        --------
-        None
-        """
-        try:
-            obj.q = q
-            obj.r = r
-            obj.s = s
-            
-        except AttributeError as ae:
-            print(ae)
-    
-
-    def hex_to_pixel(qrs:tuple) -> tuple:
-        """
-        Converts hex_coords to pixel_coords.
-        
-        Parameters:
-        -----------
-        qrs : Tuple
-            A Tuple containing 3 real numerical values.
-        
-        Raises:
-        -------
-        TypeError: If qrs input is not a tuple, or q, r or s is not an integer.
-        ValueError: If tuple does contain less than 4 variables.
-        
-        Returns:
-        --------
-        xy(tuple): The input coordinates of hexagon qrs converted to a 2-axis coordinates system xy.
-        """
-        try:
-            q,r,s = qrs
-        except ValueError as ve:
-            print(ve)
-        
-        x = ((4/3)*q - (2/3)*r - (2/3)*s) * TILE_WIDTH * 0.375
-        y = (r - s) * TILE_HEIGHT * 0.5
-        
-        xy = (x, y)
-        
-        return xy
-    
-
-    def pixel_to_hex(xy:tuple) -> tuple:
-        """
-        Converts pixel_coords to hex_coords.
-        
-        Parameters:
-        -----------
-        xy : Tuple
-            A Tuple containing 2 real numerical values.
-        
-        Raises:
-        -------
-        TypeError: If xy input is not a tuple, or x or y is not an integer.
-        ValueError: If tuple does contain less than 3 variables.
-        
-        Returns:
-        --------
-        qrs(tuple): The input cartesian coordinates tuple of xy converted to a hexagon coordinates system qrs.
-        """
-        try:
-            x, y = xy
-        except ValueError as ve:
-            print(ve)
-        
-        q = (x / 2) / TILE_WIDTH * (8 / 3)
-        r = (y / 2 - x / 4) / TILE_HEIGHT * 2
+    if q_diff > r_diff and q_diff > s_diff:
+        q = -r-s
+    elif r_diff > s_diff:
+        r = -q-s
+    else:
         s = -q-r
         
-        qrs = (q,r,s)
+    rounded_qrs = (q, r, s)
         
-        return qrs
+    return rounded_qrs
     
 
-    def neighbors(qrs:tuple) -> tuple:
-        """
-        Return a list of coordinates of neighboring hexagons.
+def get_qrs(obj:object) -> tuple:
+    """
+    Returns values of attributes q, r, s of obj as tuple.
         
-        Parameters:
-        -----------
-        qrs : Tuple
-            A Tuple containing 3 real numerical values.
+    Parameters:
+    -----------
+    obj : object
+        An object having attributes q, r, s, values being integer.
         
-        Raises:
-        -------
-        TypeError: If qrs input is not a tuple, or q, r or s is not an integer.
-        ValueError: If tuple does contain less than 4 variables.
+    Raises:
+    -------
+    AttributeError: If obj is missing q, r or s as attribute.
         
-        Returns:
-        --------
-        nbors(set): A set containing all cube coordinates neighboring qrs.
-        """
-        q, r, s = qrs
-        nbors = ((q+1,r,s-1), (q+1,r-1,s), (q,r-1,s+1), (q-1,r,s+1), (q-1,r+1,s), (q,r+1,s-1))
-        return nbors
-    
+    Returns:
+    --------
+    qrs(tuple): The values of attributes q, r, s of obj as tuple.
+    """
 
-    def distance(obj_a:object, obj_b:object) -> int:
-        """
-        Returns distance from one object to another in a cube coordinate system.
-        
-        Parameters:
-        -----------
-        obj_a : Object
-            An Object containing the attributes q, r and s, having integer values.
-        obj_b : Object
-            An Object containing the attributes q, r and s, having integer values.
-        
-        Raises:
-        -------
-        TypeError: If obj_a or obj_b is not an object.
-        AttributeError: If obj_a or obj_b is missing q, r or s as an attribute.
-        
-        Returns:
-        --------
-        ab_dist(int): The distance between obj_a and obj_b in hexagon tiles.
-        """
-        try:
-            a_q = getattr(obj_a, "q")
-            a_r = getattr(obj_a, "r")
-            a_s = getattr(obj_a, "s")
-            b_q = getattr(obj_b, "q")
-            b_r = getattr(obj_b, "r")
-            b_s = getattr(obj_b, "s")
+    q = obj.q
+    r = obj.r
+    s = obj.s
             
-        except AttributeError as ae:
-            print(ae)
+    qrs = (q, r, s)
         
-        q_diff = abs(a_q - b_q)
-        r_diff = abs(a_r - b_r)
-        s_diff = abs(a_s - b_s)
-        ab_dist = max(q_diff, r_diff, s_diff)
-        
-        return ab_dist
+    return qrs
     
 
-    def in_range(obj:object, n:int) -> set:
-        """
-        Returns a set containing the cube coordinates of every hexagon in distance n from obj.
+def set_qrs(obj:object, q:int, r:int, s:int) -> None:
+    """
+    Set q r and s attribute of obj to specified values.
         
-        Parameters:
-        -----------
-        obj : Object
-            An Object containing the attributes q, r and s, having integer values.
-        n : Integer
-            An Integer limiting the distance 
+    Parameters:
+    -----------
+    obj : object
+        An object having attributes q, r, s, values being integer.
         
-        Raises:
-        -------
-        TypeError: If obj is not an object or n is not an Integer.
-        AttributeError: If obj is missing q, r or s as an Attribute.
+    Raises:
+    -------
+    AttributeError: If obj is missing q, r or s as attribute.
         
-        Returns:
-        --------
-        hex_in_range(set): A set containing all cube coordinates within distance n from obj.
-        """
-        try:
-            o_q = getattr(obj, "q")
-            o_r = getattr(obj, "r")
-            o_s = getattr(obj, "s")
-            
-        except AttributeError as ae:
-            print(ae)
-        hex_in_range = set()
+    Returns:
+    --------
+    None
+    """
+
+    setattr(obj, "q", q)
+    setattr(obj, "r", r)
+    setattr(obj, "s", s)
+    
+
+def hex_to_pixel(qrs:tuple) -> tuple:
+    """
+    Converts hex_coords to pixel_coords.
+    
+    Parameters:
+    -----------
+    qrs : Tuple
+        A Tuple containing 3 real numerical values.
         
-        for q in range(-n, n):
-            for r in range(max(-n, -q-n), min(n, -q+n)):
-                s = -q-r
-                hex_in_range.add((o_q+q, o_r+r, o_s+s))
+    Raises:
+    -------
+    ValueError: If tuple does contain less than 3 variables.
+    UnboundLocalError: If qrs contains more than 3 values or is not a tuple.
+        
+    Returns:
+    --------
+    xy(tuple): The input coordinates of hexagon qrs converted to a 2-axis coordinates system xy.
+    """
+    q,r,s = qrs
+        
+    x = ((4/3)*q - (2/3)*r - (2/3)*s) * TILE_WIDTH * 0.375
+    y = (r - s) * TILE_HEIGHT * 0.5
+        
+    xy = (x, y)
+        
+    return xy
+    
+
+def pixel_to_hex(xy:tuple) -> tuple:
+    """
+    Converts pixel_coords to hex_coords.
+        
+    Parameters:
+    -----------
+    xy : Tuple
+        A Tuple containing 2 real numerical values.
+        
+    Raises:
+    -------
+    TypeError: If x or y is not numeric.
+    ValueError: If tuple does contain less than 3 variables.
+    UnboundLocalError: If xy contains more than 2 values or is not a tuple.
+        
+    Returns:
+    --------
+    qrs(tuple): The input cartesian coordinates tuple of xy converted to a hexagon coordinates system qrs.
+    """
+
+    x, y = xy
+        
+    q = (x / 2) / TILE_WIDTH * (8 / 3)
+    r = (y / 2 - x / 4) / TILE_HEIGHT * 2
+    s = -q-r
+        
+    qrs = (q,r,s)
+        
+    return qrs
+    
+
+def neighbors(qrs:tuple) -> tuple:
+    """
+    Returns a tuple of coordinates of neighboring hexagons.
+        
+    Parameters:
+    -----------
+    qrs : Tuple
+        A Tuple containing 3 real numerical values.
+        
+    Raises:
+    -------
+    TypeError: If q, r or s is not numeric.
+    ValueError: If tuple does contain less than 3 variables.
+    UnboundLocalError: If qrs contains more than 3 values or is not a tuple.
+        
+    Returns:
+    --------
+    nbors(set): A set containing all cube coordinates neighboring qrs.
+    """
+
+    q, r, s = qrs
+        
+    nbors = ((q+1,r,s-1), (q+1,r-1,s), (q,r-1,s+1), (q-1,r,s+1), (q-1,r+1,s), (q,r+1,s-1))
+        
+    return nbors
+    
+
+def distance(obj_a:object, obj_b:object) -> int:
+    """
+    Returns distance from one object to another in a cube coordinate system.
+        
+    Parameters:
+    -----------
+    obj_a : Object
+        An Object containing the attributes q, r and s, having numerical values.
+    obj_b : Object
+        An Object containing the attributes q, r and s, having numerical values.
+        
+    Raises:
+    -------
+    AttributeError: If obj_a or obj_b is missing q, r or s as an attribute.
+        
+    Returns:
+    --------
+    ab_dist(int): The distance between obj_a and obj_b in hexagon tiles.
+    """
+
+    a_q = getattr(obj_a, "q")
+    a_r = getattr(obj_a, "r")
+    a_s = getattr(obj_a, "s")
+    b_q = getattr(obj_b, "q")
+    b_r = getattr(obj_b, "r")
+    b_s = getattr(obj_b, "s")
+        
+    q_diff = abs(a_q - b_q)
+    r_diff = abs(a_r - b_r)
+    s_diff = abs(a_s - b_s)
+    ab_dist = max(q_diff, r_diff, s_diff)
+        
+    return ab_dist
+    
+
+def in_range(obj:object, n:int) -> set:
+    """
+    Returns a set containing the cube coordinates of every hexagon in distance n from obj.
+        
+    Parameters:
+    -----------
+    obj : Object
+        An Object containing the attributes q, r and s, having numerical values.
+    n : Integer
+    An Integer limiting the distance 
+        
+    Raises:
+    -------
+    TypeError: If n is not numeric.
+    AttributeError: If obj is missing q, r or s as an Attribute.
+        
+    Returns:
+    --------
+    hex_in_range(set): A set containing all cube coordinates within distance n from obj.
+    """
+
+    o_q = getattr(obj, "q")
+    o_r = getattr(obj, "r")
+    o_s = getattr(obj, "s")
+
+    hex_in_range = set()
+        
+    for q in range(-n, n):
+        for r in range(max(-n, -q-n), min(n, -q+n)):
+            s = -q-r
+            hex_in_range.add((o_q+q, o_r+r, o_s+s))
                 
-        return hex_in_range
+    return hex_in_range
     
 
-    def line_draw(obj_a:object, obj_b:object) -> tuple:
-        """
-        Draws a line from one hexagon to another, returns a tuple containing the hexagons with the center closest to the line.
+def line_draw(obj_a:object, obj_b:object) -> tuple:
+    """
+    Draws a line from one hexagon to another, returns a tuple containing the hexagons with the center closest to the line.
         
-        Parameters:
-        -----------
-        obj_a : Object
-            An Object containing the attributes q, r and s, having integer values.
-        obj_a : Object
-            An Object containing the attributes q, r and s, having integer values.
+    Parameters:
+    -----------
+    obj_a : Object
+        An Object containing the attributes q, r and s, having numerical values.
+    obj_a : Object
+        An Object containing the attributes q, r and s, having numerical values.
         
-        Raises:
-        -------
-        TypeError: If obj_a or pbj_b is not an object.
-        AttributeError: If obj_a or obj_b is missing q, r or s as an Attribute.
+    Raises:
+    -------
+    AttributeError: If obj_a or obj_b is missing q, r or s as an Attribute.
         
-        Returns:
-        --------
-        line_hexes_coords(tuple): A tuple containing all cube cordinates from obj_a to obj_b inclusive.
-        """
-        ab_dist = HexLogic.distance(obj_a, obj_b)
+    Returns:
+    --------
+    hex_line_coords(tuple): A tuple containing all cube cordinates from obj_a to obj_b inclusive.
+    """
+    ab_dist = distance(obj_a, obj_b)
         
-        line_hexes_coords = list()
+    hex_line_lst = list()
         
-        for i in range(0, ab_dist):
-            qrs_f = HexLogic.cube_linint(obj_a, obj_b, 1.0/ab_dist * i)
-            item = HexLogic.round_hex(qrs_f)
-            line_hexes_coords.append(item)
-            
-        return tuple(line_hexes_coords)
-    
-
-    def dist_lim_flood_fill(start_obj:object, n:int, obj_grp:(list, set), block_var:str) -> set:
-        """
-        All cube coordinates within n distance from an object, factoring in block_var (variable if True blocks object).
+    for i in range(0, ab_dist + 1):
         
-        Parameters:
-        -----------
-        start_obj : Object
-            An Object containing the attributes q, r and s, having integer values.
-        n : Integer
-            The number of moves from start object to fill.
-        obj_grp : List, Set or SpriteGroup
-            A container containing objects adjacent to each other in a cube coordinate system (tiles in tilemap).
-        block_var : String
-        
-        Raises:
-        -------
-        TypeError: If obj_a or pbj_b is not an object.
-        AttributeError: If obj_a or obj_b is missing q, r or s as an Attribute.
-        
-        Returns:
-        --------
-        visited(set): A tuple containing all cube cordinates from obj_a to obj_b inclusive.
-        """
         try:
-            start =  (start_obj.q, start_obj.r, start_obj.s)
-        except AttributeError as ae:
-            print(ae)
+            qrs_f = cube_linint(obj_a, obj_b, 1.0/ab_dist * i)
+            
+        except ZeroDivisionError:
+            qrs_f = cube_linint(obj_a, obj_b, 0)
+            
+        item = round_hex(qrs_f)
+        hex_line_lst.append(item)
+    
+    hex_line_coords = tuple(hex_line_lst)
         
-        visited = set() # set, so duplicate values are ignored
-        visited.add(start)
-        fringes = []
-        fringes.append([start])
+    return hex_line_coords
+    
+
+def dist_lim_flood_fill(start_obj:object, n:int, obj_grp:(list, set), block_var:str) -> set:
+    """
+    All cube coordinates within n distance from an object, factoring in block_var (variable if True blocks object).
+        
+    Parameters:
+    -----------
+    start_obj : Object
+        An Object containing the attributes q, r and s, having integer values.
+    n : Integer
+        The number of moves from start object to fill.
+    obj_grp : List, Set or SpriteGroup
+        A container containing objects adjacent to each other in a cube coordinate system (tiles in tilemap).
+    block_var : String
+        
+    Raises:
+    -------
+    AttributeError: If obj_a or obj_b is missing q, r or s as an Attribute.
+        
+    Returns:
+    --------
+    visited(set): A tuple containing all cube cordinates from obj_a to obj_b inclusive.
+    """
+
+    start =  (start_obj.q, start_obj.r, start_obj.s)
+        
+    visited = set() # set, so duplicate values are ignored
+    visited.add(start)
+    fringes = []
+    fringes.append([start])
         
 
-        for k in range(1, n + 1):
+    for k in range(1, n + 1):
 
-            fringes.append([])
-            for t_coords in fringes[k-1]:
-                for d in range(0,6): # 6 neighbors per hex => 6 items in nbors_lst
-                    current_coord = (t_coords[0], t_coords[1], t_coords[2])
-                    neighbor = HexLogic.neighbors(current_coord)[d]
-                    for obj in obj_grp:
-                        if (obj.q, obj.r, obj.s) == neighbor:
-                            blocked = getattr(obj, block_var)
-                            if not blocked:
-                                visited.add(neighbor)
-                                fringes[k].append(neighbor)
+        fringes.append([])
+        for t_coords in fringes[k-1]:
+            for d in range(0,6): # 6 neighbors per hex => 6 items in nbors_lst
+                current_coord = (t_coords[0], t_coords[1], t_coords[2])
+                neighbor = neighbors(current_coord)[d]
+                for obj in obj_grp:
+                    if (obj.q, obj.r, obj.s) == neighbor:
+                        blocked = getattr(obj, block_var)
+                        if not blocked:
+                            visited.add(neighbor)
+                            fringes[k].append(neighbor)
 
-        return visited
+    return visited
     

@@ -11,8 +11,8 @@ Created on Sun Nov 13 18:46:34 2022
 
 # import section ------------------------------------------------------------ #
 import pygame as pg
-from hexlogic import HexLogic as hl
-from game_logic import GameLogic as gl
+import hexlogic as hl
+import gamelogic as gl
 
 
 # skynet class -------------------------------------------------------------- #
