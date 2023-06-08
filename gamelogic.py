@@ -25,8 +25,8 @@ import hexlogic as hl
 from attribute_dicts.w_attr import w_dict
 
     
-# function determines, wether or not a unit is on the tile -------------- #
-# and if there is, assigns the unit as attribute to the tile ------------ #
+# function determines, wether or not a unit is on the tile ------------------ #
+# and if there is, assigns the unit as attribute to the tile ---------------- #
 def tile_has_unit(tile:object, unit_sprite_groups_lst:list) -> object:
         
     on_tile = None
@@ -40,8 +40,8 @@ def tile_has_unit(tile:object, unit_sprite_groups_lst:list) -> object:
     return on_tile
     
    
-# function determines, if there currently is an activated blufor_unit --- #
-# and if yes, returns it ------------------------------------------------ #
+# function determines, if there currently is an activated blufor_unit ------- #
+# and if yes, returns it ---------------------------------------------------- #
 def is_activated_unit(unit_blufor_grp) -> object:
         
     activated_unit = None
@@ -53,54 +53,37 @@ def is_activated_unit(unit_blufor_grp) -> object:
     
     
     
-# function determines, wether or not tile is within movement range ------ #
-# of an activated blufor unit ------------------------------------------- #
+# function determines, wether or not tile is within movement range ---------- #
+# of an activated blufor unit ----------------------------------------------- #
 def in_mov_range(tile:object, unit:object, tile_grp, block_var:str) -> bool:
         
-    # determine variables for dist_lim_flood_fill ----------------------- #
+    # determine variables for dist_lim_flood_fill --------------------------- #
     moves = unit.action_points
     obj_lst = tile_grp
         
-    # returns list of coords within movement range ---------------------- #
+    # returns list of coords within movement range -------------------------- #
     visited = hl.dist_lim_flood_fill(unit, moves, obj_lst, block_var)
     visited.remove((unit.q, unit.r, unit.s))
         
-    # check if tile was visited in floodfil ----------------------------- #
+    # check if tile was visited in floodfil --------------------------------- #
     return hl.get_qrs(tile) in visited
     
     
-# handles unit movement, subtraction of action points ------------------- #
+# handles unit movement, subtraction of action points ----------------------- #
 def move_unit(clicked_tile:object, unit_on_tile:object) -> None:
         
     distance_movement = hl.distance(unit_on_tile, clicked_tile)
     hl.set_qrs(unit_on_tile, clicked_tile.q, clicked_tile.r, clicked_tile.s)
     unit_on_tile.action_points -= distance_movement
         
-        
-# handles a unit firing on another unit --------------------------------- #
-def attack_unit(attacker:object, target:object, weapon:str) -> None:
-        
-    if target != None:
-        dmg_armor_div = w_dict[weapon]["dmg"] - target.armor
-        penetrating_dmg = dmg_armor_div if dmg_armor_div > 0 else 0
-        if penetrating_dmg > 0:
-            target.health -= penetrating_dmg * w_dict[weapon]["dmg_multiplier"]
-        
-        attacker.action_points -= 1
-        attacker.ammunition[weapon] -= 1
-            
-    else:
-        attacker.action_points -= 1
-        attacker.ammunition[weapon] -= 1
     
-    
-# determine if unit_b is in weapon range of unit_a ---------------------- #
+# determine if unit_b is in weapon range of unit_a -------------------------- #
 def in_weapon_range(unit_a:object, unit_b:object, weapon:str) -> bool:
     ab_dist = hl.distance(unit_a, unit_b)
     return ab_dist <= w_dict[weapon]["max_range"]
     
     
-# range of the weapon with the longest range which is available --------- #
+# range of the weapon with the longest range which is available ------------- #
 def get_max_weapon_range(unit:object) -> int:
     max_range = 0
     for weapon in unit.ammunition:
@@ -112,7 +95,7 @@ def get_max_weapon_range(unit:object) -> int:
     return max_range
     
 
-# function determines if a tile is covered by fog of war ---------------- #
+# function determines if a tile is covered by fog of war -------------------- #
 def check_fog_of_war(tile:object, blufor_grp, tile_grp) -> bool:
     fog_of_war = True
         
@@ -130,14 +113,14 @@ def check_fog_of_war(tile:object, blufor_grp, tile_grp) -> bool:
                 
     return fog_of_war
 
-# function handles mechanics related to turn advancement ---------------- #
+# function handles mechanics related to turn advancement -------------------- #
 def skip_turn(game:object) -> None:
     for unit in game.unit_blufor_grp:
         if unit.activated == True:
             unit.action_points = 0
     
 
-# get total numerical attribute in sprite_group ------------------------- #
+# get total numerical attribute in sprite_group ----------------------------- #
 def get_group_attr_total_num(attr:str, sprite_group) -> int:
     attr_total = 0
     for unit in sprite_group:
@@ -145,7 +128,7 @@ def get_group_attr_total_num(attr:str, sprite_group) -> int:
     return attr_total
     
     
-# get total damage potential of all weapons on ships -------------------- #
+# get total damage potential of all weapons on ships ------------------------ #
 def get_group_total_munition_dmg(sprite_group) -> int:
     potential_dmg_total = 0
     for unit in sprite_group:
@@ -157,19 +140,19 @@ def get_group_total_munition_dmg(sprite_group) -> int:
     return potential_dmg_total
     
     
-# get ciws cover dict for tile ------------------------------------------ #
+# get ciws cover dict for tile ---------------------------------------------- #
 def get_ciws_cover(tile:object) -> dict:
         
     ciws_units = set()
     ciws_dict = dict()
         
-    # get units of attacked faction ------------------------------------- #
+    # get units of attacked faction ----------------------------------------- #
     spritegroup_lst = [tile.game.unit_blufor_grp, tile.game.unit_redfor_grp]
     for group in spritegroup_lst:
         for unit in group:
             ciws_units.add(unit)
                 
-    # get units covering tile ------------------------------------------- #
+    # get units covering tile ----------------------------------------------- #
     for unit in ciws_units:
         if unit.ciws_range >= hl.distance(unit, tile):
             ciws_dict.update({unit.id:{"dmg":unit.ciws_dmg, "range":unit.ciws_range, "faction":unit.faction, "qrs":unit.qrs}})
@@ -177,18 +160,18 @@ def get_ciws_cover(tile:object) -> dict:
     return ciws_dict            
     
     
-# get the possible actions to be performed, after right clicking tile --- #
+# get the possible actions to be performed, after right clicking tile ------- #
 def get_kwargs_ddm(tile, blufor_activated, blufor_grp, tile_grp):
     kwargs_dct = dict()
         
-    # if tile is neighbor, has no unit => movable ----------------------- #
+    # if tile is neighbor, has no unit => movable --------------------------- #
     nbors_lst = hl.neighbors((tile.q, tile.r, tile.s))
     if (blufor_activated.q, blufor_activated.r, blufor_activated.s) in nbors_lst:
         if in_mov_range(tile, blufor_activated, tile_grp, "block_move"):
             if tile.unit == None:
                 kwargs_dct.update({"move":"gl.move_unit(next(t for t in self.game.tile_grp if t.ddm_open == True), next(u for u in self.game.unit_blufor_grp if u.activated == True))"})        
         
-    # if tile has enemy or fog => attackable ---------------------------- #
+    # if tile has enemy or fog => attackable -------------------------------- #
     fog_bool = check_fog_of_war(tile, blufor_grp, tile_grp)
     available_munition = dict()
         

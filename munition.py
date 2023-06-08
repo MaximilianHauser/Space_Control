@@ -37,15 +37,15 @@ class Munition(pg.sprite.Sprite):
         self.game.munition_grp.add(self)
         
         x, y = hl.hex_to_pixel(self.qrs)
-        self.x = x + WIN_WIDTH / 2
-        self.y = y + WIN_HEIGHT / 2
+        self.x = launcher.x
+        self.y = launcher.y
         
         for k, v in w_dict[weapon_type].items():
             setattr(self, k, v)
             
         self.tiles_traversed = hl.line_draw(launcher, target)
-        self.tile_num = 0
-        self.cooldown = 0
+        self.current_tile = None
+        self.tile_num = 1
         self.speed = 1
         self.stage = "launch"
         self.life_cycle = ["launch", "midcourse", "terminal"]
@@ -76,7 +76,7 @@ class Munition(pg.sprite.Sprite):
                 print("phase: launch")
                 self.launcher.action_points -= 1
                 self.launcher.ammunition[weapon_type] -= 1
-                self.logic_dict[self.tiles_traversed[i]]["state"] = "firing"
+                self.logic_dict[self.tiles_traversed[i]]["state"] = "launching"
                     
             elif self.logic_dict[coords]["phase"] == "midcourse":
                 print("phase: midcourse")
@@ -85,8 +85,6 @@ class Munition(pg.sprite.Sprite):
                 current_tile = next(t for t in self.game.tile_grp if t.qrs == coords)
                 units_intercepting_ids = [unit.id for unit in unit_grp]
                 ciws_cover_keys = [unit_id for unit_id in current_tile.ciws_dict.keys() if unit_id in units_intercepting_ids]
-                
-                counter = 0
                 
                 print("pre k in ciws_cover_keys:")
                 print("unit_grp: " + str(unit_grp))
@@ -97,16 +95,13 @@ class Munition(pg.sprite.Sprite):
                     for k in ciws_cover_keys:
                         
                         alive = self.armor > 0
-                        counter += 1
-                        all_engaged = counter > len(ciws_cover_keys)
-                        print("all_engaged: " + str(all_engaged))
                         
-                        if alive and not all_engaged:
+                        if alive:
                             firing_unit = [unit for unit in unit_grp if unit.id == k]
-                            print(firing_unit)
+                            print(firing_unit[0].id)
                             if firing_unit:
-                                self.armor -= firing_unit[0].ciws_dmg
-                                self.dmg -= firing_unit[0].ciws_dmg * 0.5
+                                self.armor = self.armor - firing_unit[0].ciws_dmg if (self.armor - firing_unit[0].ciws_dmg) >= 0 else 0
+                                self.dmg = self.dmg - firing_unit[0].ciws_dmg if (self.dmg - firing_unit[0].ciws_dmg) >= 0 else 0
                                 firing_unit[0].ciws_charge -= 1
                                 self.logic_dict[self.tiles_traversed[i]]["state"] = "ciws_hits"
                                 if self.armor <= 0:
@@ -115,11 +110,11 @@ class Munition(pg.sprite.Sprite):
                             else:
                                 if self.logic_dict[self.tiles_traversed[i]]["state"] == None:
                                    self.logic_dict[self.tiles_traversed[i]]["state"] = "traversing"
-                                
-                        elif alive:
-                            counter = 0
-                            if self.logic_dict[self.tiles_traversed[i]]["state"] == None:
-                               self.logic_dict[self.tiles_traversed[i]]["state"] = "traversing"
+                                   print("no enemy ciws cover on tile")
+                                   
+                            print("projectile stats after_ciws")
+                            print("dmg: " + str(self.dmg))
+                            print("armor: " + str(self.armor))
                             
                         elif not alive:
                             if not self.logic_dict[self.tiles_traversed[i-1]]["state"] == "ciws_destroys":
@@ -146,8 +141,6 @@ class Munition(pg.sprite.Sprite):
                     units_intercepting_ids = [unit.id for unit in unit_grp]
                     ciws_cover_keys = [unit_id for unit_id in current_tile.ciws_dict.keys() if unit_id in units_intercepting_ids]
                     
-                    counter = 0
-                    
                     print("pre k in ciws_cover_keys:")
                     print("unit_grp: " + str(unit_grp))
                     print("units_intercepting_ids: " + str(units_intercepting_ids))
@@ -157,28 +150,32 @@ class Munition(pg.sprite.Sprite):
                         for k in ciws_cover_keys:
                             
                             alive = self.armor > 0
-                            counter += 1
-                            all_engaged = counter > len(ciws_cover_keys)
-                            print("all_engaged: " + str(all_engaged))
                             
-                            if alive and not all_engaged:
+                            if alive:
                                 firing_unit = [unit for unit in unit_grp if unit.id == k]
-                                print(firing_unit)
+                                print(firing_unit[0].id)
                                 if firing_unit:
-                                    self.armor -= firing_unit[0].ciws_dmg
-                                    self.dmg -= firing_unit[0].ciws_dmg * 0.5
+                                    self.armor = self.armor - firing_unit[0].ciws_dmg if (self.armor - firing_unit[0].ciws_dmg) >= 0 else 0
+                                    self.dmg = self.dmg - firing_unit[0].ciws_dmg if (self.dmg - firing_unit[0].ciws_dmg) >= 0 else 0
                                     firing_unit[0].ciws_charge -= 1
+                                    if self.armor <= 0:
+                                        self.logic_dict[self.tiles_traversed[i]]["state"] = "ciws_destroys"
                             elif not alive:
-                                self.logic_dict[self.tiles_traversed[i]]["state"] = "ciws_destroys"
+                                if not self.logic_dict[self.tiles_traversed[i-1]]["state"] == "ciws_destroys":
+                                    self.logic_dict[self.tiles_traversed[i]]["state"] = "ciws_destroys"
                             
 
                     # damage application if not intercepted ----------------- #
+                    print("projectile stats hit_calc")
+                    print("dmg: " + str(self.dmg))
+                    print("armor: " + str(self.armor))
                     if self.armor > 0:
                         penetrating_dmg = (self.dmg - self.target.armor) if (self.dmg - self.target.armor) > 0 else 0
                         applied_dmg = penetrating_dmg * self.dmg_multiplier
                         self.target.health -= applied_dmg
                         self.target.armor = (self.target.armor - 0.5 * self.dmg) if (self.target.armor - 0.5 * self.dmg) >= 0 else 0
                         self.logic_dict[self.tiles_traversed[i]]["state"] = "target_hit"
+                        print("target stats after hit")
                         print("health: " + str(self.target.health))
                         print("armor: " + str(self.target.armor))
         
@@ -192,13 +189,82 @@ class Munition(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (self.x, self.y)
         
+        self.perc_traversed = 0
+        self.state = None
         
+        # direction of munition for animation borders ----------------------- #
+        if self.launcher.x <= self.target.x:
+            self.dir_x = "right"
+        else:
+            self.dir_x = "left"
+            
+        if self.launcher.y <= self.target.y:
+            self.dir_y = "down"
+        else:
+            self.dir_y = "up"
+            
+        self.direction = (self.dir_x, self.dir_y)
+        
+
     def update(self) -> None:
-        pass
-
         
+        if self.perc_traversed <= 1:
+            self.perc_traversed += 0.005 * self.speed
+        else:
+            self.kill()
+        
+        munition_pos = hl.cartesian_linint(self.launcher.rect.center, self.target.rect.center, self.perc_traversed)
+        
+        self.x = munition_pos[0]
+        self.y = munition_pos[1]
+        
+        self.rect.center = (self.x, self.y)
+        
+        # animation depending on munition_state ----------------------------- #
+        if self.tile_num < len(self.tiles_traversed):
+            border = self.logic_dict[self.tiles_traversed[self.tile_num]]["xy_pos"]
+            self.x_border = border[0]
+            self.y_border = border[1]
+        
+            if self.direction == ("right", "down"):
+                if self.x_border < self.x or self.y_border < self.y:
+                    self.state = self.logic_dict[self.tiles_traversed[self.tile_num]]["state"]
+                    self.tile_num += 1
+            
+            elif self.direction == ("left", "down"):
+                if self.x_border > self.x or self.y_border < self.y:
+                    self.state = self.logic_dict[self.tiles_traversed[self.tile_num]]["state"]
+                    self.tile_num += 1
+            
+            elif self.direction == ("right", "up"):
+                if self.x_border < self.x or self.y_border > self.y:
+                    self.state = self.logic_dict[self.tiles_traversed[self.tile_num]]["state"]
+                    self.tile_num += 1
+            
+            elif self.direction == ("left", "up"):
+                if self.x_border > self.x or self.y_border > self.y:
+                    self.state = self.logic_dict[self.tiles_traversed[self.tile_num]]["state"]
+                    self.tile_num += 1
+        
+            
+        # set animation based on state -------------------------------------- #
+        if self.state == "launching":
+            self.image.fill("blue")
+            
+        elif self.state == "traversing":
+            self.image.fill("green")
+            
+        elif self.state == "ciws_hits":
+            self.image.fill("yellow")
+            
+        elif self.state == "ciws_destroys":
+            self.image.fill("orange")
+            
+        elif self.state == "target_hit":
+            self.image.fill("red")
 
 
+        print(self.perc_traversed)
 
 
 
