@@ -179,6 +179,9 @@ class Game:
         # update ------------------------------------------------------------ #
         self.initiative_queque.check_unit_ap()
         self.skynet.get_situation()
+        
+        self.skynet.red_active_next_action()
+        
         self.all_sprites.update()
         al.set_animation_state_tiles(self.tile_grp, [self.unit_blufor_grp, self.unit_redfor_grp])
         self.text_crawl_grp.update()

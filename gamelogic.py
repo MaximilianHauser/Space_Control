@@ -182,11 +182,11 @@ def get_kwargs_ddm(tile, blufor_activated, blufor_grp, tile_grp):
     for k in available_munition.keys():
         if fog_bool:
             if in_weapon_range(blufor_activated, tile, weapon=k):
-                kwargs_dct.update({k:"Munition(self.game, '"+str(k)+"', next(u for u in self.game.unit_blufor_grp if u.activated == True), next(t for t in self.game.tile_grp if t.ddm_open == True).unit)"})
+                kwargs_dct.update({k:"Munition(self.game, '"+str(k)+"', next(u for u in self.game.unit_blufor_grp if u.activated == True), next(t for t in self.game.tile_grp if t.ddm_open == True))"})
                     
         elif hasattr(tile.unit, "faction"):
             if in_weapon_range(blufor_activated, tile.unit, weapon=k):
-                kwargs_dct.update({k:"Munition(self.game, '"+str(k)+"', next(u for u in self.game.unit_blufor_grp if u.activated == True), next(t for t in self.game.tile_grp if t.ddm_open == True).unit)"})
+                kwargs_dct.update({k:"Munition(self.game, '"+str(k)+"', next(u for u in self.game.unit_blufor_grp if u.activated == True), next(t for t in self.game.tile_grp if t.ddm_open == True))"})
         
     return kwargs_dct
 

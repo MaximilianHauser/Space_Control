@@ -13,6 +13,7 @@ Created on Sun Nov 13 18:46:34 2022
 import pygame as pg
 import hexlogic as hl
 import gamelogic as gl
+from munition import Munition
 
 
 # skynet class -------------------------------------------------------------- #
@@ -46,6 +47,7 @@ class Skynet:
         # choke points between objectives ----------------------------------- #
         self.no_chokepoints_soft = 0
         self.no_chokepoints_hard = 0
+        
         # units that cannot escape (%?) damage the next blue turn ----------- #
         self.commited_units = 0
         
@@ -53,6 +55,9 @@ class Skynet:
         self.activated_red = None
         self.red_units = list()
         self.blu_units = list()
+        
+        # current situation for redfor -------------------------------------- #
+        self.situation = None
 
     # get the relative strength of red / blu -------------------------------- #
     def relative_strength(self):
@@ -86,20 +91,19 @@ class Skynet:
         if self.game.resolver.wc_roundslimit >= self.game.resolver.lc_roundslimit:
             # lc_dest_specific, lc_unit_at_coords --------------------------- #
             if self.game.resolver.lc_dest_specific or self.game.resolver.lc_unit_at_coords:
-                return "attack_move"
+                self.situation = "attack_move"
             # lc_perc_dest_health, lc_perc_dest_dmgpt ----------------------- #
             elif self.game.resolver.lc_perc_dest_health or self.game.resolver.lc_perc_dest_dmgpt:
-                return "attack_move"
+                self.situation = "attack_move"
         
         # time is favouring redfor ------------------------------------------ #
         else:
             # wc_dest_specific, wc_unit_at_coords --------------------------- #
             if self.game.resolver.wc_dest_specific or self.game.resolver.wc_unit_at_coords:
-                return "hold_chokepoints"
+                self.situation = "hold_chokepoints"
             # wc_perc_dest_health, wc_perc_dest_dmgpt ----------------------- #
             elif self.game.resolver.wc_perc_dest_health or self.game.resolver.wc_perc_dest_dmgpt:
-                return "delay"
-        
+                self.situation = "delay"
         
     
     # get number of chokepoints --------------------------------------------- #
@@ -109,4 +113,9 @@ class Skynet:
     # get units commited to engagement -------------------------------------- #
     def get_commited_red(self):
         pass
+    
+    def red_active_next_action(self):
+        if self.activated_red != None:
+            print(self.situation)
+            Munition(self.game, "r_nuclear_torpedo", next(u for u in self.game.unit_redfor_grp if u.activated == True), next(t for t in self.game.tile_grp if t.qrs == (2,4,-6)).unit if next(t for t in self.game.tile_grp if t.qrs == (2,4,-6)).unit else next(t for t in self.game.tile_grp if t.qrs == (2,4,-6)))
         

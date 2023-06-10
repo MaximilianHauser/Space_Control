@@ -13,7 +13,7 @@ import pygame as pg
 import hexlogic as hl
 import gamelogic as gl
 from attribute_dicts.w_attr import w_dict
-from settings import U_ANIMATION_LAYER, WIN_WIDTH, WIN_HEIGHT
+from settings import U_ANIMATION_LAYER
 
 
 # Munition class ------------------------------------------------------------ #
@@ -46,7 +46,7 @@ class Munition(pg.sprite.Sprite):
         self.tiles_traversed = hl.line_draw(launcher, target)
         self.current_tile = None
         self.tile_num = 1
-        self.speed = 1
+        self.speed = 1 if self.type == "guided" else 2
         self.stage = "launch"
         self.life_cycle = ["launch", "midcourse", "terminal"]
         
@@ -128,7 +128,10 @@ class Munition(pg.sprite.Sprite):
             elif self.logic_dict[coords]["phase"] == "terminal":
                 print("phase: terminal")
                 if self.armor <= 0:
-                        break
+                    break
+                if not hasattr(self.target, "evasion"):
+                    self.logic_dict[self.tiles_traversed[i]]["state"] = "traversing"
+                    break
                 munition_evaded = True if (self.target.evasion * len(self.tiles_traversed) > 1) and self.type != "guided" else False
                 print("munition_evaded: " + str(munition_evaded))
                 if munition_evaded:
@@ -190,7 +193,7 @@ class Munition(pg.sprite.Sprite):
         self.rect.center = (self.x, self.y)
         
         self.perc_traversed = 0
-        self.state = None
+        self.state = "launching"
         
         # direction of munition for animation borders ----------------------- #
         if self.launcher.x <= self.target.x:
@@ -262,6 +265,9 @@ class Munition(pg.sprite.Sprite):
             
         elif self.state == "target_hit":
             self.image.fill("red")
+            
+        elif self.state is None:
+            self.kill()
 
 
         print(self.perc_traversed)
