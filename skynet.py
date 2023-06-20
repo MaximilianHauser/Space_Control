@@ -19,25 +19,25 @@ from munition import Munition
 # skynet class -------------------------------------------------------------- #
 class Skynet:
     
-    def __init__(self, game):
+    def __init__(self, manager):
         
-        self.game = game
+        self.manager = manager
         self.unit_set = set()
         
-        spritegroup_lst = [self.game.unit_blufor_grp, self.game.unit_redfor_grp]
+        spritegroup_lst = [manager.unit_blufor_grp, manager.unit_redfor_grp]
         for group in spritegroup_lst:
             for unit in group:
                 self.unit_set.add(unit)
         
         # relative strength of forces --------------------------------------- #
-        self.health_blufor = gl.get_group_attr_total_num("health", self.game.unit_blufor_grp)
-        self.health_redfor = gl.get_group_attr_total_num("health", self.game.unit_redfor_grp)
+        self.health_blufor = gl.get_group_attr_total_num("health", self.manager.unit_blufor_grp)
+        self.health_redfor = gl.get_group_attr_total_num("health", self.manager.unit_redfor_grp)
         self.relative_health = round(self.health_blufor / self.health_redfor, 2)
-        self.attack_blufor = gl.get_group_total_munition_dmg(self.game.unit_blufor_grp)
-        self.attack_redfor = gl.get_group_total_munition_dmg(self.game.unit_redfor_grp)
+        self.attack_blufor = gl.get_group_total_munition_dmg(self.manager.unit_blufor_grp)
+        self.attack_redfor = gl.get_group_total_munition_dmg(self.manager.unit_redfor_grp)
         self.relative_attack = round(self.attack_blufor / self.attack_redfor, 2)
-        self.num_blufor = len(self.game.unit_blufor_grp)
-        self.num_redfor = len(self.game.unit_redfor_grp)
+        self.num_blufor = len(self.manager.unit_blufor_grp)
+        self.num_redfor = len(self.manager.unit_redfor_grp)
         self.relative_numbers = round(self.num_blufor / self.num_redfor, 2)
         # map objective ----------------------------------------------------- #
         self.map_objective = None
@@ -62,14 +62,14 @@ class Skynet:
     # get the relative strength of red / blu -------------------------------- #
     def relative_strength(self):
         
-        self.health_blufor = gl.get_group_attr_total_num("health", self.game.unit_blufor_grp)
-        self.health_redfor = gl.get_group_attr_total_num("health", self.game.unit_redfor_grp)
+        self.health_blufor = gl.get_group_attr_total_num("health", self.manager.unit_blufor_grp)
+        self.health_redfor = gl.get_group_attr_total_num("health", self.manager.unit_redfor_grp)
         self.relative_health = round(self.health_blufor / self.health_redfor, 2)
-        self.attack_blufor = gl.get_group_total_munition_dmg(self.game.unit_blufor_grp)
-        self.attack_redfor = gl.get_group_total_munition_dmg(self.game.unit_redfor_grp)
+        self.attack_blufor = gl.get_group_total_munition_dmg(self.manager.unit_blufor_grp)
+        self.attack_redfor = gl.get_group_total_munition_dmg(self.manager.unit_redfor_grp)
         self.relative_attack = round(self.attack_blufor / self.attack_redfor, 2)
-        self.num_blufor = len(self.game.unit_blufor_grp)
-        self.num_redfor = len(self.game.unit_redfor_grp)
+        self.num_blufor = len(self.manager.unit_blufor_grp)
+        self.num_redfor = len(self.manager.unit_redfor_grp)
         self.relative_numbers = round(self.num_blufor / self.num_redfor, 2)
         
         self.relative_health = round(self.health_redfor / self.health_blufor, 2)
@@ -88,21 +88,21 @@ class Skynet:
         
         # set tactic based on situation ------------------------------------- #
         # time is favouring blufor ------------------------------------------ #
-        if self.game.resolver.wc_roundslimit >= self.game.resolver.lc_roundslimit:
+        if self.manager.resolver.wc_roundslimit >= self.manager.resolver.lc_roundslimit:
             # lc_dest_specific, lc_unit_at_coords --------------------------- #
-            if self.game.resolver.lc_dest_specific or self.game.resolver.lc_unit_at_coords:
+            if self.manager.resolver.lc_dest_specific or self.manager.resolver.lc_unit_at_coords:
                 self.situation = "attack_move"
             # lc_perc_dest_health, lc_perc_dest_dmgpt ----------------------- #
-            elif self.game.resolver.lc_perc_dest_health or self.game.resolver.lc_perc_dest_dmgpt:
+            elif self.manager.resolver.lc_perc_dest_health or self.manager.resolver.lc_perc_dest_dmgpt:
                 self.situation = "attack_move"
         
         # time is favouring redfor ------------------------------------------ #
         else:
             # wc_dest_specific, wc_unit_at_coords --------------------------- #
-            if self.game.resolver.wc_dest_specific or self.game.resolver.wc_unit_at_coords:
+            if self.manager.resolver.wc_dest_specific or self.manager.resolver.wc_unit_at_coords:
                 self.situation = "hold_chokepoints"
             # wc_perc_dest_health, wc_perc_dest_dmgpt ----------------------- #
-            elif self.game.resolver.wc_perc_dest_health or self.game.resolver.wc_perc_dest_dmgpt:
+            elif self.manager.resolver.wc_perc_dest_health or self.manager.resolver.wc_perc_dest_dmgpt:
                 self.situation = "delay"
         
     
@@ -117,5 +117,5 @@ class Skynet:
     def red_active_next_action(self):
         if self.activated_red != None:
             print(self.situation)
-            Munition(self.game, "r_nuclear_torpedo", next(u for u in self.game.unit_redfor_grp if u.activated == True), next(t for t in self.game.tile_grp if t.qrs == (2,4,-6)).unit if next(t for t in self.game.tile_grp if t.qrs == (2,4,-6)).unit else next(t for t in self.game.tile_grp if t.qrs == (2,4,-6)))
+            Munition(self.manager, "r_nuclear_torpedo", next(u for u in self.manager.unit_redfor_grp if u.activated == True), next(t for t in self.manager.tile_grp if t.qrs == (2,4,-6)).unit if next(t for t in self.manager.tile_grp if t.qrs == (2,4,-6)).unit else next(t for t in self.manager.tile_grp if t.qrs == (2,4,-6)))
         

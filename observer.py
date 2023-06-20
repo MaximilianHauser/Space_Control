@@ -157,7 +157,7 @@ class Observer:
         self.subscribers_dict.update({event:subscribers})
             
           
-    def event_mngr(self, events:list) -> None:
+    def event_mngr(self, event:int) -> None:
         """
         Takes in the events from the pygame event queque stored in a list
         and executes a function if subscribed to the event. Passes the event to 
@@ -179,22 +179,21 @@ class Observer:
         --------
         None
         """
-        for event in events:
-            # subscribed = list of subscribers to event (or empty) ---------- #
-            subscribed = self.get_subscribers(event.type)
-            for subscriber in subscribed:
-                # calls functions subscribed to event ----------------------- #
-                if callable(subscriber):
+        # subscribed = list of subscribers to event (or empty) ---------- #
+        subscribed = self.get_subscribers(event.type)
+        for subscriber in subscribed:
+            # calls functions subscribed to event ----------------------- #
+            if callable(subscriber):
                     subscriber()
-                # handles objects (methods) subscribed to event ------------- #
-                elif isinstance(subscriber, object):
-                    # seperate logic for msbtn down ------------------------- #
-                    if event.type == pg.MOUSEBUTTONDOWN:
-                        self.click_mngr(event)
-                    elif event.type == pg.MOUSEBUTTONUP:
-                        self.click_mngr(event)
-                    else:
-                        subscriber.handle_events(event)
+            # handles objects (methods) subscribed to event ------------- #
+            elif isinstance(subscriber, object):
+                # seperate logic for msbtn down ------------------------- #
+                if event.type == pg.MOUSEBUTTONDOWN:
+                    self.click_mngr(event)
+                elif event.type == pg.MOUSEBUTTONUP:
+                    self.click_mngr(event)
+                else:
+                    subscriber.handle_events(event)
             
             
     def click_mngr(self, event:int) -> None:

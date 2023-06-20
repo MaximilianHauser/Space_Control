@@ -15,7 +15,7 @@ Contains a dictionary with all type specific terrain attributes.
 t_dict = {
     "s":
         {
-            "original_image" : "game.sprite_space",
+            "original_image" : "manager.sprite_space",
             "movement_cost" : 1,
             "dmg_to_light" : 0,
             "dmg_to_medium" : 0,
@@ -28,7 +28,7 @@ t_dict = {
             },
     "m":
         {
-            "original_image" : "game.sprite_micro_roids",
+            "original_image" : "manager.sprite_micro_roids",
             "movement_cost" : 1,
             "dmg_to_light" : 0.25,
             "dmg_to_medium" : 0,
@@ -41,7 +41,7 @@ t_dict = {
             },
     "a":
         {
-            "original_image" : "game.sprite_asteroids",
+            "original_image" : "manager.sprite_asteroids",
             "movement_cost" : 2,
             "dmg_to_light" : 0,
             "dmg_to_medium" : 0.5,
@@ -54,7 +54,7 @@ t_dict = {
             },
     "b":
         {
-            "original_image" : "game.sprite_big_roid",
+            "original_image" : "manager.sprite_big_roid",
             "movement_cost" : 0,
             "dmg_to_light" : 0,
             "dmg_to_medium" : 0,

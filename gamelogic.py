@@ -114,8 +114,8 @@ def check_fog_of_war(tile:object, blufor_grp, tile_grp) -> bool:
     return fog_of_war
 
 # function handles mechanics related to turn advancement -------------------- #
-def skip_turn(game:object) -> None:
-    for unit in game.unit_blufor_grp:
+def skip_turn(manager:object) -> None:
+    for unit in manager.unit_blufor_grp:
         if unit.activated == True:
             unit.action_points = 0
     
@@ -147,7 +147,7 @@ def get_ciws_cover(tile:object) -> dict:
     ciws_dict = dict()
         
     # get units of attacked faction ----------------------------------------- #
-    spritegroup_lst = [tile.game.unit_blufor_grp, tile.game.unit_redfor_grp]
+    spritegroup_lst = [tile.manager.unit_blufor_grp, tile.manager.unit_redfor_grp]
     for group in spritegroup_lst:
         for unit in group:
             ciws_units.add(unit)

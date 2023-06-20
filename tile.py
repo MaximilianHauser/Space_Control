@@ -119,9 +119,9 @@ class Tile(pg.sprite.Sprite):
     ---------
     
     """
-    def __init__(self, game:object, q:int, r:int, s:int, t:str) -> object:
+    def __init__(self, manager:object, q:int, r:int, s:int, t:str) -> object:
         pg.sprite.Sprite.__init__(self)
-        self.game = game
+        self.manager = manager
         
         self.q = q
         self.r = r
@@ -132,8 +132,8 @@ class Tile(pg.sprite.Sprite):
         self.t = t
         
         self._layer = TERRAIN_LAYER
-        self.game.all_sprites.add(self)
-        self.game.tile_grp.add(self)
+        self.manager.all_sprites.add(self)
+        self.manager.tile_grp.add(self)
         
         x, y = hl.hex_to_pixel((q,r,s))
         self.x = x + WIN_WIDTH / 2
@@ -145,7 +145,7 @@ class Tile(pg.sprite.Sprite):
             else:
                 setattr(self, k, v)
                 
-        self.mask_image = self.game.sprite_tile_mask
+        self.mask_image = self.manager.sprite_tile_mask
         self.image = self.original_image
         self.mask = pg.mask.from_surface(self.mask_image)
         self.rect = self.mask.get_rect()
@@ -174,7 +174,7 @@ class Tile(pg.sprite.Sprite):
         None
         """
         # attaching unit to tile if occupied -------------------------------- #
-        self.unit = gl.tile_has_unit(self, [self.game.unit_blufor_grp, self.game.unit_redfor_grp])
+        self.unit = gl.tile_has_unit(self, [self.manager.unit_blufor_grp, self.manager.unit_redfor_grp])
            
         # tints tile depending on animation_state --------------------------- #
         if self.animation_state != None:
@@ -188,7 +188,7 @@ class Tile(pg.sprite.Sprite):
             self.image = self.original_image
             
         # tints tile, if it is not within visible range by a unit ----------- #
-        self.fog_of_war = gl.check_fog_of_war(self, self.game.unit_blufor_grp, self.game.tile_grp)
+        self.fog_of_war = gl.check_fog_of_war(self, self.manager.unit_blufor_grp, self.manager.tile_grp)
         
         if self.fog_of_war is True:
             self.image = an.tint_image(self.image, "grey")
@@ -258,7 +258,7 @@ class Tile(pg.sprite.Sprite):
             unit_on_tile = None
             
             # wether there is a blufor unit on tile and if its activated ---- #
-            for unit in self.game.unit_blufor_grp:
+            for unit in self.manager.unit_blufor_grp:
                 if unit.q == self.q and unit.r == self.r and unit.s == self.s:
                     unit_on_tile = unit
                 if unit.activated == True:
@@ -266,7 +266,7 @@ class Tile(pg.sprite.Sprite):
             
             # wether there is a redfor unit on tile ------------------------- #
             redfor_on_tile = False
-            for unit in self.game.unit_redfor_grp:
+            for unit in self.manager.unit_redfor_grp:
                 if unit.q == self.q and unit.r == self.r and unit.s == self.s:
                     redfor_on_tile = True
                     unit_on_tile = unit
@@ -283,20 +283,20 @@ class Tile(pg.sprite.Sprite):
                 # no unit on tile ------------------------------------------- #
                 if unit_on_tile is None:
                     if blufor_activated is not None:
-                        in_range = gl.in_mov_range(self, blufor_activated, self.game.tile_grp, "block_move")
+                        in_range = gl.in_mov_range(self, blufor_activated, self.manager.tile_grp, "block_move")
                         neighbor = ((self.q, self.r, self.s)) in hl.neighbors((blufor_activated.q, blufor_activated.r, blufor_activated.s))
                         if in_range and neighbor:
                             gl.move_unit(self, blufor_activated)
                 
             if event.button == 3:
                 
-                if blufor_activated is not None and hasattr(self.game, "dropdownmenu") == False:
+                if blufor_activated is not None and hasattr(self.manager, "dropdownmenu") == False:
                     self.ddm_open = True
                     m_x, m_y = event.pos
-                    kwargs = gl.get_kwargs_ddm(self, blufor_activated, self.game.unit_blufor_grp, self.game.tile_grp)
-                    setattr(self.game, "dropdownmenu", DropDownMenu(self.game, m_x, m_y, 100, **kwargs))
-                    self.game.observer.subscribe(pg.MOUSEBUTTONDOWN, self.game.dropdownmenu)
-                    self.game.observer.subscribe(pg.MOUSEBUTTONUP, self.game.dropdownmenu)
-                    self.game.observer.subscribe(self.game.E_IDLE, self.game.dropdownmenu)
+                    kwargs = gl.get_kwargs_ddm(self, blufor_activated, self.manager.unit_blufor_grp, self.manager.tile_grp)
+                    setattr(self.manager, "dropdownmenu", DropDownMenu(self.manager, m_x, m_y, 100, **kwargs))
+                    self.manager.observer.subscribe(pg.MOUSEBUTTONDOWN, self.manager.dropdownmenu)
+                    self.manager.observer.subscribe(pg.MOUSEBUTTONUP, self.manager.dropdownmenu)
+                    self.manager.observer.subscribe(self.manager.E_IDLE, self.manager.dropdownmenu)
                 
 

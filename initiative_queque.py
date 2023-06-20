@@ -11,14 +11,14 @@ import custom_data_types as cdt
 # InitiativeQueque class ---------------------------------------------------- #
 class InitiativeQueque:
     
-    def __init__(self, game):
-        self.game = game
+    def __init__(self, manager):
+        self.manager = manager
         self.unit_set = set()
         self.initiative_queque = cdt.Queque()
         self.sorted_lst = None
         
         # add units from different spritegroups to one set ------------------ #
-        spritegroup_lst = [self.game.unit_blufor_grp, self.game.unit_redfor_grp]
+        spritegroup_lst = [manager.unit_blufor_grp, manager.unit_redfor_grp]
         for group in spritegroup_lst:
             for unit in group:
                 self.unit_set.add(unit)

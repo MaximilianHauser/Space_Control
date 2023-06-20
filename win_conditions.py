@@ -18,9 +18,9 @@ import gamelogic as gl
 # ResolveBattleLogic class -------------------------------------------------- #
 class ResolveBattleLogic:
     
-    def __init__(self, game, **kwargs):
+    def __init__(self, manager, **kwargs):
         
-        self.game = game
+        self.manager = manager
         
         # wc/lc based on turn limit ----------------------------------------- #
         self.wc_roundslimit = False
@@ -73,16 +73,16 @@ class ResolveBattleLogic:
         
     def update_gamestatus(self):
         # update values from game and sprites ------------------------------- #
-        self.health_blufor = gl.get_group_attr_total_num("health", self.game.unit_blufor_grp)
-        self.health_redfor = gl.get_group_attr_total_num("health", self.game.unit_redfor_grp)
+        self.health_blufor = gl.get_group_attr_total_num("health", self.manager.unit_blufor_grp)
+        self.health_redfor = gl.get_group_attr_total_num("health", self.manager.unit_redfor_grp)
         
         # check wc/lc and return game status -------------------------------- #
         if self.wc_roundslimit:
-            if self.game.round_counter > self.turn_limit_redfor:
+            if self.manager.round_counter > self.turn_limit_redfor:
                 return "victory"
         
         if self.lc_roundslimit:
-            if self.game.round_counter > self.turn_limit_blufor:
+            if self.manager.round_counter > self.turn_limit_blufor:
                 return "defeat"
             
         if self.wc_perc_dest_health:

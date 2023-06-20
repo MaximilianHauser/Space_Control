@@ -113,9 +113,9 @@ class Button(pg.sprite.Sprite):
         Changes the state of the button object, based on passed event.
     
     """
-    def __init__(self, game:object, text_in:str, x:int, y:int, width:int, height:int, enabled:bool, function, **kwargs) -> object:
+    def __init__(self, manager:object, text_in:str, x:int, y:int, width:int, height:int, enabled:bool, function, **kwargs) -> object:
         pg.sprite.Sprite.__init__(self)
-        self.game = game
+        self.manager = manager
         
         self.text_in = text_in
         
@@ -134,8 +134,8 @@ class Button(pg.sprite.Sprite):
         self.height = height
         self._layer = UI_INTERFACE_LAYER
         
-        self.game.all_sprites.add(self)
-        self.game.ui_buttons_grp.add(self)
+        self.manager.all_sprites.add(self)
+        self.manager.ui_buttons_grp.add(self)
         
         self.enabled = enabled
         self.state = "unpressed"
@@ -172,7 +172,7 @@ class Button(pg.sprite.Sprite):
             self.attr_dict.update({k:attr_v}) 
         
         self.text_out = self.text_in.format(**self.attr_dict)
-        button_text = self.game.font1.render(self.text_out, True, "white")
+        button_text = self.manager.font1.render(self.text_out, True, "white")
         if self.enabled:
             if self.state == "pressed":
                 pg.draw.rect(self.image, "darkslategray4", ((0,0), (self.width, self.height)), 0, 5)
@@ -187,7 +187,7 @@ class Button(pg.sprite.Sprite):
         
         self.mask = pg.mask.from_surface(self.image)
         
-        self.game.screen.blit(self.image, (self.x, self.y))
+        self.manager.engine.screen.blit(self.image, (self.x, self.y))
         
     # checks if click is touching tile -------------------------------------- #
     def msbtn_down(self, pos:tuple, button:int) -> bool:
@@ -241,7 +241,7 @@ class Button(pg.sprite.Sprite):
                 self.state = "unpressed"
                 eval(self.function)
                 
-            elif event.type == self.game.E_IDLE:
+            elif event.type == self.manager.E_IDLE:
                 pos_in_mask = event.pos[0] - self.rect.x, event.pos[1] - self.rect.y
                 touching = self.rect.collidepoint(event.pos) and self.mask.get_at(pos_in_mask)
                 if not touching:
