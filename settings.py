@@ -40,6 +40,6 @@ UI_MAPINFO_LAYER = 6
 UI_INTERFACE_LAYER = 7
 
 # attributes, related to scrolling the map
-SCROLL_SPEED = 1.5
+SCROLL_SPEED = 3
 SCROLL_AREA = 48
 SCROLL_BUFFER = 48

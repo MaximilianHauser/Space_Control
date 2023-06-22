@@ -190,3 +190,14 @@ def get_kwargs_ddm(tile, blufor_activated, blufor_grp, tile_grp):
         
     return kwargs_dct
 
+# munition class related logic ---------------------------------------------- #
+def munition_ciws_calc():
+    pass
+
+def munition_target_dmg():
+    pass
+
+def munition_launch():
+    pass
+
+

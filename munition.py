@@ -19,9 +19,9 @@ from settings import U_ANIMATION_LAYER
 # Munition class ------------------------------------------------------------ #
 class Munition(pg.sprite.Sprite):
     
-    def __init__(self, game:object, weapon_type:str, launcher:object, target:object) -> object:
+    def __init__(self, manager:object, weapon_type:str, launcher:object, target:object) -> object:
         pg.sprite.Sprite.__init__(self)
-        self.game = game
+        self.manager = manager
         
         self.launcher = launcher
         self.target = target
@@ -33,8 +33,8 @@ class Munition(pg.sprite.Sprite):
         self.qrs = launcher.qrs
         
         self._layer = U_ANIMATION_LAYER
-        self.game.all_sprites.add(self)
-        self.game.munition_grp.add(self)
+        self.manager.all_sprites.add(self)
+        self.manager.munition_grp.add(self)
         
         x, y = hl.hex_to_pixel(self.qrs)
         self.x = launcher.x
@@ -46,7 +46,7 @@ class Munition(pg.sprite.Sprite):
         self.tiles_traversed = hl.line_draw(launcher, target)
         self.current_tile = None
         self.tile_num = 1
-        self.speed = 1 if self.type == "guided" else 2
+        self.speed = 30 * self.manager.engine.delta if self.type == "guided" else 80 * self.manager.engine.delta
         self.stage = "launch"
         self.life_cycle = ["launch", "midcourse", "terminal"]
         
@@ -54,7 +54,7 @@ class Munition(pg.sprite.Sprite):
         
         # adding entries to self.logic_dict --------------------------------- #
         for i in range(len(self.tiles_traversed)):
-            current_tile = next(t for t in self.game.tile_grp if t.qrs == self.tiles_traversed[i])
+            current_tile = next(t for t in self.manager.tile_grp if t.qrs == self.tiles_traversed[i])
             
             perc_traversed = (1 / len(self.tiles_traversed)) * i
             current_xy = hl.cartesian_linint(launcher.rect.center, target.rect.center, perc_traversed)
@@ -67,22 +67,26 @@ class Munition(pg.sprite.Sprite):
                 current_phase = "terminal"
                 
             self.logic_dict.update({self.tiles_traversed[i]:{"phase":current_phase, "state":None, "xy_pos":current_xy, "ciws_cover":gl.get_ciws_cover(current_tile)}})
-            
+        
+        # calculating outcome for each tile traversed ----------------------- #
         for i in range(len(self.tiles_traversed)):
             coords = list(self.logic_dict.keys())[i]
             print(coords)
-                
+            
+            # phase: launch ------------------------------------------------- #
             if self.logic_dict[coords]["phase"] == "launch":
                 print("phase: launch")
                 self.launcher.action_points -= 1
                 self.launcher.ammunition[weapon_type] -= 1
                 self.logic_dict[self.tiles_traversed[i]]["state"] = "launching"
-                    
+            
+            # phase: midcourse ---------------------------------------------- #
             elif self.logic_dict[coords]["phase"] == "midcourse":
                 print("phase: midcourse")
-                unit_grp = self.game.unit_blufor_grp if self.launcher.faction == "redfor" else self.game.unit_redfor_grp
-                
-                current_tile = next(t for t in self.game.tile_grp if t.qrs == coords)
+                # sprite group containing the units of target faction ------- #
+                unit_grp = self.manager.unit_blufor_grp if self.launcher.faction == "redfor" else self.manager.unit_redfor_grp
+                # current tile and unit ids of units ciws covering the tile - #
+                current_tile = next(t for t in self.manager.tile_grp if t.qrs == coords)
                 units_intercepting_ids = [unit.id for unit in unit_grp]
                 ciws_cover_keys = [unit_id for unit_id in current_tile.ciws_dict.keys() if unit_id in units_intercepting_ids]
                 
@@ -91,12 +95,14 @@ class Munition(pg.sprite.Sprite):
                 print("units_intercepting_ids: " + str(units_intercepting_ids))
                 print("ciws_cover_keys: " + str(ciws_cover_keys))
                 
+                # for unit covering tile, if munition alive ----------------- #
                 if ciws_cover_keys:
                     for k in ciws_cover_keys:
                         
                         alive = self.armor > 0
                         
                         if alive:
+                            # apply damage of ciws and deduct one ciws charge from firing unit #
                             firing_unit = [unit for unit in unit_grp if unit.id == k]
                             print(firing_unit[0].id)
                             if firing_unit:
@@ -119,28 +125,91 @@ class Munition(pg.sprite.Sprite):
                         elif not alive:
                             if not self.logic_dict[self.tiles_traversed[i-1]]["state"] == "ciws_destroys":
                                 self.logic_dict[self.tiles_traversed[i]]["state"] = "ciws_destroys"
-                                
+                # if no enemy unit ciws covering tile, traverse tile -------- #                
                 else:
                     self.logic_dict[self.tiles_traversed[i]]["state"] = "traversing"
                         
                 
-                    
+            # phase: terminal ----------------------------------------------- #        
             elif self.logic_dict[coords]["phase"] == "terminal":
                 print("phase: terminal")
+                # munition still alive? ------------------------------------- #
                 if self.armor <= 0:
+                    print("munition already d.e.d.")
                     break
-                if not hasattr(self.target, "evasion"):
-                    self.logic_dict[self.tiles_traversed[i]]["state"] = "traversing"
-                    break
-                munition_evaded = True if (self.target.evasion * len(self.tiles_traversed) > 1) and self.type != "guided" else False
-                print("munition_evaded: " + str(munition_evaded))
-                if munition_evaded:
-                    self.logic_dict[self.tiles_traversed[i]]["state"] = "target_evades"
-                else:
-                    # resolving ciws_cover of final tile -------------------- #
-                    unit_grp = self.game.unit_blufor_grp if self.launcher.faction == "redfor" else self.game.unit_redfor_grp
+                # target is a tile not a unit ------------------------------- #
+                elif not hasattr(self.target, "evasion"):
+                    print("target does not have attr evasion")
                     
-                    current_tile = next(t for t in self.game.tile_grp if t.qrs == coords)
+                    if hasattr(self.target, "unit"):
+                        print("target has attr unit")
+                        munition_evaded = True if (self.target.unit.evasion * len(self.tiles_traversed) > 1) and self.type != "guided" else False
+                        
+                        if munition_evaded:
+                            print("munition_evaded: " + str(munition_evaded))
+                            self.logic_dict[self.tiles_traversed[i]]["state"] = "target_evades"
+                            
+                        else:
+                            # resolving ciws_cover of final tile -------------------- #
+                            unit_grp = self.manager.unit_blufor_grp if self.launcher.faction == "redfor" else self.manager.unit_redfor_grp
+                            
+                            current_tile = next(t for t in self.manager.tile_grp if t.qrs == coords)
+                            units_intercepting_ids = [unit.id for unit in unit_grp]
+                            ciws_cover_keys = [unit_id for unit_id in current_tile.ciws_dict.keys() if unit_id in units_intercepting_ids]
+                            
+                            print("pre k in ciws_cover_keys:")
+                            print("unit_grp: " + str(unit_grp))
+                            print("units_intercepting_ids: " + str(units_intercepting_ids))
+                            print("ciws_cover_keys: " + str(ciws_cover_keys))
+                            
+                            if ciws_cover_keys:
+                                for k in ciws_cover_keys:
+                                    
+                                    alive = self.armor > 0
+                                    
+                                    if alive:
+                                        firing_unit = [unit for unit in unit_grp if unit.id == k]
+                                        print(firing_unit[0].id)
+                                        if firing_unit:
+                                            self.armor = self.armor - firing_unit[0].ciws_dmg if (self.armor - firing_unit[0].ciws_dmg) >= 0 else 0
+                                            self.dmg = self.dmg - firing_unit[0].ciws_dmg if (self.dmg - firing_unit[0].ciws_dmg) >= 0 else 0
+                                            firing_unit[0].ciws_charge -= 1
+                                            if self.armor <= 0:
+                                                self.logic_dict[self.tiles_traversed[i]]["state"] = "ciws_destroys"
+                                    elif not alive:
+                                        if not self.logic_dict[self.tiles_traversed[i-1]]["state"] == "ciws_destroys":
+                                            self.logic_dict[self.tiles_traversed[i]]["state"] = "ciws_destroys"
+                                    
+
+                            # damage application if not intercepted ----------------- #
+                            print("projectile stats hit_calc")
+                            print("dmg: " + str(self.dmg))
+                            print("armor: " + str(self.armor))
+                            if self.armor > 0:
+                                penetrating_dmg = (self.dmg - self.target.unit.armor) if (self.dmg - self.target.unit.armor) > 0 else 0
+                                applied_dmg = penetrating_dmg * self.dmg_multiplier
+                                self.target.unit.health -= applied_dmg
+                                self.target.unit.armor = (self.target.unit.armor - 0.5 * self.dmg) if (self.target.unit.armor - 0.5 * self.dmg) >= 0 else 0
+                                self.logic_dict[self.tiles_traversed[i]]["state"] = "target_hit"
+                                print("target stats after hit")
+                                print("health: " + str(self.target.unit.health))
+                                print("armor: " + str(self.target.unit.armor))
+                                
+                    else:
+                        print("tile is empty")
+                        self.logic_dict[self.tiles_traversed[i]]["state"] = "traversing"
+                        
+                else:
+                    print("target is a unit")
+                    munition_evaded = True if (self.target.evasion * len(self.tiles_traversed) > 1) and self.type != "guided" else False
+                    if munition_evaded:
+                        print("munition_evaded: " + str(munition_evaded))
+                        self.logic_dict[self.tiles_traversed[i]]["state"] = "target_evades"
+                        break
+                    # resolving ciws_cover of final tile -------------------- #
+                    unit_grp = self.manager.unit_blufor_grp if self.launcher.faction == "redfor" else self.manager.unit_redfor_grp
+                    
+                    current_tile = next(t for t in self.manager.tile_grp if t.qrs == coords)
                     units_intercepting_ids = [unit.id for unit in unit_grp]
                     ciws_cover_keys = [unit_id for unit_id in current_tile.ciws_dict.keys() if unit_id in units_intercepting_ids]
                     
@@ -268,9 +337,5 @@ class Munition(pg.sprite.Sprite):
             
         elif self.state is None:
             self.kill()
-
-
-        print(self.perc_traversed)
-
 
 

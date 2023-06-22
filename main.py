@@ -25,7 +25,7 @@ from animations_logic import Animations as al
 import win_conditions as rbl
 import initiative_queque as iq
 import skynet as sn
-from settings import WIN_WIDTH, WIN_HEIGHT, TILE_WIDTH, TILE_HEIGHT, FPS, FONTSIZE, SCROLL_SPEED, SCROLL_AREA, SCROLL_BUFFER
+from settings import WIN_WIDTH, WIN_HEIGHT, SCROLL_SPEED, SCROLL_AREA, SCROLL_BUFFER, FPS, FONTSIZE, TILE_HEIGHT, TILE_WIDTH
 
 
 # sprite objects ------------------------------------------------------------ #
@@ -155,8 +155,8 @@ class Manager:
         self.engine = DisplayEngine(self, caption, width, height, fps, flags)
         
         # fonts ------------------------------------------------------------- #
-        self.font1 = pg.font.Font('img/coalition.ttf', FONTSIZE)
-        self.font2 = pg.font.Font('img/berlinsmallcaps.ttf', FONTSIZE)
+        self.font1 = pg.font.Font("img/coalition.ttf", FONTSIZE)
+        self.font2 = pg.font.Font("img/berlinsmallcaps.ttf", FONTSIZE)
         
         # setup sprite groups ----------------------------------------------- #
         self.all_sprites = pg.sprite.LayeredUpdates()
@@ -164,6 +164,7 @@ class Manager:
         self.unit_blufor_grp = pg.sprite.Group()
         self.unit_redfor_grp = pg.sprite.Group()
         self.munition_grp = pg.sprite.Group()
+        self.movement_grp = pg.sprite.Group()
         self.ui_mapinfo_grp = pg.sprite.Group()
         self.ui_buttons_grp = pg.sprite.Group()
         self.text_crawl_grp = pg.sprite.Group()
@@ -319,11 +320,19 @@ class BattleUserInput(State):
         self.manager.initiative_queque.check_unit_ap()
         self.manager.skynet.get_situation()
         
-        self.manager.skynet.red_active_next_action()
+        mun_sprite_lst = self.manager.munition_grp.sprites()
+        mov_sprite_lst = self.manager.movement_grp.sprites()
+        
+        if not mun_sprite_lst and not mov_sprite_lst:
+            self.manager.skynet.red_active_next_action()
         
         self.manager.all_sprites.update()
         al.set_animation_state_tiles(self.manager.tile_grp, [self.manager.unit_blufor_grp, self.manager.unit_redfor_grp])
         self.manager.text_crawl_grp.update()
+        
+        # switch state to animation if movement or attack animation --------- #
+        if mun_sprite_lst or mov_sprite_lst:
+            self.manager.set_state(battle_animation)
     
     def on_draw(self, surface):
         # draw/render ------------------------------------------------------- #
@@ -344,17 +353,31 @@ class BattleAnimation(State):
         pass
  
     def on_update(self, delta, ticks):
-        pass
+        
+        self.manager.all_sprites.update()
+        al.set_animation_state_tiles(self.manager.tile_grp, [self.manager.unit_blufor_grp, self.manager.unit_redfor_grp])
+        self.manager.text_crawl_grp.update()
+        
+        # switch state to input if animation is concluded ------------------- #
+        mun_sprite_lst = self.manager.munition_grp.sprites()
+        mov_sprite_lst = self.manager.movement_grp.sprites()
+        
+        if not mun_sprite_lst and not mov_sprite_lst:
+            self.manager.set_state(battle_input)
     
     def on_draw(self, surface):
-        pass
+        # draw/render ------------------------------------------------------- #
+        self.manager.engine.screen.blit(self.manager.background_battle, (0, 0))
+        self.manager.all_sprites.draw(self.manager.engine.screen)
+        self.manager.text_crawl_grp.draw(self.manager.engine.screen)
     
     
-if __name__ == '__main__':
+if __name__ == "__main__":
     pg.init()
     pg.mixer.init()
     manager = Manager("Space Control", WIN_WIDTH, WIN_HEIGHT, fps=FPS)
     new_battle = NewBattle(manager)
     battle_input = BattleUserInput(manager)
+    battle_animation = BattleAnimation(manager)
     manager.run(new_battle)
     pg.quit()

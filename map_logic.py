@@ -114,19 +114,19 @@ class MapLogic:
             if mouse_pos_x < SCROLL_AREA:
                 if max_x < WIN_WIDTH - SCROLL_BUFFER:
                     for sprite in manager.all_sprites:
-                        sprite.x += SCROLL_SPEED
+                        sprite.x += SCROLL_SPEED * manager.engine.delta
             
             if mouse_pos_x > WIN_WIDTH - SCROLL_AREA:
                 if min_x > SCROLL_BUFFER:
                     for sprite in manager.all_sprites:
-                        sprite.x -= SCROLL_SPEED
+                        sprite.x -= SCROLL_SPEED * manager.engine.delta
             
             if mouse_pos_y < SCROLL_AREA:
                 if max_y < WIN_HEIGHT - SCROLL_BUFFER:
                     for sprite in manager.all_sprites:
-                        sprite.y += SCROLL_SPEED
+                        sprite.y += SCROLL_SPEED * manager.engine.delta
             
             if mouse_pos_y > WIN_HEIGHT - SCROLL_AREA:
                 if min_y > SCROLL_BUFFER:
                     for sprite in manager.all_sprites:
-                        sprite.y -= SCROLL_SPEED
+                        sprite.y -= SCROLL_SPEED * manager.engine.delta
