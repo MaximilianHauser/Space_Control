@@ -21,228 +21,145 @@ observer.py optional
 
 # import section ------------------------------------------------------------ #
 import pygame as pg
-import gamelogic as gl
-from settings import UI_INTERFACE_LAYER, UI_TRANSPARENCY, T_PURPLE, FONTSIZE
+from settings import UI_INTERFACE_LAYER, UI_TRANSPARENCY, ui_colors_dict
 
 
 class Button(pg.sprite.Sprite):
-    """
-    Creates a object with superclass pygame.Sprite, which essentially functions 
-    as a button, that executes a linked function, when released.
-    
-    Attributes:
-    -----------
-    self.game = game
-        Main game loop object.
-    
-    self.text_in = text_in
-        Static text to be displayed on the button.
-    
-    self.var_dict = kwargs
-        Stores all kwargs in {key : value} pairs.
+    def __init__(self, manager:object, text_in:str, x:int, y:int, cb_attr:str, cb_val:str, 
+                 sprite_groups:list,
+                 specific_width:int = False,
+                 specific_height:int = False,
+                 enabled:bool = True,
+                 predefined_color_scheme:str = False,
+                 transparency:int = UI_TRANSPARENCY,
+                 active_font = None,
+                 un_text_col:str = "white",
+                 hov_text_col:str = "white",
+                 pres_text_col:str = "white",
+                 un_fill_col:str = "darkslategray3",
+                 hov_fill_col:str = "darkslategray3",
+                 pres_fill_col:str = "darkslategray4",
+                 un_border_col:str = "darkslategray1",
+                 hov_border_col:str = "darkslategray1",
+                 pres_border_col:str = "darkslategray1"
+                 ) -> pg.sprite.Sprite:
         
-    self.attr_dict = dict()
-        Stores kwargs pairs, also used for accessing attributes defined by kwargs.
-         
-    self.text_out = text_in.format(**self.attr_dict)
-        Inserts the kwargs derived from the attributes into the button text.
-        Part of the mechanics enabling a working counter for example.
-    
-    self.x = x
-        Topleft position of the button, in pixel from the left edge of the screen.
-    
-    self.y = y
-        Topleft position of the button, in pixel from the top edge of the screen.
-    
-    self.width = width
-        Width of the button in pixel.
-        
-    self.height = height
-        Height of the button in pixel.
-        
-    self._layer = UI_INTERFACE_LAYER
-        Layer responsible for the order in which objects are drawn unto the screen.
-    
-    self.game.all_sprites.add(self)
-        Add self to sprites.Group all_sprites.
-        
-    self.game.ui_buttons_grp.add(self)
-        Add self to sprites.Group ui_buttons_grp.
-    
-    self.enabled = enabled
-        Initial state of the button, either True or False.
-        
-    self.state = "unpressed"
-        Initial state of finite state algorithm.
-    
-    self.function = function
-        Function to be executed when the mousebutton is released on the button object.
-    
-    self.image = pg.Surface((self.width, self.height))
-        Creates a pygame Surface to draw the button on top.
-    
-    self.image.set_alpha(UI_TRANSPARENCY)
-        Set the transparency of the button.
-    
-    self.image.fill(T_PURPLE)
-        Fill the Surface with the transparency color.
-        
-    self.image.set_colorkey(T_PURPLE)
-        Set the transperency color of the image.
-    
-    self.mask = None
-        Creates mask variable, initial value None.
-        
-    self.rect = self.image.get_rect()
-        Creates a pygame.Rect object for storing coordinates based on the 
-        previously defined Surface.
-    
-    self.rect.topleft = (self.x, self.y)
-        Set the topleft Rect coordinates equal to x and y.
-        
-    Methods:
-    --------
-    update(self) -> None:
-        Update function to be used in combination with the main game loop to
-        update the state of the button.
-        
-    msbtn_down(self, pos:tuple, button:int) -> bool:
-        Linear interpolation returns point at t of distance between a and b.
-        
-    handle_events(self, event:int) -> None:
-        Changes the state of the button object, based on passed event.
-    
-    """
-    def __init__(self, manager:object, text_in:str, x:int, y:int, width:int, height:int, enabled:bool, function, **kwargs) -> object:
         pg.sprite.Sprite.__init__(self)
+        
         self.manager = manager
         
         self.text_in = text_in
         
-        self.var_dict = kwargs
-        self.attr_dict = dict()
-        
-        for k, v in kwargs.items():
-            attr_v = getattr(v[0], v[1])
-            setattr(self, k, attr_v)
-            self.attr_dict.update({k:attr_v}) 
-             
-        self.text_out = text_in.format(**self.attr_dict)
         self.x = x
         self.y = y
-        self.width = width
-        self.height = height
+
         self._layer = UI_INTERFACE_LAYER
         
-        self.manager.all_sprites.add(self)
-        self.manager.ui_buttons_grp.add(self)
+        for group in sprite_groups:
+            eval("self.manager." + group + ".add(self)")
         
-        self.enabled = enabled
         self.state = "unpressed"
-        self.function = function
+        self.enabled = enabled
+        self.cb_attr = cb_attr
+        self.cb_val = cb_val
         
-        self.image = pg.Surface((self.width, self.height))
-        self.image.set_alpha(UI_TRANSPARENCY)
-        self.image.fill(T_PURPLE)
-        self.image.set_colorkey(T_PURPLE)
-        self.mask = None
+        self.active_font = self.manager.font_menu
+        
+        # colors for each element in each state ----------------------------- #
+        if predefined_color_scheme:
+            un_text_col = ui_colors_dict[predefined_color_scheme]["un_text_col"]
+            hov_text_col = ui_colors_dict[predefined_color_scheme]["hov_text_col"]
+            pres_text_col = ui_colors_dict[predefined_color_scheme]["pres_text_col"]
+            un_fill_col = ui_colors_dict[predefined_color_scheme]["un_fill_col"]
+            hov_fill_col = ui_colors_dict[predefined_color_scheme]["hov_fill_col"]
+            pres_fill_col = ui_colors_dict[predefined_color_scheme]["pres_fill_col"]
+            un_border_col = ui_colors_dict[predefined_color_scheme]["un_border_col"]
+            hov_border_col = ui_colors_dict[predefined_color_scheme]["hov_border_col"]
+            pres_border_col = ui_colors_dict[predefined_color_scheme]["pres_border_col"]
+        
+        
+        self.render_images(specific_width, specific_height, active_font, un_text_col, hov_text_col, pres_text_col, un_fill_col, hov_fill_col, pres_fill_col, un_border_col, hov_border_col, pres_border_col, transparency)
+        
         self.rect = self.image.get_rect()
-        
         self.rect.topleft = (self.x, self.y)
         
-    def update(self) -> None:
-        """
-        Update function to be used in combination with the main game loop to
-        update the state of the button.
         
-        Parameters:
-        -----------
-        self : Object
-            Access to object attributes of self.
+    def render_images(self, specific_width, specific_height, active_font, un_text_col, hov_text_col, pres_text_col, un_fill_col, hov_fill_col, pres_fill_col, un_border_col, hov_border_col, pres_border_col, transparency=255):
+        # getting metrics shared by all images ------------------------------ #
+        metrics_text = self.active_font.render(self.text_in, True, un_text_col)
+        (button_width, button_height) = metrics_text.get_size()
         
-        Returns:
-        --------
-        None
-        """
-        self.attr_dict = dict()
+        if isinstance(specific_width, int):
+            if specific_width > button_width:
+                button_width = specific_width
+           
+        if isinstance(specific_height, int):
+            if specific_height > button_height:
+                button_height = specific_height
         
-        for k, v in self.var_dict.items():
-            attr_v = getattr(v[0], v[1])
-            setattr(self, k, attr_v)
-            self.attr_dict.update({k:attr_v}) 
+        image_type_dict = {"image_unpressed": {"text": un_text_col, "fill": un_fill_col, "border": un_border_col},
+                           "image_hover": {"text": hov_text_col, "fill": hov_fill_col, "border": hov_border_col},
+                           "image_pressed": {"text": pres_text_col, "fill": pres_fill_col, "border": pres_border_col}
+                           }
         
-        self.text_out = self.text_in.format(**self.attr_dict)
-        button_text = self.manager.font1.render(self.text_out, True, "white")
+        for key in image_type_dict.keys():
+            image = pg.Surface((button_width, button_height))
+            image.set_alpha(transparency)
+            image.fill("black")
+            image.set_colorkey("black")
+            pg.draw.rect(image, image_type_dict[key]["fill"], ((0,0), (button_width, button_height)), 0, 5)
+            pg.draw.rect(image, image_type_dict[key]["border"], ((0,0), (button_width, button_height)), 2, 5)
+            text = self.active_font.render(self.text_in, True, image_type_dict[key]["text"])
+            image.blit(text, (0,0))
+            setattr(self, key, image)
+    
+    
+    @property
+    def image(self) -> pg.Surface:
         if self.enabled:
             if self.state == "pressed":
-                pg.draw.rect(self.image, "darkslategray4", ((0,0), (self.width, self.height)), 0, 5)
-                pg.draw.rect(self.image, "darkslategray1", ((0,0), (self.width, self.height)), 2, 5)
+                return self.image_pressed
+            elif self.state == "hover":
+                return self.image_hover
             else:
-                pg.draw.rect(self.image, "darkslategray3", ((0,0), (self.width, self.height)), 0, 5)
-                pg.draw.rect(self.image, "darkslategray1", ((0,0), (self.width, self.height)), 2, 5)
-        else:
-            self.kill()
-        pg.draw.rect(self.image, "darkslategray1", ((0,0), (self.width, self.height)), 2, 5)
-        self.image.blit(button_text, (10, (self.height - FONTSIZE) * 0.75))
-        
-        self.mask = pg.mask.from_surface(self.image)
-        
-        self.manager.engine.screen.blit(self.image, (self.x, self.y))
+                return self.image_unpressed
+         
         
     # checks if click is touching tile -------------------------------------- #
     def msbtn_down(self, pos:tuple, button:int) -> bool:
-        """
-        Checks wether the event position overlaps with the button.
+        if self.enabled:
+            touching = self.rect.collidepoint(pos)
         
-        Parameters:
-        -----------
-        self : Object
-            Access to object attributes of self.
-        
-        pos : tuple
-            A tuple containing the pixel coordinates of an event (x,y).
-        
-        button : int
-            Integer representing the mousebutton pressed, 1 for left, 3 for right.
-        
-        Returns:
-        --------
-        True, if event collided with self.mask, else False.
-        """
-        pos_in_mask = pos[0] - self.rect.x, pos[1] - self.rect.y
-        touching = self.rect.collidepoint(pos) and self.mask.get_at(pos_in_mask)
-
-        return touching
+            return touching
 
 
     def handle_events(self, event:int) -> None:
-        """
-        Changes the state of the button object, based on passed event.
-        
-        Parameters:
-        -----------
-        self : Object
-            Access to object attributes of self.
-
-        pos : tuple
-            A tuple containing the pixel coordinates of an event (x,y).
-        
-        Returns:
-        --------
-        None
-        """
         # handle events related to mouse clicks on tile --------------------- #
+        # button state is unpressed ----------------------------------------- #
         if self.state == "unpressed":
-            if event.type == pg.MOUSEBUTTONDOWN:
-                self.state = "pressed"
-                
-        if self.state == "pressed":
-            if event.type == pg.MOUSEBUTTONUP:
-                self.state = "unpressed"
-                eval(self.function)
-                
-            elif event.type == self.manager.E_IDLE:
-                pos_in_mask = event.pos[0] - self.rect.x, event.pos[1] - self.rect.y
-                touching = self.rect.collidepoint(event.pos) and self.mask.get_at(pos_in_mask)
+            if event.type == pg.MOUSEMOTION or self.manager.E_IDLE:
+                touching = self.rect.collidepoint(event.pos)
+                if touching:
+                    self.state = "hover"
+        
+        # button state is hover --------------------------------------------- #
+        elif self.state == "hover":
+            if event.type == pg.MOUSEMOTION or event.type == self.manager.E_IDLE:
+                touching = self.rect.collidepoint(event.pos)
                 if not touching:
                     self.state = "unpressed"
+            elif event.type == pg.MOUSEBUTTONDOWN:
+                self.state = "pressed"
+                    
+                    
+        # button state is pressed ------------------------------------------- #        
+        elif self.state == "pressed":
+            if event.type == pg.MOUSEBUTTONUP:
+                self.state = "unpressed"
+                setattr(self.manager, self.cb_attr, self.cb_val)
+                
+            elif event.type == pg.MOUSEMOTION or event.type == self.manager.E_IDLE:
+                touching = self.rect.collidepoint(event.pos)
+                if not touching:
+                    self.state = "unpressed"
+                    

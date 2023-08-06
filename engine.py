@@ -1,0 +1,85 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jul 20 18:20:51 2023
+
+@author: Maximilian Hauser
+"""
+
+# import section ------------------------------------------------------------ #
+import sys
+import pygame as pg
+from settings import FPS
+
+# Game Engine class --------------------------------------------------------- #
+class Engine:
+    def __init__(self, screen, states, start_state, fps = FPS):
+        self.done = False
+        self.screen = screen
+        self.clock = pg.time.Clock()
+        self.fps = fps
+        self.states = states
+        self.state_name = start_state
+        self.previous_state = None
+        self.state = self.states[self.state_name]["instance"]
+        
+        # define custom_events ---------------------------------------------- #
+        self.E_IDLE = pg.event.custom_type() + 0
+
+    def event_loop(self):
+        # post custom_event "IDLE" ------------------------------------------ #
+        if not pg.event.peek(pg.MOUSEMOTION):
+            if not pg.event.peek(pg.MOUSEBUTTONDOWN):
+                mouse_pos = pg.mouse.get_pos()
+                event_data = {'pos': mouse_pos}
+                pg.event.post(pg.event.Event(self.E_IDLE, event_data))
+        # pass event to currently active state ------------------------------ #        
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
+                sys.exit()
+            else:
+                self.state.event(event)
+
+    def flip_state(self):
+        # check currently active instances ---------------------------------- #
+        for key in self.states.keys():
+            print(type(self.states[key]["instance"]))
+        
+        self.previous_state = self.state_name
+        next_state = self.state.next_state
+        self.state.leave()
+        self.state_name = next_state
+        persistent = self.state.persistent
+        
+        # clear all_sprites and groups contained ---------------------------- #
+        for obj in self.state.all_sprites:
+            if isinstance(obj, pg.sprite.Group):
+                obj.empty()
+        self.state.all_sprites.empty()       
+        
+        self.states[self.state_name]["instance"] = self.states[self.state_name]["constructor"]
+        self.state = self.states[self.state_name]["instance"]
+        self.state.startup(persistent)
+        self.states[self.previous_state]["instance"] = None
+        
+        # check currently active instances ---------------------------------- #
+        for key in self.states.keys():
+            print(type(self.states[key]["instance"]))
+
+    def update(self, delta):
+        if self.state.quit:
+            self.done = True
+        elif self.state.done:
+            self.flip_state()
+        self.state.update(delta)
+
+    def draw(self):
+        self.state.draw(self.screen)
+
+    def run(self):
+        while not self.done:
+            delta = self.clock.tick(self.fps) * 0.001
+            self.event_loop()
+            self.update(delta)
+            self.draw()
+            pg.display.update()

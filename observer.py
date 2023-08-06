@@ -219,6 +219,7 @@ class Observer:
         subscribers = self.get_subscribers(event.type)
         l_start = max(self.sub_layers_dict.values())
         l_stop = min(self.sub_layers_dict.values()) - 1
+            
         # from top layer starts checking subs if clicked, if yes: end loop -- #
         for l in range(l_start, l_stop, -1):
             for subscriber in subscribers:

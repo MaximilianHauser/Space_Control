@@ -24,11 +24,13 @@ TILE_HEIGHT = 64
 T_PURPLE = (255, 0, 255)
 
 # fontsize
-FONTSIZE = 14
+FONTSIZE_SPLASH = 38
+FONTSIZE_BUTTON = 14
+FONTSIZE_MENU = 24
+FONTSIZE_TEXT = 14
 
 # ui_transparency
 UI_TRANSPARENCY = 100
-UI_TRANSPARENCY_PRESSED = 200
 
 # layers for animation
 BACKGROUND_LAYER = 1
@@ -39,7 +41,44 @@ U_ANIMATION_LAYER = 5
 UI_MAPINFO_LAYER = 6
 UI_INTERFACE_LAYER = 7
 
+# relative speed for mousewheel scrolling
+MOUSESCROLLSPEED = 3
+
 # attributes, related to scrolling the map
 SCROLL_SPEED = 3
 SCROLL_AREA = 48
 SCROLL_BUFFER = 48
+
+# color and font schemes in a dict, to be used as templates
+ui_colors_dict = {"transp_white":
+                 {                 
+                                    "active_font" : None,
+                                    "un_text_col" : "white",
+                                    "hov_text_col" : "darkslategray1",
+                                    "pres_text_col" : "darkslategray3",
+                                    "un_fill_col" : "black",
+                                    "hov_fill_col" : "black",
+                                    "pres_fill_col" : "black",
+                                    "un_border_col" : "black",
+                                    "hov_border_col" : "black",
+                                    "pres_border_col" : "black"
+                                    },
+                  
+                  "solid_darkslate":     
+                {
+                                    "active_font" : None,
+                                    "un_text_col" : "white",
+                                    "hov_text_col" : "white",
+                                    "pres_text_col" : "white",
+                                    "un_fill_col" : "darkslategray3",
+                                    "hov_fill_col" : "darkslategray4",
+                                    "pres_fill_col" : "darkslategray",
+                                    "un_border_col" : "darkslategray1",
+                                    "hov_border_col" : "darkslategray1",
+                                    "pres_border_col" : "darkslategray1"
+                                    }
+    
+                
+                    }
+
+

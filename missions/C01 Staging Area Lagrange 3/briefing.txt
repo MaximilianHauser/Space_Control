@@ -1,0 +1,41 @@
+$text_col_1$
+Hello, Player. I'm glad you could finally make it in this morning
+The briefing was scheduled for eight standard minutes ago.
+$text_col_2$
+Sorry, Ma'am. I've been checking the battle groups trajectories, 
+estimated remaining delta V and started pre planing for fuel 
+transfers.
+$text_col_1$
+Very well then. We'll be starting our deceleration burn in about 
+45 minutes. As you're aware, we'll be the first to arrive. Our
+recce-probes didn't pick up on any significant enemy presence,
+however, there seems to be a lone corvette at the staging area.
+$text_col_2$
+A lone corvette, ma'am?
+$text_col_1$
+We think that the Dawnies moved more ships in from systems 
+neighbouring Krig, the corvette was probably lacking delta V
+and is waiting to be refueled. We're currently jamming it's 
+long range communications, we want you to take it out.
+$text_col_2$
+You don't want to board the ship, see what we're up against?
+$text_col_1$
+They see a Crayven Command Cruiser, they think taking it down 
+with them, is their ticket straight to the pearly gates. I don't 
+want to risk the Astrids capabilities this early.
+$text_col_2$
+Fair enough. So it's skeet shooting for a warmup, unless it's 
+going to run back to it's mama. The corvette's been sitting here 
+for a while, hasnt it?
+$text_col_1$
+We think so. If they're low on fuel, it might give us an advantage 
+we usually don't enjoy. And if they've moved in everything they 
+have from surrounding systems, one we will need.
+$text_col_2$
+Unless they are, once we've announced ourselves, we'll be toast 
+pretty quickly, given their expected numerical superiority.
+$text_col_1$
+I'm aware Player. Now if you don't have any questions or requests, 
+I'll have a staff meeting to attend to.
+$text_col_2$
+No, Ma'am.
