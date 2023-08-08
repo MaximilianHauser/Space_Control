@@ -46,7 +46,7 @@ class MissionSelect(State):
         self.observer.subscribe(self.E_IDLE, self.start_button)
         
         # Mission Menu ------------------------------------------------------ #
-        self.mission_menu = MissionMenu(self, 185, 60, 300, 300)
+        self.mission_menu = MissionMenu(self, 170, 60, 300, 300)
 
         # persistent attributes to be carried over to briefing, battle ------ #
         self.persistent = {"selected_mission":self.selected_mission}
@@ -69,7 +69,7 @@ class MissionSelect(State):
         self.persistent = {"selected_mission":self.selected_mission}
     
     def draw(self, surface):
-        surface.fill("gray30") #replace with "black"
+        surface.fill("black")
         self.all_sprites.draw(surface)
         self.mission_menu.draw(surface)
         
@@ -112,7 +112,6 @@ class MissionMenu(pg.sprite.Sprite):
         
         for folder in mission_folders:
             entry = MenuEntry(folder, str(folder), mission_menu_state=self)
-            self.mission_menu.add(entry)
         
         # get the height of one MenuEntry ----------------------------------- #
         entry_surface = next(iter(self.mission_menu)).image
@@ -147,9 +146,11 @@ class MissionMenu(pg.sprite.Sprite):
             self.relative_y_traverse = 0
             
         # add scrollbar ----------------------------------------------------- #
-        self.scrollbar = ScrollBar(self, 10, self.scrollbar_height)
-        self.mission_scrollbar.add(self.scrollbar)
-        self.scrollbar.rect.topleft = (self.width-10, 0)
+        if self.height_ratio >= 1:
+            pass
+        else:
+            self.scrollbar = ScrollBar(self, 10, self.scrollbar_height)
+            self.scrollbar.rect.topleft = (self.width-10, 0)
 
         # surface for menu -------------------------------------------------- #
         self.image = pg.Surface((self.width, self.height))
@@ -168,7 +169,6 @@ class MissionMenu(pg.sprite.Sprite):
         self.image.fill("black")
         self.mission_menu.draw(self.image)
         self.mission_scrollbar.draw(self.image)
-        self.image.blit(surface, (self.x, self.y))
     
     def handle_events(self, event):
         # if MOUSEWHEEL scroll entries -------------------------------------- #
@@ -222,6 +222,9 @@ class MenuEntry(pg.sprite.Sprite):
     def __init__(self, text, callback, mission_menu_state, un_text_col = "white", hov_text_col = "darkslategray1", pres_text_col = "darkslategray3"):
         pg.sprite.Sprite.__init__(self)
         self.mission_menu_state = mission_menu_state
+        
+        # add to all sprites ------------------------------------------------ #
+        self.mission_menu_state.mission_menu.add(self)
         
         self._layer = 1
         
@@ -312,6 +315,9 @@ class ScrollBar(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self)
         
         self.mission_menu_state = mission_menu_state
+        
+        # add to all sprites ------------------------------------------------ #
+        self.mission_menu_state.mission_scrollbar.add(self)
         
         self.state = "unpressed"
         

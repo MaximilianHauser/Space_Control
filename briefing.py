@@ -9,8 +9,8 @@ Created on Sat Jul 22 15:29:31 2023
 import pygame as pg
 from state import State
 from observer import Observer
-from button import Button
 from typewritercrawl import TypewriterCrawl
+from button import Button
 from settings import WIN_WIDTH
 
 # mission briefing state ---------------------------------------------------- #
@@ -30,9 +30,6 @@ class Briefing(State):
         # init Observer ----------------------------------------------------- #
         self.observer = Observer()
         
-        # setup sprite groups ----------------------------------------------- #
-        self.all_sprites = pg.sprite.LayeredUpdates()
-        
         # button for returning to menu -------------------------------------- #
         self.menu_button = Button(self, "main menu", 40, 400, "clicked_on", "menu", ["all_sprites"], 
                                   predefined_color_scheme = "transp_white", transparency=255)
@@ -50,15 +47,9 @@ class Briefing(State):
         self.observer.subscribe(self.E_IDLE, self.start_button)
         
         # mission briefing text --------------------------------------------- #
+        
         self.briefing_txt_path = None
         self.briefing_txt = "$text_col_1$\nplaceholder_text"
-        
-        # typewritercrawl for briefing text --------------------------------- #
-        self.briefing_twc = TypewriterCrawl(self, 40, 40, 400, 360, self.briefing_txt, ["all_sprites"])
-        self.observer.subscribe(pg.MOUSEMOTION, self.briefing_twc)
-        self.observer.subscribe(pg.MOUSEBUTTONDOWN, self.briefing_twc)
-        self.observer.subscribe(pg.MOUSEBUTTONUP, self.briefing_twc)
-        self.observer.subscribe(self.E_IDLE, self.briefing_twc)
         
     def startup(self, persistent):
         self.persistent = persistent
@@ -66,6 +57,18 @@ class Briefing(State):
         f = open(self.briefing_txt_path, 'r')
         self.briefing_txt = f.read()
         f.close()
+        
+        # typewritercrawl for briefing text --------------------------------- #
+        self.briefing_twc = TypewriterCrawl(self, 40, 40, 560, 330, self.briefing_txt, ["all_sprites"])
+        try:
+            self.observer.subscribe(pg.MOUSEMOTION, self.briefing_twc)
+            self.observer.subscribe(pg.MOUSEBUTTONDOWN, self.briefing_twc)
+            self.observer.subscribe(pg.MOUSEBUTTONUP, self.briefing_twc)
+            self.observer.subscribe(self.E_IDLE, self.briefing_twc)
+        except AttributeError as ae:
+            print(ae)
+            print("typewritercrawl object not subscribed to observer")
+        
         
     def event(self, event):
         # pass events to observer ------------------------------------------- #
@@ -84,6 +87,7 @@ class Briefing(State):
     def draw(self, surface):
         surface.fill("gray30") #replace with "black"
         self.all_sprites.draw(surface)
+        self.briefing_twc.draw(surface)
         
     def to_menu(self):
         self.next_state = "MAIN_MENU"
@@ -92,5 +96,4 @@ class Briefing(State):
     def to_battle(self):
         self.next_state = "NEW_BATTLE"
         self.done = True
-        
         

@@ -41,30 +41,15 @@ class Engine:
                 self.state.event(event)
 
     def flip_state(self):
-        # check currently active instances ---------------------------------- #
-        for key in self.states.keys():
-            print(type(self.states[key]["instance"]))
-        
         self.previous_state = self.state_name
         next_state = self.state.next_state
         self.state.leave()
         self.state_name = next_state
         persistent = self.state.persistent
-        
-        # clear all_sprites and groups contained ---------------------------- #
-        for obj in self.state.all_sprites:
-            if isinstance(obj, pg.sprite.Group):
-                obj.empty()
-        self.state.all_sprites.empty()       
-        
         self.states[self.state_name]["instance"] = self.states[self.state_name]["constructor"]
         self.state = self.states[self.state_name]["instance"]
         self.state.startup(persistent)
         self.states[self.previous_state]["instance"] = None
-        
-        # check currently active instances ---------------------------------- #
-        for key in self.states.keys():
-            print(type(self.states[key]["instance"]))
 
     def update(self, delta):
         if self.state.quit:

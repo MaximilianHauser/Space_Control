@@ -86,6 +86,8 @@ class TypewriterCrawl(pg.sprite.Sprite):
         test_row_size = test_row.image.get_size()
         test_row.kill()
         
+        self.height_row = test_row_size[1]
+        
         self.height_rows_total = test_row_size[1] * num_rows
 
         self.height_ratio = height / self.height_rows_total
@@ -95,8 +97,7 @@ class TypewriterCrawl(pg.sprite.Sprite):
         else:
             self.scrollbar_height = self.height_ratio * self.height
 
-        self.row_dct =dict()
-        
+        self.row_dct = dict()
         
         self.speed = 1
         self.cooldown = 0
@@ -111,6 +112,15 @@ class TypewriterCrawl(pg.sprite.Sprite):
         # add TextRows ------------------------------------------------------ #
         for i in range(num_rows):
             row = TextRow(self, rows_colors_lst[i][0], rows_colors_lst[i][1])
+            self.text_menu.add(row)
+            
+        # initial position for text rows ------------------------------------ #
+        left = 0
+        uppery_menu = 0
+        y = itertools.count(uppery_menu, self.height_row)
+        for sprite in self.text_menu:
+            sprite.rect.left = left
+            sprite.rect.y = next(y)
         
         # add ScrollBar ----------------------------------------------------- #
         scrollbar = ScrollBar(self, 10, self.scrollbar_height)
@@ -120,10 +130,20 @@ class TypewriterCrawl(pg.sprite.Sprite):
         # surface for text -------------------------------------------------- #
         self.image = pg.Surface((self.width, self.height))
         self.image.fill("black")
-        self.image.set_colorkey("black")
+        self.image.set_colorkey("blue")
         self.image.set_alpha(transparency)
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
+        
+        # subscribe text crawl object to observer --------------------------- #
+        try:
+            self.state.observer.subscribe(event=pg.MOUSEWHEEL, subscriber=self)
+        except AttributeError as ae:
+            print("# --------------------------------------------- #")
+            print(ae)
+            print(str(self) + " not subscribed to state.observer")
+            print("pg.MOUSEWHEEL")
+            print("# --------------------------------------------- #")
         
     def update(self, delta):
         pass
@@ -132,7 +152,6 @@ class TypewriterCrawl(pg.sprite.Sprite):
         self.image.fill("black")
         self.text_menu.draw(self.image)
         self.text_scrollbar.draw(self.image)
-        self.image.blit(surface, (self.x, self.y))
     
     def handle_events(self, event):
         pass
@@ -153,16 +172,10 @@ class TextRow(pg.sprite.Sprite):
         # relative position to screen --------------------------------------- #
         self.rel_pos = (self.typewriter.x, self.typewriter.y)
         
-        # observer subscription --------------------------------------------- #
-        #self.typewriter.state.observer.subscribe(event=pg.MOUSEMOTION, subscriber=self)
-        #self.typewriter.state.observer.subscribe(event=pg.MOUSEBUTTONDOWN, subscriber=self)
-        #self.typewriter.state.observer.subscribe(event=pg.MOUSEBUTTONUP, subscriber=self)
-        #self.typewriter.state.observer.subscribe(event=self.typewriter.state.E_IDLE, subscriber=self)
-        
         self.text = text
         
         # render text rows for different stages of printing to screen ------- #
-        self.image = self.typewriter.active_font.render(self.text, True, "white")
+        self.image = self.typewriter.active_font.render(self.text, True, color)
         
         self.rect = self.image.get_rect()
         self.identity = TextRow.identity
@@ -196,7 +209,22 @@ class ScrollBar(pg.sprite.Sprite):
         # get rect for positioning and collision ---------------------------- #
         self.rect = self.image.get_rect()
         
-        self.first_update = True
+        # subscribe scrollbar to observer ----------------------------------- #
+        try:
+            self.typewriter.state.observer.subscribe(event=pg.MOUSEMOTION, subscriber=self)
+            self.typewriter.state.observer.subscribe(event=pg.MOUSEBUTTONDOWN, subscriber=self)
+            self.typewriter.state.observer.subscribe(event=pg.MOUSEBUTTONUP, subscriber=self)
+            self.typewriter.state.observer.subscribe(event=self.typewriter.state.E_IDLE, subscriber=self)
+            print("# --------------------------------------------- #")
+            print(str(self) + " subscribed to state.observer")
+            print("pg.MOUSEMOTION, pg.MOUSEBUTTONDOWN, pg.MOUSEBUTTONUP, E_IDLE")
+            print("# --------------------------------------------- #")
+        except AttributeError as ae:
+            print("# --------------------------------------------- #")
+            print(ae)
+            print(str(self) + " not subscribed to state.observer")
+            print("pg.MOUSEMOTION, pg.MOUSEBUTTONDOWN, pg.MOUSEBUTTONUP, E_IDLE")
+            print("# --------------------------------------------- #")
         
     def render_images(self, width, height, 
                       predefined_color_scheme:str = False,
@@ -245,14 +273,6 @@ class ScrollBar(pg.sprite.Sprite):
         position_in_menu = self.rect.topleft
         menu_in_screen = (self.typewriter.x, self.typewriter.y)
         self.rel_pos = tuple(map(sum, zip(position_in_menu, menu_in_screen)))
-        
-        if hasattr(self, "first_update"):
-            # observer subscription --------------------------------------------- #
-            self.typewriter.state.observer.subscribe(event=pg.MOUSEMOTION, subscriber=self)
-            self.typewriter.state.observer.subscribe(event=pg.MOUSEBUTTONDOWN, subscriber=self)
-            self.typewriter.state.observer.subscribe(event=pg.MOUSEBUTTONUP, subscriber=self)
-            self.typewriter.state.observer.subscribe(event=self.typewriter.state.E_IDLE, subscriber=self)
-            delattr(self, "first_update")
         
     def msbtn_down(self, pos, button):
         # adjust position of mouse to relative position within sprite ------- #

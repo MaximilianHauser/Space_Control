@@ -126,6 +126,7 @@ class Observer:
         subscribers.append(subscriber)
             
         self.subscribers_dict.update({event:subscribers})
+        print(str(subscriber) + " is now subscribed to " + str(event))
             
             
     def unsubscribe(self, event:int, subscriber:object) -> None:
