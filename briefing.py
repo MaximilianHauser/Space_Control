@@ -48,8 +48,23 @@ class Briefing(State):
         
         # mission briefing text --------------------------------------------- #
         
-        self.briefing_txt_path = None
-        self.briefing_txt = "$text_col_1$\nplaceholder_text"
+        #self.briefing_txt_path = None
+        #self.briefing_txt = "$text_col_1$\nplaceholder_text"
+        
+        # for testing purposes 
+        self.briefing_txt_path = ".\missions\\" + "C01 Staging Area Lagrange 3" + "\\briefing.txt"
+        f = open(self.briefing_txt_path, 'r')
+        self.briefing_txt = f.read()
+        f.close()
+    
+        
+        # typewritercrawl for briefing text --------------------------------- #
+        self.briefing_twc = TypewriterCrawl(self, 40, 40, 560, 330, self.briefing_txt, ["all_sprites"])
+        self.observer.subscribe(event=pg.MOUSEMOTION, subscriber=self.briefing_twc.scrollbar)
+        self.observer.subscribe(event=pg.MOUSEBUTTONDOWN, subscriber=self.briefing_twc.scrollbar)
+        self.observer.subscribe(event=pg.MOUSEBUTTONUP, subscriber=self.briefing_twc.scrollbar)
+        self.observer.subscribe(event=self.E_IDLE, subscriber=self.briefing_twc.scrollbar)
+        self.observer.subscribe(event=pg.MOUSEWHEEL, subscriber=self.briefing_twc)
         
     def startup(self, persistent):
         self.persistent = persistent
@@ -57,19 +72,7 @@ class Briefing(State):
         f = open(self.briefing_txt_path, 'r')
         self.briefing_txt = f.read()
         f.close()
-        
-        # typewritercrawl for briefing text --------------------------------- #
-        self.briefing_twc = TypewriterCrawl(self, 40, 40, 560, 330, self.briefing_txt, ["all_sprites"])
-        try:
-            self.observer.subscribe(pg.MOUSEMOTION, self.briefing_twc)
-            self.observer.subscribe(pg.MOUSEBUTTONDOWN, self.briefing_twc)
-            self.observer.subscribe(pg.MOUSEBUTTONUP, self.briefing_twc)
-            self.observer.subscribe(self.E_IDLE, self.briefing_twc)
-        except AttributeError as ae:
-            print(ae)
-            print("typewritercrawl object not subscribed to observer")
-        
-        
+         
     def event(self, event):
         # pass events to observer ------------------------------------------- #
         self.observer.event_mngr(event)
@@ -85,7 +88,7 @@ class Briefing(State):
             self.to_battle()
         
     def draw(self, surface):
-        surface.fill("gray30") #replace with "black"
+        surface.fill("black") #"gray30" as placeholder if needed
         self.all_sprites.draw(surface)
         self.briefing_twc.draw(surface)
         

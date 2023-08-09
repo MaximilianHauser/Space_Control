@@ -10,11 +10,12 @@ import itertools
 import re
 import string as string_module
 import pygame as pg
-from settings import UI_INTERFACE_LAYER, ui_colors_dict
+from settings import UI_INTERFACE_LAYER, MOUSESCROLLSPEED, ui_colors_dict
 
 
 # typewritercrawl class ----------------------------------------------------- #
 class TypewriterCrawl(pg.sprite.Sprite):
+    instance = None
     def __init__(self, state:object, 
                            x:int, 
                            y:int, 
@@ -30,6 +31,9 @@ class TypewriterCrawl(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self)
         
         self.state = state
+        
+        # E_IDLE event import from state ------------------------------------ #
+        self.E_IDLE = self.state.E_IDLE
         
         self.active_font = self.state.font_text
         
@@ -47,6 +51,9 @@ class TypewriterCrawl(pg.sprite.Sprite):
         
         self.width = width
         self.height = height
+        
+        self.cooldown = 10
+        self.speed = 1
         
         abc_lst = list(string_module.ascii_lowercase)
         
@@ -89,6 +96,8 @@ class TypewriterCrawl(pg.sprite.Sprite):
         self.height_row = test_row_size[1]
         
         self.height_rows_total = test_row_size[1] * num_rows
+        
+        self.height_diff_rows_menu = self.height_rows_total - self.height
 
         self.height_ratio = height / self.height_rows_total
         
@@ -96,6 +105,13 @@ class TypewriterCrawl(pg.sprite.Sprite):
             self.scrollbar_height = self.height
         else:
             self.scrollbar_height = self.height_ratio * self.height
+            
+        self.height_diff_sb_menu = self.height - self.scrollbar_height
+            
+        if self.height_diff_sb_menu > 0:
+            self.relative_y_traverse = self.height_diff_rows_menu / self.height_diff_sb_menu
+        else:
+            self.relative_y_traverse = 0
 
         self.row_dct = dict()
         
@@ -123,30 +139,38 @@ class TypewriterCrawl(pg.sprite.Sprite):
             sprite.rect.y = next(y)
         
         # add ScrollBar ----------------------------------------------------- #
-        scrollbar = ScrollBar(self, 10, self.scrollbar_height)
-        self.text_scrollbar.add(scrollbar)
-        scrollbar.rect.topleft = (self.width-10, 0)
+        self.scrollbar = ScrollBar(self, 10, self.scrollbar_height)
+        self.text_scrollbar.add(self.scrollbar)
+        self.scrollbar.rect.topleft = (self.width-10, 0)
 
         # surface for text -------------------------------------------------- #
         self.image = pg.Surface((self.width, self.height))
         self.image.fill("black")
-        self.image.set_colorkey("blue")
+        self.image.set_colorkey("black")
         self.image.set_alpha(transparency)
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
         
-        # subscribe text crawl object to observer --------------------------- #
-        try:
-            self.state.observer.subscribe(event=pg.MOUSEWHEEL, subscriber=self)
-        except AttributeError as ae:
-            print("# --------------------------------------------- #")
-            print(ae)
-            print(str(self) + " not subscribed to state.observer")
-            print("pg.MOUSEWHEEL")
-            print("# --------------------------------------------- #")
-        
     def update(self, delta):
-        pass
+        if not self.finished:
+            rows_not_fully_printed = [row.identity for row in self.text_menu if not row.fully_printed]
+            if not rows_not_fully_printed:
+                self.finished = True
+                
+            if not self.cooldown:
+            
+                current_row_ident = min(rows_not_fully_printed)
+                current_row = [row for row in self.text_menu if row.identity == current_row_ident][0]
+            
+                # set fully_printed --------------------------------------------- #
+                if current_row.num_letters_printed == current_row.row_length-1:
+                    current_row.fully_printed = True
+            
+                current_row.num_letters_printed += 1
+                self.cooldown += 10
+            else:
+                self.cooldown -= self.speed
+        
     
     def draw(self, surface):
         self.image.fill("black")
@@ -154,39 +178,97 @@ class TypewriterCrawl(pg.sprite.Sprite):
         self.text_scrollbar.draw(self.image)
     
     def handle_events(self, event):
-        pass
+        # if MOUSEWHEEL scroll entries -------------------------------------- #
+        if event.type == pg.MOUSEWHEEL:
+            # scroll movement is forward ------------------------------------ #
+            rel_y = -MOUSESCROLLSPEED * event.y
+            if event.y > 0:
+                if self.scrollbar.rect.top > 0:
+                    self.scrollbar.rect.top += rel_y
+                    menu_entries_top = min([menu_entry.rect.top for menu_entry in self.text_menu])
+                    y = itertools.count(menu_entries_top - rel_y * self.relative_y_traverse , self.height_row)
+                    for menu_entry in self.text_menu:
+                        menu_entry.rect.top = next(y)
+             
+                # scrollbar is in its topmost position or past it --- #
+                else:
+                    self.scrollbar.rect.top = 0
+                    y = itertools.count(0, self.height_row)
+                    for menu_entry in self.text_menu:
+                        menu_entry.rect.top = next(y)
+            # scroll movement is backwards ---------------------------------- #
+            else:
+                # scrollbar is not in its downwardmost position --------- #
+                if self.scrollbar.rect.top < self.height - self.scrollbar.height:
+                    self.scrollbar.rect.top += rel_y
+                    menu_entries_top = min([menu_entry.rect.top for menu_entry in self.text_menu])
+                    y = itertools.count(menu_entries_top - rel_y * self.relative_y_traverse , self.height_row)
+                    for menu_entry in self.text_menu:
+                        menu_entry.rect.top = next(y)
+            
+                # scrollbar is in its downwardmost position --------- #
+                else:
+                    self.scrollbar.rect.top = self.height - self.scrollbar.height
+                    menu_entries_top = min([menu_entry.rect.top for menu_entry in self.text_menu])
+                    y = itertools.count(0 - self.height_diff_rows_menu, self.height_row)
+                    for menu_entry in self.text_menu:
+                        menu_entry.rect.top = next(y)
     
     def msbtn_down(self, pos, button):
         touching = self.rect.collidepoint(pos)
         return touching
 
+
 class TextRow(pg.sprite.Sprite):
     identity = 0
     def __init__(self, typewriter, text, color):
         pg.sprite.Sprite.__init__(self)
+        # assign identity number to text row -------------------------------- #
+        self.identity = TextRow.identity
         
         self.typewriter = typewriter
-        
         self._layer = 1
+        
+        # variables for controlling printing to screen letter by letter ----- #
+        self.text = text
+        self.color = color
+        self.num_letters_printed = 0
+        self.row_length = len(self.text)
+        self.fully_printed = False
         
         # relative position to screen --------------------------------------- #
         self.rel_pos = (self.typewriter.x, self.typewriter.y)
         
-        self.text = text
-        
         # render text rows for different stages of printing to screen ------- #
-        self.image = self.typewriter.active_font.render(self.text, True, color)
+        self.image_dict = self.render_images()
         
         self.rect = self.image.get_rect()
-        self.identity = TextRow.identity
+        
+        # advance identity num by one --------------------------------------- #
         TextRow.identity += 1
+        
+    def render_images(self):
+        image_dict = dict()
+        counter = 0
+        for i in range(self.row_length+1):
+            text_to_render = self.text[:i]
+            image = self.typewriter.active_font.render(text_to_render, True, self.color)
+            image_dict.update({counter:image})
+            counter += 1
+        return image_dict
+            
+
+    @property
+    def image(self):
+        return self.image_dict[self.num_letters_printed]
+
         
     def update(self, delta):
         # relative position to screen --------------------------------------- #
         position_in_menu = self.rect.topleft
         menu_in_screen = (self.typewriter.x, self.typewriter.y)
         self.rel_pos = tuple(map(sum, zip(position_in_menu, menu_in_screen)))
-
+        
 
 class ScrollBar(pg.sprite.Sprite):
     def __init__(self, typewriter, width, height):
@@ -208,23 +290,6 @@ class ScrollBar(pg.sprite.Sprite):
         
         # get rect for positioning and collision ---------------------------- #
         self.rect = self.image.get_rect()
-        
-        # subscribe scrollbar to observer ----------------------------------- #
-        try:
-            self.typewriter.state.observer.subscribe(event=pg.MOUSEMOTION, subscriber=self)
-            self.typewriter.state.observer.subscribe(event=pg.MOUSEBUTTONDOWN, subscriber=self)
-            self.typewriter.state.observer.subscribe(event=pg.MOUSEBUTTONUP, subscriber=self)
-            self.typewriter.state.observer.subscribe(event=self.typewriter.state.E_IDLE, subscriber=self)
-            print("# --------------------------------------------- #")
-            print(str(self) + " subscribed to state.observer")
-            print("pg.MOUSEMOTION, pg.MOUSEBUTTONDOWN, pg.MOUSEBUTTONUP, E_IDLE")
-            print("# --------------------------------------------- #")
-        except AttributeError as ae:
-            print("# --------------------------------------------- #")
-            print(ae)
-            print(str(self) + " not subscribed to state.observer")
-            print("pg.MOUSEMOTION, pg.MOUSEBUTTONDOWN, pg.MOUSEBUTTONUP, E_IDLE")
-            print("# --------------------------------------------- #")
         
     def render_images(self, width, height, 
                       predefined_color_scheme:str = False,
@@ -283,7 +348,7 @@ class ScrollBar(pg.sprite.Sprite):
     def handle_events(self, event):
         # menu entry is initially unpressed --------------------------------- #
         if self.state == "unpressed":
-            if event.type == pg.MOUSEMOTION or event.type == self.typewriter.menu_state.E_IDLE:
+            if event.type == pg.MOUSEMOTION or event.type == self.typewriter.E_IDLE:
                 if self.msbtn_down(event.pos, "key not needed"):
                     self.state = "hover"
             elif event.type == pg.MOUSEBUTTONDOWN:
@@ -291,7 +356,7 @@ class ScrollBar(pg.sprite.Sprite):
                 
         # menu entry is initially hovered on -------------------------------- #
         elif self.state == "hover":
-            if event.type == pg.MOUSEMOTION or event.type == self.typewriter.menu_state.E_IDLE:
+            if event.type == pg.MOUSEMOTION or event.type == self.typewriter.E_IDLE:
                 if not self.msbtn_down(event.pos, "key not needed"):
                     self.state = "unpressed"
             elif event.type == pg.MOUSEBUTTONDOWN:
@@ -308,16 +373,16 @@ class ScrollBar(pg.sprite.Sprite):
                         # scrollbar is not in its topmost position -------------- #
                         if self.rect.top > 0:
                             self.rect.top += rel_y
-                            menu_entries_top = min([menu_entry.rect.top for menu_entry in self.typewriter.mission_menu])
-                            y = itertools.count(menu_entries_top - rel_y * self.typewriter.relative_y_traverse , self.mission_menu_state.es_height)
-                            for menu_entry in self.typewriter.mission_menu:
+                            menu_entries_top = min([menu_entry.rect.top for menu_entry in self.typewriter.text_menu])
+                            y = itertools.count(menu_entries_top - rel_y * self.typewriter.relative_y_traverse , self.typewriter.height_row)
+                            for menu_entry in self.typewriter.text_menu:
                                 menu_entry.rect.top = next(y)
                      
                         # scrollbar is in its topmost position or past it --- #
                         else:
                             self.rect.top = 0
-                            y = itertools.count(0, self.typewriter.es_height)
-                            for menu_entry in self.typewriter.mission_menu:
+                            y = itertools.count(0, self.typewriter.height_row)
+                            for menu_entry in self.typewriter.text_menu:
                                 menu_entry.rect.top = next(y)
                             
                     # y_mousemovement is downwards ------------------------------ #        
@@ -325,26 +390,21 @@ class ScrollBar(pg.sprite.Sprite):
                         # scrollbar is not in its downwardmost position --------- #
                         if self.rect.top < self.typewriter.height - self.height:
                             self.rect.top += rel_y
-                            menu_entries_top = min([menu_entry.rect.top for menu_entry in self.typewriter.mission_menu])
-                            y = itertools.count(menu_entries_top - rel_y * self.typewriter.relative_y_traverse , self.typewriter.es_height)
-                            for menu_entry in self.typewriter.mission_menu:
+                            menu_entries_top = min([menu_entry.rect.top for menu_entry in self.typewriter.text_menu])
+                            y = itertools.count(menu_entries_top - rel_y * self.typewriter.relative_y_traverse , self.typewriter.height_row)
+                            for menu_entry in self.typewriter.text_menu:
                                 menu_entry.rect.top = next(y)
                     
                         # scrollbar is in its downwardmost position --------- #
                         else:
                             self.rect.top = self.typewriter.height - self.height
-                            menu_entries_top = min([menu_entry.rect.top for menu_entry in self.typewriter.mission_menu])
-                            y = itertools.count(0 - self.typewriter.height_diff_entries_menu, self.typewriter.es_height)
-                            for menu_entry in self.typewriter.mission_menu:
+                            menu_entries_top = min([menu_entry.rect.top for menu_entry in self.typewriter.text_menu])
+                            y = itertools.count(0 - self.typewriter.height_diff_rows_menu, self.typewriter.height_row)
+                            for menu_entry in self.typewriter.text_menu:
                                 menu_entry.rect.top = next(y)
                 
                 else:
                     self.state = "unpressed"
             elif event.type == pg.MOUSEBUTTONUP:
                 self.state = "unpressed"
-
-
-
-
-
 

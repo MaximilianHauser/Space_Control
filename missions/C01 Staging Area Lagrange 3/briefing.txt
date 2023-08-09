@@ -1,5 +1,5 @@
 $text_col_1$
-Hello, Player. I'm glad you could finally make it in this morning
+Hello, Player. I'm glad you could finally make it in this morning.
 The briefing was scheduled for eight standard minutes ago.
 $text_col_2$
 Sorry, Ma'am. I've been checking the battle groups trajectories, 
