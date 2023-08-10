@@ -154,65 +154,81 @@ class TypewriterCrawl(pg.sprite.Sprite):
     def update(self, delta):
         if not self.finished:
             rows_not_fully_printed = [row.identity for row in self.text_menu if not row.fully_printed]
+            # update variable indicating the text fully printed to screen --- #
             if not rows_not_fully_printed:
                 self.finished = True
+            else:
                 
-            if not self.cooldown:
-            
+                if not self.cooldown:
+                
+                    current_row_ident = min(rows_not_fully_printed)
+                    current_row = [row for row in self.text_menu if row.identity == current_row_ident][0]
+                
+                    # set fully_printed ------------------------------------- #
+                    if current_row.num_letters_printed == current_row.row_length-1:
+                        current_row.fully_printed = True
+                
+                    current_row.num_letters_printed += 1
+                    self.cooldown += 10
+                else:
+                    self.cooldown -= self.speed
+                
+                # move text upwards before it gets printed below visible line #
                 current_row_ident = min(rows_not_fully_printed)
                 current_row = [row for row in self.text_menu if row.identity == current_row_ident][0]
-            
-                # set fully_printed --------------------------------------------- #
-                if current_row.num_letters_printed == current_row.row_length-1:
-                    current_row.fully_printed = True
-            
-                current_row.num_letters_printed += 1
-                self.cooldown += 10
-            else:
-                self.cooldown -= self.speed
+                if current_row.rect.bottom > self.height:
+                    rel_y = 1
+                    self.scrollbar.rect.top = self.height - self.scrollbar.height
+                    menu_entries_top = min([menu_entry.rect.top for menu_entry in self.text_menu])
+                    y = itertools.count(menu_entries_top - rel_y * self.relative_y_traverse , self.height_row)
+                    for menu_entry in self.text_menu:
+                        menu_entry.rect.top = next(y)
         
     
     def draw(self, surface):
         self.image.fill("black")
         self.text_menu.draw(self.image)
-        self.text_scrollbar.draw(self.image)
+        if self.finished:
+            self.text_scrollbar.draw(self.image)
     
     def handle_events(self, event):
-        # if MOUSEWHEEL scroll entries -------------------------------------- #
-        if event.type == pg.MOUSEWHEEL:
-            # scroll movement is forward ------------------------------------ #
-            rel_y = -MOUSESCROLLSPEED * event.y
-            if event.y > 0:
-                if self.scrollbar.rect.top > 0:
-                    self.scrollbar.rect.top += rel_y
-                    menu_entries_top = min([menu_entry.rect.top for menu_entry in self.text_menu])
-                    y = itertools.count(menu_entries_top - rel_y * self.relative_y_traverse , self.height_row)
-                    for menu_entry in self.text_menu:
-                        menu_entry.rect.top = next(y)
-             
-                # scrollbar is in its topmost position or past it --- #
+        # block input while text is not fully printed to screen ------------- #
+        if self.finished:
+            # if MOUSEWHEEL scroll entries ---------------------------------- #
+            if event.type == pg.MOUSEWHEEL:
+                # scroll movement is forward -------------------------------- #
+                rel_y = -MOUSESCROLLSPEED * event.y
+                if event.y > 0:
+                    if self.scrollbar.rect.top > 0:
+                        self.scrollbar.rect.top += rel_y
+                        menu_entries_top = min([menu_entry.rect.top for menu_entry in self.text_menu])
+                        y = itertools.count(menu_entries_top - rel_y * self.relative_y_traverse , self.height_row)
+                        for menu_entry in self.text_menu:
+                            menu_entry.rect.top = next(y)
+                 
+                    # scrollbar is in its topmost position or past it ------- #
+                    else:
+                        self.scrollbar.rect.top = 0
+                        y = itertools.count(0, self.height_row)
+                        for menu_entry in self.text_menu:
+                            menu_entry.rect.top = next(y)
+                # scroll movement is backwards ------------------------------ #
                 else:
-                    self.scrollbar.rect.top = 0
-                    y = itertools.count(0, self.height_row)
-                    for menu_entry in self.text_menu:
-                        menu_entry.rect.top = next(y)
-            # scroll movement is backwards ---------------------------------- #
-            else:
-                # scrollbar is not in its downwardmost position --------- #
-                if self.scrollbar.rect.top < self.height - self.scrollbar.height:
-                    self.scrollbar.rect.top += rel_y
-                    menu_entries_top = min([menu_entry.rect.top for menu_entry in self.text_menu])
-                    y = itertools.count(menu_entries_top - rel_y * self.relative_y_traverse , self.height_row)
-                    for menu_entry in self.text_menu:
-                        menu_entry.rect.top = next(y)
-            
-                # scrollbar is in its downwardmost position --------- #
-                else:
-                    self.scrollbar.rect.top = self.height - self.scrollbar.height
-                    menu_entries_top = min([menu_entry.rect.top for menu_entry in self.text_menu])
-                    y = itertools.count(0 - self.height_diff_rows_menu, self.height_row)
-                    for menu_entry in self.text_menu:
-                        menu_entry.rect.top = next(y)
+                    # scrollbar is not in its downwardmost position --------- #
+                    if self.scrollbar.rect.top < self.height - self.scrollbar.height:
+                        self.scrollbar.rect.top += rel_y
+                        menu_entries_top = min([menu_entry.rect.top for menu_entry in self.text_menu])
+                        y = itertools.count(menu_entries_top - rel_y * self.relative_y_traverse , self.height_row)
+                        for menu_entry in self.text_menu:
+                            menu_entry.rect.top = next(y)
+                
+                    # scrollbar is in its downwardmost position ------------- #
+                    else:
+                        self.scrollbar.rect.top = self.height - self.scrollbar.height
+                        menu_entries_top = min([menu_entry.rect.top for menu_entry in self.text_menu])
+                        y = itertools.count(0 - self.height_diff_rows_menu, self.height_row)
+                        for menu_entry in self.text_menu:
+                            menu_entry.rect.top = next(y)
     
     def msbtn_down(self, pos, button):
         touching = self.rect.collidepoint(pos)
@@ -346,65 +362,67 @@ class ScrollBar(pg.sprite.Sprite):
         return touching
         
     def handle_events(self, event):
-        # menu entry is initially unpressed --------------------------------- #
-        if self.state == "unpressed":
-            if event.type == pg.MOUSEMOTION or event.type == self.typewriter.E_IDLE:
-                if self.msbtn_down(event.pos, "key not needed"):
-                    self.state = "hover"
-            elif event.type == pg.MOUSEBUTTONDOWN:
-                self.state = "pressed"
-                
-        # menu entry is initially hovered on -------------------------------- #
-        elif self.state == "hover":
-            if event.type == pg.MOUSEMOTION or event.type == self.typewriter.E_IDLE:
-                if not self.msbtn_down(event.pos, "key not needed"):
-                    self.state = "unpressed"
-            elif event.type == pg.MOUSEBUTTONDOWN:
-                self.state = "pressed"
-        
-        # menu entry is initially pressed ----------------------------------- #
-        elif self.state == "pressed":
-            if event.type == pg.MOUSEMOTION:
-                # move the scrollbar and the mission entries ---------------- #
-                if self.msbtn_down(event.pos, "key not needed"):
-                    # y_mousemovement is up or none ----------------------------- #
-                    (rel_x, rel_y) = event.rel
-                    if rel_y <= 0:
-                        # scrollbar is not in its topmost position -------------- #
-                        if self.rect.top > 0:
-                            self.rect.top += rel_y
-                            menu_entries_top = min([menu_entry.rect.top for menu_entry in self.typewriter.text_menu])
-                            y = itertools.count(menu_entries_top - rel_y * self.typewriter.relative_y_traverse , self.typewriter.height_row)
-                            for menu_entry in self.typewriter.text_menu:
-                                menu_entry.rect.top = next(y)
-                     
-                        # scrollbar is in its topmost position or past it --- #
-                        else:
-                            self.rect.top = 0
-                            y = itertools.count(0, self.typewriter.height_row)
-                            for menu_entry in self.typewriter.text_menu:
-                                menu_entry.rect.top = next(y)
-                            
-                    # y_mousemovement is downwards ------------------------------ #        
-                    else:
-                        # scrollbar is not in its downwardmost position --------- #
-                        if self.rect.top < self.typewriter.height - self.height:
-                            self.rect.top += rel_y
-                            menu_entries_top = min([menu_entry.rect.top for menu_entry in self.typewriter.text_menu])
-                            y = itertools.count(menu_entries_top - rel_y * self.typewriter.relative_y_traverse , self.typewriter.height_row)
-                            for menu_entry in self.typewriter.text_menu:
-                                menu_entry.rect.top = next(y)
+        # input blocked while text is not fully printed to screen ----------- #
+        if self.typewriter.finished:
+            # menu entry is initially unpressed ----------------------------- #
+            if self.state == "unpressed":
+                if event.type == pg.MOUSEMOTION or event.type == self.typewriter.E_IDLE:
+                    if self.msbtn_down(event.pos, "key not needed"):
+                        self.state = "hover"
+                elif event.type == pg.MOUSEBUTTONDOWN:
+                    self.state = "pressed"
                     
-                        # scrollbar is in its downwardmost position --------- #
+            # menu entry is initially hovered on ---------------------------- #
+            elif self.state == "hover":
+                if event.type == pg.MOUSEMOTION or event.type == self.typewriter.E_IDLE:
+                    if not self.msbtn_down(event.pos, "key not needed"):
+                        self.state = "unpressed"
+                elif event.type == pg.MOUSEBUTTONDOWN:
+                    self.state = "pressed"
+            
+            # menu entry is initially pressed ------------------------------- #
+            elif self.state == "pressed":
+                if event.type == pg.MOUSEMOTION:
+                    # move the scrollbar and the mission entries ------------ #
+                    if self.msbtn_down(event.pos, "key not needed"):
+                        # y_mousemovement is up or none --------------------- #
+                        (rel_x, rel_y) = event.rel
+                        if rel_y <= 0:
+                            # scrollbar is not in its topmost position ------ #
+                            if self.rect.top > 0:
+                                self.rect.top += rel_y
+                                menu_entries_top = min([menu_entry.rect.top for menu_entry in self.typewriter.text_menu])
+                                y = itertools.count(menu_entries_top - rel_y * self.typewriter.relative_y_traverse , self.typewriter.height_row)
+                                for menu_entry in self.typewriter.text_menu:
+                                    menu_entry.rect.top = next(y)
+                         
+                            # scrollbar is in its topmost position or past it #
+                            else:
+                                self.rect.top = 0
+                                y = itertools.count(0, self.typewriter.height_row)
+                                for menu_entry in self.typewriter.text_menu:
+                                    menu_entry.rect.top = next(y)
+                                
+                        # y_mousemovement is downwards ---------------------- #        
                         else:
-                            self.rect.top = self.typewriter.height - self.height
-                            menu_entries_top = min([menu_entry.rect.top for menu_entry in self.typewriter.text_menu])
-                            y = itertools.count(0 - self.typewriter.height_diff_rows_menu, self.typewriter.height_row)
-                            for menu_entry in self.typewriter.text_menu:
-                                menu_entry.rect.top = next(y)
-                
-                else:
+                            # scrollbar is not in its downwardmost position - #
+                            if self.rect.top < self.typewriter.height - self.height:
+                                self.rect.top += rel_y
+                                menu_entries_top = min([menu_entry.rect.top for menu_entry in self.typewriter.text_menu])
+                                y = itertools.count(menu_entries_top - rel_y * self.typewriter.relative_y_traverse , self.typewriter.height_row)
+                                for menu_entry in self.typewriter.text_menu:
+                                    menu_entry.rect.top = next(y)
+                        
+                            # scrollbar is in its downwardmost position ----- #
+                            else:
+                                self.rect.top = self.typewriter.height - self.height
+                                menu_entries_top = min([menu_entry.rect.top for menu_entry in self.typewriter.text_menu])
+                                y = itertools.count(0 - self.typewriter.height_diff_rows_menu, self.typewriter.height_row)
+                                for menu_entry in self.typewriter.text_menu:
+                                    menu_entry.rect.top = next(y)
+                    
+                    else:
+                        self.state = "unpressed"
+                elif event.type == pg.MOUSEBUTTONUP:
                     self.state = "unpressed"
-            elif event.type == pg.MOUSEBUTTONUP:
-                self.state = "unpressed"
 
