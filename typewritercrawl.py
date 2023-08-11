@@ -26,7 +26,9 @@ class TypewriterCrawl(pg.sprite.Sprite):
                            text_col_1:str = "white", 
                            text_col_2:str = "darkslategray1", 
                            delete_frames = False,
-                           transparency:int = 255
+                           transparency:int = 255,
+                           active_font = None,
+                           font_size = 14
                            ) -> pg.sprite.Sprite:
         pg.sprite.Sprite.__init__(self)
         
@@ -35,7 +37,8 @@ class TypewriterCrawl(pg.sprite.Sprite):
         # E_IDLE event import from state ------------------------------------ #
         self.E_IDLE = self.state.E_IDLE
         
-        self.active_font = self.state.font_text
+        self.active_font = active_font
+        self.active_font.point_size = font_size
         
         # scrollable typewritercrawl text window ---------------------------- #
         for group in sprite_groups:

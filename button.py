@@ -33,6 +33,7 @@ class Button(pg.sprite.Sprite):
                  predefined_color_scheme:str = False,
                  transparency:int = UI_TRANSPARENCY,
                  active_font = None,
+                 font_size = 24,
                  un_text_col:str = "white",
                  hov_text_col:str = "white",
                  pres_text_col:str = "white",
@@ -63,7 +64,8 @@ class Button(pg.sprite.Sprite):
         self.cb_attr = cb_attr
         self.cb_val = cb_val
         
-        self.active_font = self.manager.font_menu
+        self.active_font = active_font
+        self.active_font.point_size = font_size
         
         # colors for each element in each state ----------------------------- #
         if predefined_color_scheme:

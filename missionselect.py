@@ -32,14 +32,18 @@ class MissionSelect(State):
         self.observer = Observer()
         
         # button for returning to menu -------------------------------------- #
-        self.menu_button = Button(self, "main menu", 40, 400, "clicked_on", "menu", ["all_sprites"], predefined_color_scheme = "transp_white", transparency=255)
+        self.menu_button = Button(self, "main menu", 40, 400, "clicked_on", "menu", ["all_sprites"], 
+                                  predefined_color_scheme = "transp_white", transparency=255, 
+                                  active_font=self.font_smallcaps, font_size=24)
         self.observer.subscribe(pg.MOUSEMOTION, self.menu_button)
         self.observer.subscribe(pg.MOUSEBUTTONDOWN, self.menu_button)
         self.observer.subscribe(pg.MOUSEBUTTONUP, self.menu_button)
         self.observer.subscribe(self.E_IDLE, self.menu_button)
         
         # button for starting the game -------------------------------------- #
-        self.start_button = Button(self, "start game", WIN_WIDTH - 135, 400, "clicked_on", "briefing", ["all_sprites"], predefined_color_scheme = "transp_white", transparency=255)
+        self.start_button = Button(self, "start game", WIN_WIDTH - 135, 400, "clicked_on", "briefing", ["all_sprites"], 
+                                   predefined_color_scheme = "transp_white", transparency=255, 
+                                   active_font=self.font_smallcaps, font_size=24)
         self.observer.subscribe(pg.MOUSEMOTION, self.start_button)
         self.observer.subscribe(pg.MOUSEBUTTONDOWN, self.start_button)
         self.observer.subscribe(pg.MOUSEBUTTONUP, self.start_button)
@@ -248,6 +252,10 @@ class MenuEntry(pg.sprite.Sprite):
                            "image_pressed": {"text": pres_text_col}
                            }
         
+        # font for rendering menu entries ----------------------------------- #
+        self.menu_font = self.mission_menu_state.menu_state.font_smallcaps
+        self.menu_font.point_size = 14
+        
         # prerendered images for each state --------------------------------- #
         self.render_images(image_type_dict)
         
@@ -255,15 +263,16 @@ class MenuEntry(pg.sprite.Sprite):
         self.identity = MenuEntry.identity
         MenuEntry.identity += 1
         
+        
     def render_images(self, image_type_dict):
         for key in image_type_dict.keys():
-            metrics_text = self.mission_menu_state.menu_state.font_text.render(self.text, True, "white")
+            metrics_text = self.menu_font.render(self.text, True, "white")
             (button_width, button_height) = metrics_text.get_size()
             button_width = self.mission_menu_state.width - 11
             image = pg.Surface((button_width, button_height))
             image.fill("black")
             image.set_colorkey("black")
-            text = self.mission_menu_state.menu_state.font_text.render(self.text, True, image_type_dict[key]["text"])
+            text = self.menu_font.render(self.text, True, image_type_dict[key]["text"])
             image.blit(text, (0,0))
             setattr(self, key, image)
         

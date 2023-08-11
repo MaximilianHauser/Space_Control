@@ -19,9 +19,7 @@ from splashscreen import SplashScreen
 from mainmenu import MainMenu
 from missionselect import MissionSelect
 from briefing import Briefing
-from battlenew import BattleNew
-from battleinput import BattleInput
-from battleanimation import BattleAnimation
+from battle import Battle
 from debriefing import Debriefing
 from credits import Credits
 
@@ -39,9 +37,7 @@ splashscreen = SplashScreen()
 mainmenu = None #MainMenu()
 missionselect = None #MissionSelect()
 briefing = None #Briefing()
-battlenew = None #BattleNew()
-battleinput = None #BattleInput()
-battleanimation = None #BattleAnimation()
+battle = None #BattleNew()
 debriefing = None #Debriefing()
 credits = None #Credits()
 
@@ -63,18 +59,10 @@ states = {
         {"constructor":Briefing(),
          "instance":briefing},
         
-    "BATTLE_NEW":
-        {"constructor":BattleNew(),
-         "instance":battlenew},
-        
-    "BATTLE_INPUT":
-        {"constructor":BattleInput(),
-         "instance":battleinput},
-        
-    "BATTLE_ANIMATION":
-        {"constructor":BattleAnimation(),
-         "instance":battleanimation},
-        
+    "BATTLE":
+        {"constructor":Battle(),
+         "instance":battle},
+
     "DEBRIEFING":
         {"constructor":Debriefing(),
          "instance":debriefing},

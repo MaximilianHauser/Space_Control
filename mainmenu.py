@@ -11,7 +11,7 @@ import itertools
 import pygame as pg
 from state import State
 from observer import Observer
-from settings import WIN_WIDTH, WIN_HEIGHT, FONTSIZE_MENU
+from settings import WIN_WIDTH, WIN_HEIGHT
 
 # main menu ----------------------------------------------------------------- #
 class MainMenu(State):
@@ -25,7 +25,9 @@ class MainMenu(State):
         self.observer = Observer()
         
         # game title text --------------------------------------------------- #
-        self.title = self.font_splash.render("SPACE CONTROL", True, pg.Color("white"))
+        self.title_font = self.font_coalition
+        self.title_font.point_size = 38
+        self.title = self.font_coalition.render("SPACE CONTROL", True, pg.Color("white"))
         game_title_center = tuple(map(lambda i, j: i + j, self.screen_rect.center, (0, -WIN_HEIGHT*0.25)))
         self.title_rect = self.title.get_rect(center=game_title_center)
         
@@ -39,7 +41,7 @@ class MainMenu(State):
  
         centerx = WIN_WIDTH * 0.5
         uppery_menu = self.screen_rect.centery - WIN_HEIGHT*0.05
-        y = itertools.count(uppery_menu, FONTSIZE_MENU+2)
+        y = itertools.count(uppery_menu, 26)
         for sprite in self.menu:
             sprite.rect.centerx = centerx
             sprite.rect.y = next(y)
@@ -112,9 +114,11 @@ class MenuEntry(pg.sprite.Sprite):
         self.state = "unpressed"
         
         # prerendered images for each state --------------------------------- #
-        self.unpressed_image = self.menu_state.font_menu.render(self.text, True, "white")
-        self.hover_image = self.menu_state.font_menu.render(self.text, True, "darkslategray1")
-        self.pressed_image = self.menu_state.font_menu.render(self.text, True, "darkslategray3")
+        self.menu_entry_font = self.menu_state.font_smallcaps
+        self.menu_entry_font.point_size = 24
+        self.unpressed_image = self.menu_entry_font.render(self.text, True, "white")
+        self.hover_image = self.menu_entry_font.render(self.text, True, "darkslategray1")
+        self.pressed_image = self.menu_entry_font.render(self.text, True, "darkslategray3")
         
         self.rect = self.image.get_rect()
         self.identity = MenuEntry.identity

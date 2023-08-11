@@ -17,12 +17,16 @@ class SplashScreen(State):
         super(SplashScreen, self).__init__()
         
         # game title text --------------------------------------------------- #
-        self.title = self.font_splash.render("SPACE CONTROL", True, pg.Color("white"))
+        self.title_font = self.font_coalition
+        self.title_font.point_size = 38
+        self.title = self.font_coalition.render("SPACE CONTROL", True, pg.Color("white"))
         game_title_center = tuple(map(lambda i, j: i + j, self.screen_rect.center, (0, -WIN_HEIGHT*0.25)))
         self.title_rect = self.title.get_rect(center=game_title_center)
         
         # press any key to continue text ------------------------------------ #
-        self.any_key = self.font_text.render("press left mouse to continue", True, pg.Color("white"))
+        self.continue_font = self.font_smallcaps
+        self.continue_font.point_size = 14
+        self.any_key = self.font_smallcaps.render("press left mouse to continue", True, pg.Color("white"))
         any_key_center = tuple(map(lambda i, j: i + j, self.screen_rect.center, (0, WIN_HEIGHT*0.4)))
         self.any_key_rect = self.any_key.get_rect(center=any_key_center)
         

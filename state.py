@@ -6,7 +6,7 @@ Created on Thu Jul 20 18:11:43 2023
 """
 # import section ------------------------------------------------------------ #
 import pygame as pg
-from settings import FONTSIZE_SPLASH, FONTSIZE_BUTTON, FONTSIZE_MENU, FONTSIZE_TEXT
+from settings import DEFAULT_FONTSIZE
 
 # State class template ------------------------------------------------------ #
 class State:
@@ -23,10 +23,9 @@ class State:
         self.all_sprites = pg.sprite.LayeredUpdates()
         
         # fonts ------------------------------------------------------------- #
-        self.font_splash = pg.font.Font("img/coalition.ttf", FONTSIZE_SPLASH)
-        self.font_button = pg.font.Font("img/coalition.ttf", FONTSIZE_BUTTON)
-        self.font_menu = pg.font.Font("img/berlinsmallcaps.ttf", FONTSIZE_MENU)
-        self.font_text = pg.font.Font("img/berlinsmallcaps.ttf", FONTSIZE_TEXT)
+        self.font_coalition = pg.font.Font("img/coalition.ttf", DEFAULT_FONTSIZE)
+        self.font_smallcaps = pg.font.Font("img/berlinsmallcaps.ttf", DEFAULT_FONTSIZE)
+
     
     def leave(self):
         # carry over persistant variables ----------------------------------- #
@@ -39,7 +38,6 @@ class State:
         # clear observer subscriptions -------------------------------------- #
         self.observer.subscribers_dict.clear()
         self.observer.sub_layers_dict.clear()
-                    
         
     
     def startup(self, persistent):
