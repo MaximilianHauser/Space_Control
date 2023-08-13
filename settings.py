@@ -42,7 +42,7 @@ UI_INTERFACE_LAYER = 7
 MOUSESCROLLSPEED = 3
 
 # attributes, related to scrolling the map
-SCROLL_SPEED = 3
+SCROLL_SPEED = 60
 SCROLL_AREA = 48
 SCROLL_BUFFER = 48
 

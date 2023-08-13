@@ -135,7 +135,7 @@ class Button(pg.sprite.Sprite):
             return touching
 
 
-    def handle_events(self, event:int) -> None:
+    def handle_events(self, event:int, delta:float) -> None:
         # handle events related to mouse clicks on tile --------------------- #
         # button state is unpressed ----------------------------------------- #
         if self.state == "unpressed":

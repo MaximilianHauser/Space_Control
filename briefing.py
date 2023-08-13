@@ -24,9 +24,6 @@ class Briefing(State):
         # variable representing currently selected mission ------------------ #
         self.selected_mission = None
         
-        # define custom_events ---------------------------------------------- #
-        self.E_IDLE = pg.event.custom_type() + 0
-        
         # init Observer ----------------------------------------------------- #
         self.observer = Observer()
         
@@ -77,9 +74,9 @@ class Briefing(State):
         # close briefing text file ------------------------------------------ #
         f.close()
          
-    def event(self, event):
+    def event(self, event, delta):
         # pass events to observer ------------------------------------------- #
-        self.observer.event_mngr(event)
+        self.observer.event_mngr(event, delta)
         
     def update(self, delta):
         # update persistent dict -------------------------------------------- #

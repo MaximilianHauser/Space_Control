@@ -18,7 +18,7 @@ class InitiativeQueque:
         self.sorted_lst = None
         
         # add units from different spritegroups to one set ------------------ #
-        spritegroup_lst = [manager.unit_blufor_grp, manager.unit_redfor_grp]
+        spritegroup_lst = [manager.unit_blufor_group, manager.unit_redfor_group]
         for group in spritegroup_lst:
             for unit in group:
                 self.unit_set.add(unit)

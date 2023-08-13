@@ -122,10 +122,10 @@ class Unit(pg.sprite.Sprite):
         self.game.all_sprites.add(self)
         
         if u[0] == "r":
-            self.game.unit_redfor_grp.add(self)
+            self.game.unit_redfor_group.add(self)
             
         if u[0] == "b":
-            self.game.unit_blufor_grp.add(self)
+            self.game.unit_blufor_group.add(self)
             
         x, y = hl.hex_to_pixel((q,r,s))
         self.x = x + WIN_WIDTH / 2
@@ -142,7 +142,7 @@ class Unit(pg.sprite.Sprite):
         
         self.activated = False
             
-    def update(self) -> None:
+    def update(self, delta) -> None:
         """
         Update function to be used in combination with the main game loop to
         update the state of the unit.
@@ -156,7 +156,7 @@ class Unit(pg.sprite.Sprite):
         --------
         None
         """
-        for tile in self.game.tile_grp:
+        for tile in self.game.tile_group:
             if tile.q == self.q:
                 if tile.r == self.r:
                     if tile.s == self.s:

@@ -21,11 +21,12 @@ class Engine:
         self.state_name = start_state
         self.previous_state = None
         self.state = self.states[self.state_name]["instance"]
+        self.delta = 0
         
         # define custom_events ---------------------------------------------- #
-        self.E_IDLE = pg.event.custom_type() + 0
+        self.E_IDLE = 32867
 
-    def event_loop(self):
+    def event_loop(self, delta):
         # post custom_event "IDLE" ------------------------------------------ #
         if not pg.event.peek(pg.MOUSEMOTION):
             if not pg.event.peek(pg.MOUSEBUTTONDOWN):
@@ -38,7 +39,7 @@ class Engine:
                 pg.quit()
                 sys.exit()
             else:
-                self.state.event(event)
+                self.state.event(event, delta)
 
     def flip_state(self):
         self.previous_state = self.state_name
@@ -63,8 +64,8 @@ class Engine:
 
     def run(self):
         while not self.done:
-            delta = self.clock.tick(self.fps) * 0.001
-            self.event_loop()
-            self.update(delta)
+            self.delta = self.clock.tick(self.fps) * 0.001
+            self.event_loop(self.delta)
+            self.update(self.delta)
             self.draw()
             pg.display.update()

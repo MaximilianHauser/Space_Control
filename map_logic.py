@@ -9,7 +9,6 @@ Created on Sat Oct 22 18:30:36 2022
 import json
 import numpy as np
 import pandas as pd
-import pygame as pg
 import hexlogic as hl
 from settings import WIN_WIDTH, WIN_HEIGHT, SCROLL_AREA, SCROLL_BUFFER, SCROLL_SPEED
 
@@ -102,28 +101,27 @@ def create_graph_matrix(tile_grp):
     
     return matrix_df
 
-def scroll_logic(manager, event):
+def scroll_logic(manager, event, delta):
     
-    if event.type == pg.MOUSEMOTION or event.type == manager.E_IDLE:
-        mouse_pos_x, mouse_pos_y = event.pos
-        max_x, min_x, max_y, min_y = get_map_borders(manager.tile_grp)
-        
-        if mouse_pos_x < SCROLL_AREA:
-            if max_x < WIN_WIDTH - SCROLL_BUFFER:
-                for sprite in manager.all_sprites:
-                    sprite.x += SCROLL_SPEED * manager.engine.delta
-        
-        if mouse_pos_x > WIN_WIDTH - SCROLL_AREA:
-            if min_x > SCROLL_BUFFER:
-                for sprite in manager.all_sprites:
-                    sprite.x -= SCROLL_SPEED * manager.engine.delta
-        
-        if mouse_pos_y < SCROLL_AREA:
-            if max_y < WIN_HEIGHT - SCROLL_BUFFER:
-                for sprite in manager.all_sprites:
-                    sprite.y += SCROLL_SPEED * manager.engine.delta
-        
-        if mouse_pos_y > WIN_HEIGHT - SCROLL_AREA:
-            if min_y > SCROLL_BUFFER:
-                for sprite in manager.all_sprites:
-                    sprite.y -= SCROLL_SPEED * manager.engine.delta
+    mouse_pos_x, mouse_pos_y = event.pos
+    max_x, min_x, max_y, min_y = get_map_borders(manager.tile_group)
+    
+    if mouse_pos_x < SCROLL_AREA:
+        if max_x < WIN_WIDTH - SCROLL_BUFFER:
+            for sprite in manager.all_sprites:
+                sprite.x += delta * SCROLL_SPEED
+    
+    if mouse_pos_x > WIN_WIDTH - SCROLL_AREA:
+        if min_x > SCROLL_BUFFER:
+            for sprite in manager.all_sprites:
+                sprite.x -= delta * SCROLL_SPEED
+    
+    if mouse_pos_y < SCROLL_AREA:
+        if max_y < WIN_HEIGHT - SCROLL_BUFFER:
+            for sprite in manager.all_sprites:
+                sprite.y += delta * SCROLL_SPEED
+    
+    if mouse_pos_y > WIN_HEIGHT - SCROLL_AREA:
+        if min_y > SCROLL_BUFFER:
+            for sprite in manager.all_sprites:
+                sprite.y -= delta * SCROLL_SPEED

@@ -194,7 +194,7 @@ class TypewriterCrawl(pg.sprite.Sprite):
         if self.finished:
             self.text_scrollbar.draw(self.image)
     
-    def handle_events(self, event):
+    def handle_events(self, event, delta):
         # block input while text is not fully printed to screen ------------- #
         if self.finished:
             # if MOUSEWHEEL scroll entries ---------------------------------- #
@@ -364,7 +364,7 @@ class ScrollBar(pg.sprite.Sprite):
         touching = self.rect.collidepoint(pos)
         return touching
         
-    def handle_events(self, event):
+    def handle_events(self, event, delta):
         # input blocked while text is not fully printed to screen ----------- #
         if self.typewriter.finished:
             # menu entry is initially unpressed ----------------------------- #

@@ -37,8 +37,8 @@ class SplashScreen(State):
         self.observer = Observer()
         self.observer.subscribe(event=pg.MOUSEBUTTONDOWN, subscriber=self)
         
-    def event(self, event):
-        self.observer.event_mngr(event)
+    def event(self, event, delta):
+        self.observer.event_mngr(event, delta)
 
     def update(self, delta):
         pass
@@ -51,7 +51,7 @@ class SplashScreen(State):
     def msbtn_down(self, pos, button):
         return True
         
-    def handle_events(self, event):
+    def handle_events(self, event, delta):
         self.done = True
         
         

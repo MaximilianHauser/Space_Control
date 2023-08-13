@@ -19,6 +19,9 @@ class State:
         self.persistent = {}
         self._layer = 0
         
+        # custom event E_IDLE ----------------------------------------------- #
+        self.E_IDLE = 32867
+        
         # shared sprite group ----------------------------------------------- #
         self.all_sprites = pg.sprite.LayeredUpdates()
         
@@ -43,7 +46,7 @@ class State:
     def startup(self, persistent):
         self.persistent = persistent
 
-    def event(self, event):
+    def event(self, event, delta):
         pass
 
     def update(self, delta):

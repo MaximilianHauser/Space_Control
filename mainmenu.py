@@ -18,9 +18,6 @@ class MainMenu(State):
     def __init__(self):
         super(MainMenu, self).__init__()
         
-        # define custom_events ---------------------------------------------- #
-        self.E_IDLE = pg.event.custom_type() + 0
-        
         # init Observer ----------------------------------------------------- #
         self.observer = Observer()
         
@@ -48,9 +45,9 @@ class MainMenu(State):
  
         self.clicked_on = None
         
-    def event(self, event):
+    def event(self, event, delta):
         # pass events to observer ------------------------------------------- #
-        self.observer.event_mngr(event)
+        self.observer.event_mngr(event, delta)
         
     def update(self, delta):
         if self.clicked_on == "me_newcampaign":
@@ -140,7 +137,7 @@ class MenuEntry(pg.sprite.Sprite):
         touching = self.rect.collidepoint(pos)
         return touching
         
-    def handle_events(self, event):
+    def handle_events(self, event, delta):
         
         # menu entry is initially unpressed --------------------------------- #
         if self.state == "unpressed":

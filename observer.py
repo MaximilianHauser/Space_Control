@@ -126,7 +126,7 @@ class Observer:
         subscribers.append(subscriber)
             
         self.subscribers_dict.update({event:subscribers})
-        print(str(subscriber) + " is now subscribed to " + str(event))
+        #print(str(subscriber) + " is now subscribed to " + str(event))
             
             
     def unsubscribe(self, event:int, subscriber:object) -> None:
@@ -158,7 +158,7 @@ class Observer:
         self.subscribers_dict.update({event:subscribers})
             
           
-    def event_mngr(self, event:int) -> None:
+    def event_mngr(self, event:int, delta:float) -> None:
         """
         Takes in the events from the pygame event queque stored in a list
         and executes a function if subscribed to the event. Passes the event to 
@@ -190,14 +190,14 @@ class Observer:
             elif isinstance(subscriber, object):
                 # seperate logic for msbtn down ------------------------- #
                 if event.type == pg.MOUSEBUTTONDOWN:
-                    self.click_mngr(event)
+                    self.click_mngr(event, delta)
                 elif event.type == pg.MOUSEBUTTONUP:
-                    self.click_mngr(event)
+                    self.click_mngr(event, delta)
                 else:
-                    subscriber.handle_events(event)
+                    subscriber.handle_events(event, delta)
             
             
-    def click_mngr(self, event:int) -> None:
+    def click_mngr(self, event:int, delta:float) -> None:
         """
         Checks beginning by the object with the topmost _layer all objects, which
         are subscribed to the event and passes the event to the first object
@@ -227,7 +227,7 @@ class Observer:
                 if isinstance(subscriber, object):
                     if subscriber._layer == l:
                         if subscriber.msbtn_down(event.pos, event.button):
-                            subscriber.handle_events(event)
+                            subscriber.handle_events(event, delta)
                             return
             
         

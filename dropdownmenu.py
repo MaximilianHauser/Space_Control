@@ -132,8 +132,11 @@ class DropDownMenu(pg.sprite.Sprite):
         self.y = y
         
         self._layer = UI_MAPINFO_LAYER
-        self.game.ui_mapinfo_grp.add(self)
+        self.game.ui_mapinfo_group.add(self)
         self.game.all_sprites.add(self)
+        
+        self.menu_font = self.game.font_smallcaps
+        self.menu_font.point_size = 14
         
         self.attr_dict = dict()
         
@@ -161,9 +164,9 @@ class DropDownMenu(pg.sprite.Sprite):
         self.rect_lst = [None for i in range(self.num_rows)]
         
         # initial draw, as events get checked before update in main --------- #
-        self.update()
+        self.update(1)
         
-    def update(self) -> None:
+    def update(self, delta:float) -> None:
         """
         Update function to be used in combination with the main game loop to
         update the state of the menu.
@@ -196,7 +199,7 @@ class DropDownMenu(pg.sprite.Sprite):
             except KeyError:
                 text = list(self.attr_dict.keys())[i]
                 
-            text = self.game.font2.render(text, True, "white")
+            text = self.menu_font.render(text, True, "white")
             
             self.image.blit(text, (4, i*DEFAULT_FONTSIZE-2))
             
@@ -229,7 +232,7 @@ class DropDownMenu(pg.sprite.Sprite):
 
         return touching
     
-    def handle_events(self, event:int) -> None:
+    def handle_events(self, event:int, delta:float) -> None:
         """
         Changes the state of the menu object, based on passed event.
         
@@ -268,7 +271,7 @@ class DropDownMenu(pg.sprite.Sprite):
                 if event.type == pg.MOUSEBUTTONUP:
                     if self.rect_lst[i].collidepoint(pos_in_rect):
                         exec(getattr(self, list(self.attr_dict.keys())[i]))
-                        setattr(next(t for t in self.game.tile_grp if t.ddm_open == True), "ddm_open", False)
+                        setattr(next(t for t in self.game.tile_group if t.ddm_open == True), "ddm_open", False)
                         self.game.observer.unsubscribe(pg.MOUSEBUTTONDOWN, self.game.dropdownmenu)
                         self.game.observer.unsubscribe(pg.MOUSEBUTTONUP, self.game.dropdownmenu)
                         self.game.observer.unsubscribe(self.game.E_IDLE, self.game.dropdownmenu)

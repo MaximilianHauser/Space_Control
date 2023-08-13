@@ -169,7 +169,7 @@ def get_kwargs_ddm(tile, blufor_activated, blufor_grp, tile_grp):
     if (blufor_activated.q, blufor_activated.r, blufor_activated.s) in nbors_lst:
         if in_mov_range(tile, blufor_activated, tile_grp, "block_move"):
             if tile.unit == None:
-                kwargs_dct.update({"move":"gl.move_unit(next(t for t in self.game.tile_grp if t.ddm_open == True), next(u for u in self.game.unit_blufor_grp if u.activated == True))"})        
+                kwargs_dct.update({"move":"gl.move_unit(next(t for t in self.game.tile_group if t.ddm_open == True), next(u for u in self.game.unit_blufor_group if u.activated == True))"})        
         
     # if tile has enemy or fog => attackable -------------------------------- #
     fog_bool = check_fog_of_war(tile, blufor_grp, tile_grp)
@@ -182,11 +182,11 @@ def get_kwargs_ddm(tile, blufor_activated, blufor_grp, tile_grp):
     for k in available_munition.keys():
         if fog_bool:
             if in_weapon_range(blufor_activated, tile, weapon=k):
-                kwargs_dct.update({k:"Munition(self.game, '"+str(k)+"', next(u for u in self.game.unit_blufor_grp if u.activated == True), next(t for t in self.game.tile_grp if t.ddm_open == True))"})
+                kwargs_dct.update({k:"Munition(self.game, '"+str(k)+"', next(u for u in self.game.unit_blufor_group if u.activated == True), next(t for t in self.game.tile_group if t.ddm_open == True))"})
                     
         elif hasattr(tile.unit, "faction"):
             if in_weapon_range(blufor_activated, tile.unit, weapon=k):
-                kwargs_dct.update({k:"Munition(self.game, '"+str(k)+"', next(u for u in self.game.unit_blufor_grp if u.activated == True), next(t for t in self.game.tile_grp if t.ddm_open == True))"})
+                kwargs_dct.update({k:"Munition(self.game, '"+str(k)+"', next(u for u in self.game.unit_blufor_group if u.activated == True), next(t for t in self.game.tile_group if t.ddm_open == True))"})
         
     return kwargs_dct
 

@@ -23,7 +23,7 @@ observer.py
 import pygame as pg
 import hexlogic as hl
 import gamelogic as gl
-from animations_logic import Animations as an
+import animations_logic as al
 from dropdownmenu import DropDownMenu
 from attribute_dicts.t_attr import t_dict
 from settings import TERRAIN_LAYER, WIN_WIDTH, WIN_HEIGHT
@@ -179,11 +179,11 @@ class Tile(pg.sprite.Sprite):
         # tints tile depending on animation_state --------------------------- #
         if self.animation_state != None:
             if self.animation_state == "activated_unit_on_tile":
-                self.image = an.tint_image(self.original_image, "azure2")
+                self.image = al.tint_image(self.original_image, "azure2")
             elif self.animation_state == "enemy_unit_in_range":
-                self.image = an.tint_image(self.original_image, "tomato")
+                self.image = al.tint_image(self.original_image, "tomato")
             elif self.animation_state == "in_movement_range":
-                self.image = an.tint_image(self.original_image, "yellow")
+                self.image = al.tint_image(self.original_image, "yellow")
         else:
             self.image = self.original_image
             
@@ -191,7 +191,7 @@ class Tile(pg.sprite.Sprite):
         self.fog_of_war = gl.check_fog_of_war(self, self.manager.unit_blufor_group, self.manager.tile_group)
         
         if self.fog_of_war is True:
-            self.image = an.tint_image(self.image, "grey")
+            self.image = al.tint_image(self.image, "grey")
         
         # update ciws dict -------------------------------------------------- #
         self.ciws_dict = gl.get_ciws_cover(self)
@@ -234,7 +234,7 @@ class Tile(pg.sprite.Sprite):
         return False
     
     # click on maptile management ------------------------------------------- #
-    def handle_events(self, event:int) -> None:
+    def handle_events(self, event:int, delta:float) -> None:
         """
         Changes the state of the tile object, based on passed event.
         

@@ -34,7 +34,7 @@ class Munition(pg.sprite.Sprite):
         
         self._layer = U_ANIMATION_LAYER
         self.manager.all_sprites.add(self)
-        self.manager.munition_grp.add(self)
+        self.manager.munition_group.add(self)
         
         x, y = hl.hex_to_pixel(self.qrs)
         self.x = launcher.x
@@ -46,7 +46,7 @@ class Munition(pg.sprite.Sprite):
         self.tiles_traversed = hl.line_draw(launcher, target)
         self.current_tile = None
         self.tile_num = 1
-        self.speed = 30 * self.manager.engine.delta if self.type == "guided" else 80 * self.manager.engine.delta
+        self.speed = 30 if self.type == "guided" else 80
         self.stage = "launch"
         self.life_cycle = ["launch", "midcourse", "terminal"]
         
@@ -54,7 +54,7 @@ class Munition(pg.sprite.Sprite):
         
         # adding entries to self.logic_dict --------------------------------- #
         for i in range(len(self.tiles_traversed)):
-            current_tile = next(t for t in self.manager.tile_grp if t.qrs == self.tiles_traversed[i])
+            current_tile = next(t for t in self.manager.tile_group if t.qrs == self.tiles_traversed[i])
             
             perc_traversed = (1 / len(self.tiles_traversed)) * i
             current_xy = hl.cartesian_linint(launcher.rect.center, target.rect.center, perc_traversed)
@@ -84,14 +84,14 @@ class Munition(pg.sprite.Sprite):
             elif self.logic_dict[coords]["phase"] == "midcourse":
                 print("phase: midcourse")
                 # sprite group containing the units of target faction ------- #
-                unit_grp = self.manager.unit_blufor_grp if self.launcher.faction == "redfor" else self.manager.unit_redfor_grp
+                unit_group = self.manager.unit_blufor_group if self.launcher.faction == "redfor" else self.manager.unit_redfor_group
                 # current tile and unit ids of units ciws covering the tile - #
-                current_tile = next(t for t in self.manager.tile_grp if t.qrs == coords)
-                units_intercepting_ids = [unit.id for unit in unit_grp]
+                current_tile = next(t for t in self.manager.tile_group if t.qrs == coords)
+                units_intercepting_ids = [unit.id for unit in unit_group]
                 ciws_cover_keys = [unit_id for unit_id in current_tile.ciws_dict.keys() if unit_id in units_intercepting_ids]
                 
                 print("pre k in ciws_cover_keys:")
-                print("unit_grp: " + str(unit_grp))
+                print("unit_grp: " + str(unit_group))
                 print("units_intercepting_ids: " + str(units_intercepting_ids))
                 print("ciws_cover_keys: " + str(ciws_cover_keys))
                 
@@ -103,7 +103,7 @@ class Munition(pg.sprite.Sprite):
                         
                         if alive:
                             # apply damage of ciws and deduct one ciws charge from firing unit #
-                            firing_unit = [unit for unit in unit_grp if unit.id == k]
+                            firing_unit = [unit for unit in unit_group if unit.id == k]
                             print(firing_unit[0].id)
                             if firing_unit:
                                 self.armor = self.armor - firing_unit[0].ciws_dmg if (self.armor - firing_unit[0].ciws_dmg) >= 0 else 0
@@ -151,14 +151,14 @@ class Munition(pg.sprite.Sprite):
                             
                         else:
                             # resolving ciws_cover of final tile -------------------- #
-                            unit_grp = self.manager.unit_blufor_grp if self.launcher.faction == "redfor" else self.manager.unit_redfor_grp
+                            unit_group = self.manager.unit_blufor_group if self.launcher.faction == "redfor" else self.manager.unit_redfor_group
                             
-                            current_tile = next(t for t in self.manager.tile_grp if t.qrs == coords)
-                            units_intercepting_ids = [unit.id for unit in unit_grp]
+                            current_tile = next(t for t in self.manager.tile_group if t.qrs == coords)
+                            units_intercepting_ids = [unit.id for unit in unit_group]
                             ciws_cover_keys = [unit_id for unit_id in current_tile.ciws_dict.keys() if unit_id in units_intercepting_ids]
                             
                             print("pre k in ciws_cover_keys:")
-                            print("unit_grp: " + str(unit_grp))
+                            print("unit_grp: " + str(unit_group))
                             print("units_intercepting_ids: " + str(units_intercepting_ids))
                             print("ciws_cover_keys: " + str(ciws_cover_keys))
                             
@@ -168,7 +168,7 @@ class Munition(pg.sprite.Sprite):
                                     alive = self.armor > 0
                                     
                                     if alive:
-                                        firing_unit = [unit for unit in unit_grp if unit.id == k]
+                                        firing_unit = [unit for unit in unit_group if unit.id == k]
                                         print(firing_unit[0].id)
                                         if firing_unit:
                                             self.armor = self.armor - firing_unit[0].ciws_dmg if (self.armor - firing_unit[0].ciws_dmg) >= 0 else 0
@@ -207,14 +207,14 @@ class Munition(pg.sprite.Sprite):
                         self.logic_dict[self.tiles_traversed[i]]["state"] = "target_evades"
                         break
                     # resolving ciws_cover of final tile -------------------- #
-                    unit_grp = self.manager.unit_blufor_grp if self.launcher.faction == "redfor" else self.manager.unit_redfor_grp
+                    unit_group = self.manager.unit_blufor_group if self.launcher.faction == "redfor" else self.manager.unit_redfor_group
                     
-                    current_tile = next(t for t in self.manager.tile_grp if t.qrs == coords)
-                    units_intercepting_ids = [unit.id for unit in unit_grp]
+                    current_tile = next(t for t in self.manager.tile_group if t.qrs == coords)
+                    units_intercepting_ids = [unit.id for unit in unit_group]
                     ciws_cover_keys = [unit_id for unit_id in current_tile.ciws_dict.keys() if unit_id in units_intercepting_ids]
                     
                     print("pre k in ciws_cover_keys:")
-                    print("unit_grp: " + str(unit_grp))
+                    print("unit_grp: " + str(unit_group))
                     print("units_intercepting_ids: " + str(units_intercepting_ids))
                     print("ciws_cover_keys: " + str(ciws_cover_keys))
                     
@@ -224,7 +224,7 @@ class Munition(pg.sprite.Sprite):
                             alive = self.armor > 0
                             
                             if alive:
-                                firing_unit = [unit for unit in unit_grp if unit.id == k]
+                                firing_unit = [unit for unit in unit_group if unit.id == k]
                                 print(firing_unit[0].id)
                                 if firing_unit:
                                     self.armor = self.armor - firing_unit[0].ciws_dmg if (self.armor - firing_unit[0].ciws_dmg) >= 0 else 0
@@ -278,10 +278,10 @@ class Munition(pg.sprite.Sprite):
         self.direction = (self.dir_x, self.dir_y)
         
 
-    def update(self) -> None:
+    def update(self, delta) -> None:
         
         if self.perc_traversed <= 1:
-            self.perc_traversed += 0.005 * self.speed
+            self.perc_traversed += 0.005 * self.speed * delta
         else:
             self.kill()
         

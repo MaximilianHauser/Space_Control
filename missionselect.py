@@ -25,9 +25,6 @@ class MissionSelect(State):
         # variable representing currently selected mission ------------------ #
         self.selected_mission = None
         
-        # define custom_events ---------------------------------------------- #
-        self.E_IDLE = pg.event.custom_type() + 0
-        
         # observer for event management ------------------------------------- #
         self.observer = Observer()
         
@@ -55,9 +52,9 @@ class MissionSelect(State):
         # persistent attributes to be carried over to briefing, battle ------ #
         self.persistent = {"selected_mission":self.selected_mission}
     
-    def event(self, event):
+    def event(self, event, delta):
         # pass events to observer ------------------------------------------- #
-        self.observer.event_mngr(event)
+        self.observer.event_mngr(event, delta)
     
     def update(self, delta):
         # update persistent dict -------------------------------------------- #
@@ -174,7 +171,7 @@ class MissionMenu(pg.sprite.Sprite):
         self.mission_menu.draw(self.image)
         self.mission_scrollbar.draw(self.image)
     
-    def handle_events(self, event):
+    def handle_events(self, event, delta):
         # if MOUSEWHEEL scroll entries -------------------------------------- #
         if event.type == pg.MOUSEWHEEL:
             # scroll movement is forward ------------------------------------ #
@@ -297,7 +294,7 @@ class MenuEntry(pg.sprite.Sprite):
         touching = self.rect.collidepoint(pos)
         return touching
         
-    def handle_events(self, event):
+    def handle_events(self, event, delta):
         # menu entry is initially unpressed --------------------------------- #
         if self.state == "unpressed":
             if event.type == pg.MOUSEMOTION or event.type == self.mission_menu_state.menu_state.E_IDLE:
@@ -403,7 +400,7 @@ class ScrollBar(pg.sprite.Sprite):
         touching = self.rect.collidepoint(pos)
         return touching
         
-    def handle_events(self, event):
+    def handle_events(self, event, delta):
         # menu entry is initially unpressed --------------------------------- #
         if self.state == "unpressed":
             if event.type == pg.MOUSEMOTION or event.type == self.mission_menu_state.menu_state.E_IDLE:
