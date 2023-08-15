@@ -71,6 +71,13 @@ class Battle(State):
         self.E_VICTORY = pg.event.custom_type() + 1
         self.E_DEFEAT = pg.event.custom_type() + 2
         
+        # battle conclusion variable ---------------------------------------- #
+        self.battle_conclusion = None
+        self.selected_mission = None
+        
+        # variable to descern state change ---------------------------------- #
+        self.clicked_on = None
+        
         # observer for event management ------------------------------------- #
         self.observer = Observer()
         
@@ -99,10 +106,18 @@ class Battle(State):
         self.observer.subscribe(pg.MOUSEBUTTONUP, self.skip_turn_button)
         self.observer.subscribe(self.E_IDLE, self.skip_turn_button)
         
+        # subscription to E_VICTORY and E_DEFEAT for state management ------- #
+        self.observer.subscribe(self.E_VICTORY, self)
+        self.observer.subscribe(self.E_DEFEAT, self)
+        
+        # persistant dictionary to be carried over to debriefing ------------ #
+        self.persistent = {"selected_mission":self.selected_mission, 
+                           "battle_conclusion":self.battle_conclusion}
+        
     
     def startup(self, persistent):
-        self.persistent = persistent
-        
+        self.persistent.update(persistent)
+        self.selected_mission = self.persistent["selected_mission"]
         # get mission files from folder ------------------------------------- #
         map_path = ".\missions\\" + str(self.persistent["selected_mission"] + "\\map.json")
         map_list = ml.load_from_json(map_path)
@@ -136,13 +151,12 @@ class Battle(State):
         if game_status == "victory":
             event_data = dict()
             pg.event.post(pg.event.Event(self.E_VICTORY, event_data))
-            print("VVVVV")
         elif game_status == "defeat":
             event_data = dict()
             pg.event.post(pg.event.Event(self.E_DEFEAT, event_data))
-            print("DDDDD")
         else:
             pass
+        
         # pass events to observer ------------------------------------------- #
         self.observer.event_mngr(event, delta)
         
@@ -157,12 +171,34 @@ class Battle(State):
         mov_sprite_lst = self.movement_group.sprites()
         if not mun_sprite_lst and not mov_sprite_lst:
             self.skynet.red_active_next_action()
+            
+        # connected states -------------------------------------------------- #
+        if self.clicked_on == "victory":
+            self.to_debriefing_v()
+        elif self.clicked_on == "defeat":
+            self.to_debriefing_d()
         
     def draw(self, surface):
         surface.fill("black") #"gray30" as placeholder if needed
         self.all_sprites.draw(surface)
     
     def handle_events(self, event, delta):
+        # map scroll mechanic ----------------------------------------------- #
         if event.type == pg.MOUSEMOTION or event.type == self.E_IDLE:
             ml.scroll_logic(self, event, delta)
-        
+        # victory and defeat events, change state --------------------------- #
+        elif event.type == self.E_VICTORY:
+            self.clicked_on = "victory"
+        elif event.type == self.E_DEFEAT:
+            self.clicked_on = "defeat"
+
+    def to_debriefing_v(self):
+        self.next_state = "DEBRIEFING"
+        self.battle_conclusion = "victory"
+        self.done = True
+    
+    def to_debriefing_d(self):
+        self.next_state = "DEBRIEFING"
+        self.battle_conclusion = "defeat"
+        self.done = True
+

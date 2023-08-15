@@ -44,7 +44,7 @@ class State:
         
     
     def startup(self, persistent):
-        self.persistent = persistent
+        self.persistent.update(persistent)
 
     def event(self, event, delta):
         pass

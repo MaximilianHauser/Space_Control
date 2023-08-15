@@ -57,7 +57,7 @@ class Briefing(State):
         self.persistent = {"selected_mission":self.selected_mission}
         
     def startup(self, persistent):
-        self.persistent = persistent
+        self.persistent.update(persistent)
         self.selected_mission = self.persistent["selected_mission"]
         
         self.briefing_txt_path = ".\missions\\" + str(self.persistent["selected_mission"] + "\\briefing.txt")
