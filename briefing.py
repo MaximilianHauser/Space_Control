@@ -6,12 +6,20 @@ Created on Sat Jul 22 15:29:31 2023
 """
 
 # import section ------------------------------------------------------------ #
+# libraries ----------------------------------------------------------------- #
 import pygame as pg
+
+# algorithm objects --------------------------------------------------------- #
 from state import State
 from observer import Observer
+
+# sprite objects ------------------------------------------------------------ #
 from typewritercrawl import TypewriterCrawl
 from button import Button
+
+# misc ---------------------------------------------------------------------- #
 from settings import WIN_WIDTH
+
 
 # mission briefing state ---------------------------------------------------- #
 class Briefing(State):

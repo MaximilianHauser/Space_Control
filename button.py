@@ -20,7 +20,10 @@ observer.py optional
 """
 
 # import section ------------------------------------------------------------ #
+# libraries ----------------------------------------------------------------- #
 import pygame as pg
+
+# misc ---------------------------------------------------------------------- #
 from settings import UI_INTERFACE_LAYER, UI_TRANSPARENCY, ui_colors_dict
 
 

@@ -6,19 +6,30 @@ Created on Sat Jul 22 15:30:43 2023
 """
 
 # import section ------------------------------------------------------------ #
+# libraries ----------------------------------------------------------------- #
 import pygame as pg
+
+# custom functions ---------------------------------------------------------- #
+import animations_logic as al
+import map_logic as ml
+import gamelogic as gl
+import spritelogic as sl
+
+# algorithm objects --------------------------------------------------------- #
 from state import State
 from observer import Observer
 from win_conditions import ResolveBattleLogic
 from initiative_queque import InitiativeQueque
-import animations_logic as al
 from skynet import Skynet
-import map_logic as ml
+
+# sprite objects ------------------------------------------------------------ #
 from button import Button
 from tile import Tile
 from unit import Unit
-import spritelogic as sl
+
+# misc ---------------------------------------------------------------------- #
 from settings import WIN_WIDTH, TILE_WIDTH, TILE_HEIGHT, UI_TRANSPARENCY
+
 
 # battle state -------------------------------------------------------------- #
 class Battle(State):
@@ -99,7 +110,7 @@ class Battle(State):
         
         # UI initialization ------------------------------------------------- #   
         # End-Turn-Button --------------------------------------------------- #
-        self.skip_turn_button = Button(self, "skip turn", WIN_WIDTH - 135, 400, "clicked_on", "battle", ["all_sprites"], 
+        self.skip_turn_button = Button(self, "skip turn", WIN_WIDTH - 135, 400, "clicked_on", "skip_turn", ["all_sprites"], 
                                    predefined_color_scheme = "solid_darkslate", transparency=UI_TRANSPARENCY, 
                                    active_font=self.font_smallcaps, font_size=24)
         self.observer.subscribe(pg.MOUSEBUTTONDOWN, self.skip_turn_button)
@@ -178,6 +189,11 @@ class Battle(State):
         elif self.clicked_on == "defeat":
             self.to_debriefing_d()
         
+        # game mechanics button --------------------------------------------- #
+        elif self.clicked_on == "skip_turn":
+            self.skip_turn()
+            self.clicked_on = None
+        
     def draw(self, surface):
         surface.fill("black") #"gray30" as placeholder if needed
         self.all_sprites.draw(surface)
@@ -201,4 +217,7 @@ class Battle(State):
         self.next_state = "DEBRIEFING"
         self.battle_conclusion = "defeat"
         self.done = True
+        
+    def skip_turn(self):
+        gl.skip_turn(self)
 

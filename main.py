@@ -10,9 +10,8 @@ Created on Thu Jul 20 17:09:00 2023
 import sys
 import pygame as pg
 
-# generell game files ------------------------------------------------------- #
+# algorithm objects --------------------------------------------------------- #
 from engine import Engine
-from settings import WIN_WIDTH, WIN_HEIGHT
 
 # states -------------------------------------------------------------------- #
 from splashscreen import SplashScreen
@@ -22,6 +21,10 @@ from briefing import Briefing
 from battle import Battle
 from debriefing import Debriefing
 from credits import Credits
+
+# misc ---------------------------------------------------------------------- #
+from settings import WIN_WIDTH, WIN_HEIGHT
+
 
 # pygame-ce and mixer init -------------------------------------------------- #
 pg.init()
@@ -33,42 +36,42 @@ pg.display.set_caption("Space Control")
 pg.display.set_icon(pg.image.load("./img/window_icon.png"))
 
 # initial state instances --------------------------------------------------- #
-splashscreen = SplashScreen()
-mainmenu = None #MainMenu()
-missionselect = None #MissionSelect()
-briefing = None #Briefing()
-battle = None #BattleNew()
-debriefing = None #Debriefing()
-credits = None #Credits()
+splashscreen = None
+mainmenu = None
+missionselect = None
+briefing = None
+battle = None
+debriefing = None
+credits = None
 
 # states dictionary --------------------------------------------------------- #
 states = {
     "SPLASH_SCREEN":
-        {"constructor":SplashScreen(),
+        {"constructor":SplashScreen,
          "instance":splashscreen},
         
     "MAIN_MENU":
-        {"constructor":MainMenu() ,
+        {"constructor":MainMenu,
          "instance":mainmenu},
         
     "MISSION_SELECT":
-        {"constructor":MissionSelect() ,
+        {"constructor":MissionSelect,
          "instance":missionselect},
         
     "BRIEFING":
-        {"constructor":Briefing(),
+        {"constructor":Briefing,
          "instance":briefing},
         
     "BATTLE":
-        {"constructor":Battle(),
+        {"constructor":Battle,
          "instance":battle},
 
     "DEBRIEFING":
-        {"constructor":Debriefing(),
+        {"constructor":Debriefing,
          "instance":debriefing},
         
     "CREDITS":
-        {"constructor":Credits(),
+        {"constructor":Credits,
          "instance":credits}
             }
 

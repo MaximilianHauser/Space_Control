@@ -21,7 +21,10 @@ Functions:
 """
 
 # import section ------------------------------------------------------------ #
+# custom functions ---------------------------------------------------------- #
 import hexlogic as hl
+
+# game mechanic properties -------------------------------------------------- #
 from attribute_dicts.w_attr import w_dict
 
     
@@ -115,7 +118,7 @@ def check_fog_of_war(tile:object, blufor_grp, tile_grp) -> bool:
 
 # function handles mechanics related to turn advancement -------------------- #
 def skip_turn(manager:object) -> None:
-    for unit in manager.unit_blufor_grp:
+    for unit in manager.unit_blufor_group:
         if unit.activated == True:
             unit.action_points = 0
     

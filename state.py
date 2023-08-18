@@ -5,12 +5,17 @@ Created on Thu Jul 20 18:11:43 2023
 @author: Maximilian Hauser
 """
 # import section ------------------------------------------------------------ #
+# libraries ----------------------------------------------------------------- #
 import pygame as pg
+
+# misc ---------------------------------------------------------------------- #
 from settings import DEFAULT_FONTSIZE
+
 
 # State class template ------------------------------------------------------ #
 class State:
     def __init__(self):
+        print("Initialising: " + str(self))
             
         self.done = False
         self.quit = False

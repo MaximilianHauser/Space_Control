@@ -6,11 +6,18 @@ Created on Sat Jul 22 15:31:28 2023
 """
 
 # import section ------------------------------------------------------------ #
+# libraries ----------------------------------------------------------------- #
 import pygame as pg
+
+# algorithm objects --------------------------------------------------------- #
 from state import State
 from observer import Observer
+
+# sprite objects ------------------------------------------------------------ #
 from typewritercrawl import TypewriterCrawl
 from button import Button
+
+# misc ---------------------------------------------------------------------- #
 from settings import WIN_WIDTH
 
 
@@ -40,6 +47,9 @@ class Debriefing(State):
         self.observer.subscribe(pg.MOUSEBUTTONUP, self.menu_button)
         self.observer.subscribe(self.E_IDLE, self.menu_button)
         
+        # button to retry or start next mission depending battle conclusion - #
+        self.cont_button = None
+        
         # mission briefing text --------------------------------------------- #
         self.debriefing_txt_path = None
         self.debriefing_txt = "$text_col_1$\nplaceholder_text"
@@ -66,8 +76,10 @@ class Debriefing(State):
         
         f = open(self.debriefing_txt_path, 'r')
         self.debriefing_txt = f.read()
+        
         # close briefing text file ------------------------------------------ #
         f.close()
+        
         # reinitialise typewritercrawl with selected mission debriefing text  #
         self.debriefing_twc = TypewriterCrawl(self, 40, 40, 560, 330, self.debriefing_txt, ["all_sprites"], 
                                             active_font=self.font_smallcaps)
@@ -76,9 +88,21 @@ class Debriefing(State):
         self.observer.subscribe(event=pg.MOUSEBUTTONUP, subscriber=self.debriefing_twc.scrollbar)
         self.observer.subscribe(event=self.E_IDLE, subscriber=self.debriefing_twc.scrollbar)
         self.observer.subscribe(event=pg.MOUSEWHEEL, subscriber=self.debriefing_twc)
-        # close briefing text file ------------------------------------------ #
-        f.close()
-         
+        
+        # button to retry or start next mission depending battle conclusion - #
+        if self.battle_conclusion == "victory":
+            self.cont_button = Button(self, "next mission", WIN_WIDTH - 135, 400, "clicked_on", "next", ["all_sprites"], 
+                                      predefined_color_scheme = "transp_white", transparency=255, 
+                                      active_font=self.font_smallcaps, font_size=24)
+        elif self.battle_conclusion == "defeat":
+            self.cont_button = Button(self, "retry mission", WIN_WIDTH - 135, 400, "clicked_on", "retry", ["all_sprites"], 
+                                      predefined_color_scheme = "transp_white", transparency=255, 
+                                      active_font=self.font_smallcaps, font_size=24)
+        self.observer.subscribe(pg.MOUSEMOTION, self.cont_button)
+        self.observer.subscribe(pg.MOUSEBUTTONDOWN, self.cont_button)
+        self.observer.subscribe(pg.MOUSEBUTTONUP, self.cont_button)
+        self.observer.subscribe(self.E_IDLE, self.cont_button)
+            
     def event(self, event, delta):
         # pass events to observer ------------------------------------------- #
         self.observer.event_mngr(event, delta)

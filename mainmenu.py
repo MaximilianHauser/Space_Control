@@ -6,12 +6,18 @@ Created on Fri Jul 21 08:49:27 2023
 """
 
 # import section ------------------------------------------------------------ #
+# libraries ----------------------------------------------------------------- #
 import sys
 import itertools
 import pygame as pg
+
+# algorithm objects --------------------------------------------------------- #
 from state import State
 from observer import Observer
+
+# misc ---------------------------------------------------------------------- #
 from settings import WIN_WIDTH, WIN_HEIGHT
+
 
 # main menu ----------------------------------------------------------------- #
 class MainMenu(State):

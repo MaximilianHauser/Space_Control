@@ -6,9 +6,13 @@ Created on Thu Jul 20 18:20:51 2023
 """
 
 # import section ------------------------------------------------------------ #
+# libraries ----------------------------------------------------------------- #
 import sys
 import pygame as pg
+
+# misc ---------------------------------------------------------------------- #
 from settings import FPS
+
 
 # Game Engine class --------------------------------------------------------- #
 class Engine:
@@ -20,6 +24,7 @@ class Engine:
         self.states = states
         self.state_name = start_state
         self.previous_state = None
+        self.states[self.state_name]["instance"] = self.states[self.state_name]["constructor"]()
         self.state = self.states[self.state_name]["instance"]
         self.delta = 0
         
@@ -47,7 +52,7 @@ class Engine:
         self.state.leave()
         self.state_name = next_state
         persistent = self.state.persistent
-        self.states[self.state_name]["instance"] = self.states[self.state_name]["constructor"]
+        self.states[self.state_name]["instance"] = self.states[self.state_name]["constructor"]()
         self.state = self.states[self.state_name]["instance"]
         self.state.startup(persistent)
         self.states[self.previous_state]["instance"] = None

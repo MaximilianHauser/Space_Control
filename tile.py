@@ -20,12 +20,19 @@ observer.py
 """
 
 # import section ------------------------------------------------------------ #
+# libraries ----------------------------------------------------------------- #
 import pygame as pg
+
+# custom functions ---------------------------------------------------------- #
 import hexlogic as hl
 import gamelogic as gl
 import animations_logic as al
+
+# sprite objects ------------------------------------------------------------ #
 from dropdownmenu import DropDownMenu
 from attribute_dicts.t_attr import t_dict
+
+# misc ---------------------------------------------------------------------- #
 from settings import TERRAIN_LAYER, WIN_WIDTH, WIN_HEIGHT
 
 
