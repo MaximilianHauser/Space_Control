@@ -1,7 +1,10 @@
 """
 Created on Fri Sep  9 07:19:00 2022
 
-These functions assume you're using pygame sprite objects or similar.
+These functions assume you're using objects to represent tiles, units, items, 
+etc on your map that are based on a rectangular shape, having a width and height,
+the hexagon being drawn onto it, an example for a 64x64 tile is provided. The
+logic was written for and tested with pygame sprite objects.
 
 Contains all hextile logic, specified as logic handling the relationship 
 between cartesian coordinates and cube coordinates, for the purpose of defining 
@@ -68,6 +71,11 @@ https://www.redblobgames.com/grids/hexagons/codegen/output/lib.py
 
 
 # import section ------------------------------------------------------------ #
+# libraries ----------------------------------------------------------------- #
+import unittest
+from unittest.mock import Mock
+
+# misc ---------------------------------------------------------------------- #
 from settings import TILE_WIDTH, TILE_HEIGHT
 
 
@@ -418,10 +426,11 @@ def in_range(obj:object, n:int) -> set:
 
     hex_in_range = set()
         
-    for q in range(-n, n):
-        for r in range(max(-n, -q-n), min(n, -q+n)):
-            s = -q-r
-            hex_in_range.add((o_q+q, o_r+r, o_s+s))
+    for q in range(-n, n+1):
+        for r in range(-n, n+1):
+            for s in range(-n, n+1):
+                if q + r + s == 0:
+                    hex_in_range.add((o_q+q, o_r+r, o_s+s))
                 
     return hex_in_range
     
@@ -493,46 +502,215 @@ def dist_lim_flood_fill(start_obj:object, n:int, obj_grp:(list, set), block_var:
         
     Returns:
     --------
-    visited(set): A tuple containing all cube cordinates within distance n 
+    visited(set): A set containing all cube cordinates within distance n 
     from start_obj.
     """
 
-    start =  (start_obj.q, start_obj.r, start_obj.s)
+    start = (start_obj.q, start_obj.r, start_obj.s)
         
-    visited = set() # set, so duplicate values are ignored
+    visited = set()
     visited.add(start)
     fringes = []
     fringes.append([start])
-        
-
-    for k in range(1, n + 1):
-
-        fringes.append([])
-        for t_coords in fringes[k-1]:
-            for d in range(0,6): # 6 neighbors per hex => 6 items in nbors_lst
-            
-                current_coord = (t_coords[0], t_coords[1], t_coords[2])
-                neighbor = neighbors(current_coord)[d]
-                block_var_all = False
-                
-                if isinstance(block_var, str):
-                    block_var_all = all([True if hasattr(obj, block_var) else False for obj in obj_grp])
-                    
-                if block_var_all:
+    
+    if n > 0:
+        for i in range(1,n+1):
+            fringes.append([])
+            for coords in fringes[i-1]:
+                for j in range(0,6):
+                    nbor_coords = neighbors(coords)[j]
+                    # get corresponding object to nbor_coords from obj_grp -- #
+                    nbor_obj = None
                     for obj in obj_grp:
-                            if (obj.q, obj.r, obj.s) == neighbor:
-                                blocked = getattr(obj, block_var)
-                                if not blocked:
-                                    visited.add(neighbor)
-                                    fringes[k].append(neighbor)
-                                    
-                else:
-                    print("Not all objects in obj_grp have a block_var attribute or optional block_var was not declared.")
-                    for obj in obj_grp:
-                            if (obj.q, obj.r, obj.s) == neighbor:
-                                visited.add(neighbor)
-                                fringes[k].append(neighbor)
-
+                            if (obj.q, obj.r, obj.s) == nbor_coords:
+                                nbor_obj = obj
+                    blocked = getattr(nbor_obj, block_var)
+                    if nbor_coords not in visited:
+                        if not blocked:
+                            visited.add(nbor_coords)
+                            fringes[i].append(nbor_coords)
+    
     return visited
     
         
+# unittests ----------------------------------------------------------------- #
+# TestLinint ---------------------------------------------------------------- #
+class TestLinint(unittest.TestCase):
+    def test_inout(self):
+        self.assertEqual(linint(1, 2, 0.5), 1.5, "linint(1, 2, 0.5), 1.5, failed")
+
+# TestCartesianLinint ------------------------------------------------------- #
+class TestCartesianLinint(unittest.TestCase):
+    def test_inout(self):
+        self.assertEqual(cartesian_linint((-3,1), (2,3), 0.5), (-0.5, 2), "cartesian_linint((-3,1), (2,3), 0.5), (-0.5,2), failed")
+
+# TestCubeLinint ------------------------------------------------------------ #
+class TestCubeLinint(unittest.TestCase):
+    def setUp(self):
+        self.object_a = Mock()
+        self.object_a.q = 1
+        self.object_a.r = -2
+        self.object_a.s = 1
+        self.object_b = Mock()
+        self.object_b.q = 3
+        self.object_b.r = -2
+        self.object_b.s = -1
+    
+    def test_inout(self):
+        self.assertEqual(cube_linint(self.object_a, self.object_b, 0.5), (2, -2, 0), "cube_linint((0,-1,1), (0,1,-1), 0.5), (0,0,0), failed")
+        
+    def tearDown(self):
+        self.object_a.dispose()
+        self.object_b.dispose()
+
+# TestRoundHex -------------------------------------------------------------- #
+class TestRoundHex(unittest.TestCase):
+    def test_inout(self):
+        self.assertEqual(round_hex((0,-1.1,1.3)), (0,-1,1), "round_hex((0,-1.1,1.3)), (0,-1,1), failed")
+
+# TestGetqrs ---------------------------------------------------------------- #
+class TestGetqrs(unittest.TestCase):
+    def setUp(self):
+        self.object = Mock()
+        self.object.q = 1
+        self.object.r = 1
+        self.object.s = -2
+        
+    def test_inout(self):
+        self.assertEqual(get_qrs(self.object), (1,1,-2), "get_qrs(object), (1,1,-2), failed")
+        
+    def tearDown(self):
+        self.object.dispose()
+
+# TestSetqrs ---------------------------------------------------------------- #
+class TestSetqrs(unittest.TestCase):
+    def setUp(self):
+        self.object = Mock()
+        
+    def test_inout(self):
+        set_qrs(self.object, 1,1,-2)
+        has_q = hasattr(self.object, "q")
+        has_r = hasattr(self.object, "r")
+        has_s = hasattr(self.object, "s")
+        self.assertTrue(has_q, ", failed")
+        self.assertTrue(has_r, ", failed")
+        self.assertTrue(has_s, ", failed")
+        self.assertIs(self.object.q, 1, ", failed")
+        self.assertIs(self.object.r, 1, ", failed")
+        self.assertIs(self.object.s, -2, ", failed")
+        
+    def tearDown(self):
+        self.object.dispose()
+
+# TestHexToPixel ------------------------------------------------------------ #
+class TestHexToPixel(unittest.TestCase):
+    def test_inout(self):
+        self.assertEqual(hex_to_pixel((1,1,-2)), (48, 96), "hex_to_pixel((1,1,-2)), (48, 96), failed")
+
+# TestPixelToHex ------------------------------------------------------------ #
+class TestPixelToHex(unittest.TestCase):
+    def test_inout(self):
+        self.assertEqual(round_hex(pixel_to_hex((48, 96))), (1,1,-2), "pixel_to_hex((48, 96)), (1,1,-2), failed")
+
+# TestNeighbors ------------------------------------------------------------- #
+class TestNeighbors(unittest.TestCase):
+    def test_inout(self):
+        self.assertEqual(neighbors((1,1,-2)), ((2,1,-3), (2,0,-2), (1,0,-1), (0,1,-1), (0,2,-2), (1,2,-3)), "neighbors((1,1,-2)), ((2,1,-3), (2,0,-2), (1,0,-1), (0,1,-1), (0,2,-2), (1,2,-3)), failed")
+
+# TestDistance -------------------------------------------------------------- #
+class TestDistance(unittest.TestCase):
+    def setUp(self):
+        self.object_a = Mock()
+        self.object_a.q = 1
+        self.object_a.r = -2
+        self.object_a.s = 1
+        self.object_b = Mock()
+        self.object_b.q = 3
+        self.object_b.r = -2
+        self.object_b.s = -1
+        
+    def test_inout(self):
+        self.assertEqual(distance(self.object_a, self.object_b), 2, "distance(self.object_a, self.object_b), 2, failed")
+        
+    def tearDown(self):
+        self.object_a.dispose()
+        self.object_b.dispose()
+
+# TestInRange --------------------------------------------------------------- #
+class TestInRange(unittest.TestCase):
+    def setUp(self):
+        self.object = Mock()
+        self.object.q = 1
+        self.object.r = -1
+        self.object.s = 0
+        
+    def test_inout(self):
+        # test number of tiles in returned set ------------------------------ #
+        self.assertEqual(len(in_range(self.object, 0)), 1, "len(in_range(object, 0)), 1, failed")
+        self.assertEqual(len(in_range(self.object, 1)), 7, "len(in_range(object, 1)), 7, failed")
+        self.assertEqual(len(in_range(self.object, 2)), 19, "len(in_range(object, 2)), 19, failed")
+        self.assertEqual(len(in_range(self.object, 3)), 37, "len(in_range(object, 3)), 37, failed")
+        # test returned coordinatess vs expected ---------------------------- #
+        self.assertEqual(in_range(self.object, 1), {(1,-1,0), (1,0,-1), (0,0,0), (0,-1,1), (1,-2,1), (2,-2,0), (2,-1,-1)}, "in_range(self.object, 1), {(1,-1,0), (1,0,-1), (0,0,0), (0,-1,1), (1,-2,1), (2,-2,0), (2,-1,-1)}, failed")
+        
+    def tearDown(self):
+        self.object.dispose()
+
+# TestLineDraw -------------------------------------------------------------- #
+class TestLineDraw(unittest.TestCase):
+    def setUp(self):
+        self.object_a = Mock()
+        self.object_a.q = 1
+        self.object_a.r = -2
+        self.object_a.s = 1
+        self.object_b = Mock()
+        self.object_b.q = 3
+        self.object_b.r = -2
+        self.object_b.s = -1
+        
+    def test_inout(self):
+        self.assertEqual(line_draw(self.object_a, self.object_b), ((1, -2, 1), (2, -2, 0), (3, -2, -1)), "line_draw(self.object_a, self.object_b), ((1, -2, 1), (2, -2, 0), (3, -2, -1)), failed")
+        
+    def tearDown(self):
+        self.object_a.dispose()
+        self.object_b.dispose()
+
+# TestDistLimFloodFill ------------------------------------------------------ #
+class TestDistLimFloodFill(unittest.TestCase):
+    def setUp(self):
+        # start_obj --------------------------------------------------------- #
+        self.start_obj = Mock()
+        self.start_obj.q = 0
+        self.start_obj.r = 0
+        self.start_obj.s = 0
+        self.start_obj.block = False
+        # obj_grp containing all objects with 2 dist from start ------------- #
+        self.obj_grp = set()
+        # coords of all objects with distance 2 from start_obj -------------- #
+        all_coords = in_range(self.start_obj, 2)
+        # coords of objects to be blocked ----------------------------------- #
+        block_coords = {(1,-2,1), (1,-1,0), (1,0,-1), (0,2,-2), (-1,0,1)}
+        # add objects to obj_grp -------------------------------------------- #
+        for coords in all_coords:
+            obj = Mock()
+            obj.q = coords[0]
+            obj.r = coords[1]
+            obj.s = coords[2]
+            if (obj.q, obj.r, obj.s) in block_coords:
+                obj.block = True
+            else:
+                obj.block = False
+            self.obj_grp.add(obj)
+        
+    def test_inout(self):
+        self.assertEqual(dist_lim_flood_fill(self.start_obj, 2, self.obj_grp, "block"), {(0,-2,2),(-1,-1,2),(0,-1,1),(0,0,0),(-2,1,1),(-2,2,0),(-1,1,0),(-1,2,-1),(0,1,-1),(1,1,-2)}, "dist_lim_flood_fill(self.start_obj, 2, self.obj_grp, 'block'), {(0,-2,2),(-1,-1,2),(0,-1,1),(0,0,0),(-2,1,1),(-2,2,0),(-1,1,0),(-1,2,-1),(0,1,-1),(1,1,-2)}, failed")
+    
+    def tearDown(self):
+        self.start_obj.dispose()
+        for obj in self.obj_grp:
+            obj.dispose()
+        del self.obj_grp
+
+# run unittests ------------------------------------------------------------- #
+unittest.main()
+
