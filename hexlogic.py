@@ -169,12 +169,12 @@ def cube_linint(obj_a:object, obj_b:object, t:float) -> tuple:
     --------
     linint_coords(tuple): The hextile coordinates of a point situated at the t part of the way from obj_a to obj_b.
     """
-    a_q = obj_a.q
-    b_q = obj_b.q
-    a_r = obj_a.r
-    b_r = obj_b.r
-    a_s = obj_a.s
-    b_s = obj_b.s
+    a_q = getattr(obj_a, "q")
+    b_q = getattr(obj_b, "q")
+    a_r = getattr(obj_a, "r")
+    b_r = getattr(obj_b, "r")
+    a_s = getattr(obj_a, "s")
+    b_s = getattr(obj_b, "s")
         
     q = linint(a_q, b_q, t)
     r = linint(a_r, b_r, t)
@@ -244,9 +244,9 @@ def get_qrs(obj:object) -> tuple:
     qrs(tuple): The values of attributes q, r, s of obj as tuple.
     """
 
-    q = obj.q
-    r = obj.r
-    s = obj.s
+    q = getattr(obj, "q")
+    r = getattr(obj, "r")
+    s = getattr(obj, "s")
             
     qrs = (q, r, s)
         
@@ -270,10 +270,17 @@ def set_qrs(obj:object, q:int, r:int, s:int) -> None:
     --------
     None
     """
-
-    setattr(obj, "q", q)
-    setattr(obj, "r", r)
-    setattr(obj, "s", s)
+    q_isint = isinstance(q, int)
+    r_isint = isinstance(r, int)
+    s_isint = isinstance(s, int)
+    
+    if q_isint and r_isint and s_isint:
+        setattr(obj, "q", q)
+        setattr(obj, "r", r)
+        setattr(obj, "s", s)
+        
+    else:
+        raise TypeError
     
 
 def hex_to_pixel(qrs:tuple) -> tuple:
@@ -536,11 +543,32 @@ def dist_lim_flood_fill(start_obj:object, n:int, obj_grp:(list, set), block_var:
 # unittests ----------------------------------------------------------------- #
 # TestLinint ---------------------------------------------------------------- #
 class TestLinint(unittest.TestCase):
+    
+    def test_error(self):
+        with self.assertRaises(TypeError):
+            linint(1, "2", 0.5)
+            linint("1", 2, 0.5)
+            linint(1, 2, "0.5")
+            
     def test_inout(self):
         self.assertEqual(linint(1, 2, 0.5), 1.5, "linint(1, 2, 0.5), 1.5, failed")
 
 # TestCartesianLinint ------------------------------------------------------- #
 class TestCartesianLinint(unittest.TestCase):
+    
+    def test_error(self):
+        with self.assertRaises(ValueError):
+            cartesian_linint("(-3,1)", (2,3), 0.5)
+            cartesian_linint((-3,1), "(2,3)", 0.5)
+            cartesian_linint((-3,1), (2,3), "0.5")
+            cartesian_linint((-3,1,1), (2,3), 0.5)
+            cartesian_linint((-3,1), (2,3,0), 0.5)
+        with self.assertRaises(TypeError):
+            cartesian_linint((-1), (2,3), 0.5)
+            cartesian_linint((-3,1), (3), 0.5)
+            cartesian_linint({"1":-3,"2":1}, (3), 0.5)
+            cartesian_linint({"1":-3,"2":1}, (3), (0.5))
+            
     def test_inout(self):
         self.assertEqual(cartesian_linint((-3,1), (2,3), 0.5), (-0.5, 2), "cartesian_linint((-3,1), (2,3), 0.5), (-0.5,2), failed")
 
@@ -555,37 +583,80 @@ class TestCubeLinint(unittest.TestCase):
         self.object_b.q = 3
         self.object_b.r = -2
         self.object_b.s = -1
-    
+        self.object_c = Mock()
+        self.object_c.q = 3
+        self.object_c.r = -2
+        del self.object_c.s
+        self.object_d = Mock()
+        self.object_d.q = "3"
+        self.object_d.r = -2
+        self.object_d.s = -1
+        
+    def test_error(self):
+        with self.assertRaises(TypeError):
+            cube_linint(self.object_a, self.object_d, 0.5)
+            cube_linint(self.object_a, self.object_b, "0.5")
+        with self.assertRaises(AttributeError):
+            cube_linint(self.object_a, self.object_c, 0.5)
+            
     def test_inout(self):
         self.assertEqual(cube_linint(self.object_a, self.object_b, 0.5), (2, -2, 0), "cube_linint((0,-1,1), (0,1,-1), 0.5), (0,0,0), failed")
         
     def tearDown(self):
         self.object_a.dispose()
         self.object_b.dispose()
+        self.object_c.dispose()
+        self.object_d.dispose()
 
 # TestRoundHex -------------------------------------------------------------- #
 class TestRoundHex(unittest.TestCase):
+    
+    def test_error(self):
+        with self.assertRaises(TypeError):
+            round_hex((0,-1.1,"1.3"))
+            round_hex((0,"-1.1",1.3))
+            round_hex(("0",-1.1,1.3))
+        with self.assertRaises(ValueError):
+            round_hex(())
+            round_hex((0,-1.1,1.3,4))
+    
     def test_inout(self):
         self.assertEqual(round_hex((0,-1.1,1.3)), (0,-1,1), "round_hex((0,-1.1,1.3)), (0,-1,1), failed")
 
 # TestGetqrs ---------------------------------------------------------------- #
 class TestGetqrs(unittest.TestCase):
     def setUp(self):
-        self.object = Mock()
-        self.object.q = 1
-        self.object.r = 1
-        self.object.s = -2
+        self.object_a = Mock()
+        self.object_a.q = 1
+        self.object_a.r = 1
+        self.object_a.s = -2
+        self.object_b = Mock()
+        self.object_b.q = 1
+        self.object_b.r = 1
+        del self.object_b.s
         
+    def test_error(self):
+        with self.assertRaises(AttributeError):
+            get_qrs(self.object_b)
+    
     def test_inout(self):
-        self.assertEqual(get_qrs(self.object), (1,1,-2), "get_qrs(object), (1,1,-2), failed")
+        self.assertEqual(get_qrs(self.object_a), (1,1,-2), "get_qrs(object), (1,1,-2), failed")
         
     def tearDown(self):
-        self.object.dispose()
+        self.object_a.dispose()
+        self.object_b.dispose()
 
 # TestSetqrs ---------------------------------------------------------------- #
 class TestSetqrs(unittest.TestCase):
     def setUp(self):
         self.object = Mock()
+        del self.object.q
+        del self.object.r
+        del self.object.s
+        
+    def test_error(self):
+        with self.assertRaises(TypeError):
+            set_qrs(self.object, 1,"1",-2)
         
     def test_inout(self):
         set_qrs(self.object, 1,1,-2)
@@ -604,16 +675,39 @@ class TestSetqrs(unittest.TestCase):
 
 # TestHexToPixel ------------------------------------------------------------ #
 class TestHexToPixel(unittest.TestCase):
+    
+    def test_error(self):
+        with self.assertRaises(ValueError):
+            hex_to_pixel((1,1))
+            hex_to_pixel((1,"1",-2))
+            hex_to_pixel([1,1,-2])
+            hex_to_pixel((1,1,-2,3))
+    
     def test_inout(self):
         self.assertEqual(hex_to_pixel((1,1,-2)), (48, 96), "hex_to_pixel((1,1,-2)), (48, 96), failed")
 
 # TestPixelToHex ------------------------------------------------------------ #
 class TestPixelToHex(unittest.TestCase):
+    
+    def test_error(self):
+        with self.assertRaises(TypeError):
+            pixel_to_hex([48, 96])
+            pixel_to_hex((48, "96"))
+    
     def test_inout(self):
         self.assertEqual(round_hex(pixel_to_hex((48, 96))), (1,1,-2), "pixel_to_hex((48, 96)), (1,1,-2), failed")
 
 # TestNeighbors ------------------------------------------------------------- #
 class TestNeighbors(unittest.TestCase):
+    
+    def test_error(self):
+        with self.assertRaises(TypeError):
+            neighbors((1,1,"-2"))
+            neighbors([1,1,-2])
+        with self.assertRaises(ValueError):
+            neighbors((1,1,-2,2))
+            neighbors((1,1))
+    
     def test_inout(self):
         self.assertEqual(neighbors((1,1,-2)), ((2,1,-3), (2,0,-2), (1,0,-1), (0,1,-1), (0,2,-2), (1,2,-3)), "neighbors((1,1,-2)), ((2,1,-3), (2,0,-2), (1,0,-1), (0,1,-1), (0,2,-2), (1,2,-3)), failed")
 
@@ -628,33 +722,65 @@ class TestDistance(unittest.TestCase):
         self.object_b.q = 3
         self.object_b.r = -2
         self.object_b.s = -1
+        self.object_c = Mock()
+        self.object_c.q = 3
+        self.object_c.r = -2
+        del self.object_c.s
+        self.object_d = Mock()
+        self.object_d.q = 3
+        self.object_d.r = "-2"
+        self.object_d.s = -1
         
+    def test_error(self):
+        with self.assertRaises(AttributeError):
+            distance(self.object_a, self.object_c)
+        with self.assertRaises(TypeError):
+            distance(self.object_a, self.object_d)
+    
     def test_inout(self):
         self.assertEqual(distance(self.object_a, self.object_b), 2, "distance(self.object_a, self.object_b), 2, failed")
         
     def tearDown(self):
         self.object_a.dispose()
         self.object_b.dispose()
+        self.object_c.dispose()
+        self.object_d.dispose()
 
 # TestInRange --------------------------------------------------------------- #
 class TestInRange(unittest.TestCase):
     def setUp(self):
-        self.object = Mock()
-        self.object.q = 1
-        self.object.r = -1
-        self.object.s = 0
+        self.object_a = Mock()
+        self.object_a.q = 1
+        self.object_a.r = -1
+        self.object_a.s = 0
+        self.object_b = Mock()
+        self.object_b.q = 3
+        self.object_b.r = -2
+        del self.object_b.s
+        self.object_c = Mock()
+        self.object_c.q = 3
+        self.object_c.r = "-2"
+        self.object_c.s = -1
+        
+    def test_error(self):
+        with self.assertRaises(AttributeError):
+            in_range(self.object_b, 1)
+        with self.assertRaises(TypeError):
+            in_range(self.object_c, 1)
         
     def test_inout(self):
         # test number of tiles in returned set ------------------------------ #
-        self.assertEqual(len(in_range(self.object, 0)), 1, "len(in_range(object, 0)), 1, failed")
-        self.assertEqual(len(in_range(self.object, 1)), 7, "len(in_range(object, 1)), 7, failed")
-        self.assertEqual(len(in_range(self.object, 2)), 19, "len(in_range(object, 2)), 19, failed")
-        self.assertEqual(len(in_range(self.object, 3)), 37, "len(in_range(object, 3)), 37, failed")
+        self.assertEqual(len(in_range(self.object_a, 0)), 1, "len(in_range(object, 0)), 1, failed")
+        self.assertEqual(len(in_range(self.object_a, 1)), 7, "len(in_range(object, 1)), 7, failed")
+        self.assertEqual(len(in_range(self.object_a, 2)), 19, "len(in_range(object, 2)), 19, failed")
+        self.assertEqual(len(in_range(self.object_a, 3)), 37, "len(in_range(object, 3)), 37, failed")
         # test returned coordinatess vs expected ---------------------------- #
-        self.assertEqual(in_range(self.object, 1), {(1,-1,0), (1,0,-1), (0,0,0), (0,-1,1), (1,-2,1), (2,-2,0), (2,-1,-1)}, "in_range(self.object, 1), {(1,-1,0), (1,0,-1), (0,0,0), (0,-1,1), (1,-2,1), (2,-2,0), (2,-1,-1)}, failed")
+        self.assertEqual(in_range(self.object_a, 1), {(1,-1,0), (1,0,-1), (0,0,0), (0,-1,1), (1,-2,1), (2,-2,0), (2,-1,-1)}, "in_range(self.object, 1), {(1,-1,0), (1,0,-1), (0,0,0), (0,-1,1), (1,-2,1), (2,-2,0), (2,-1,-1)}, failed")
         
     def tearDown(self):
-        self.object.dispose()
+        self.object_a.dispose()
+        self.object_b.dispose()
+        self.object_c.dispose()
 
 # TestLineDraw -------------------------------------------------------------- #
 class TestLineDraw(unittest.TestCase):
@@ -667,6 +793,20 @@ class TestLineDraw(unittest.TestCase):
         self.object_b.q = 3
         self.object_b.r = -2
         self.object_b.s = -1
+        self.object_c = Mock()
+        self.object_c.q = 3
+        self.object_c.r = -2
+        del self.object_c.s
+        self.object_d = Mock()
+        self.object_d.q = 3
+        self.object_d.r = "-2"
+        self.object_d.s = -1
+        
+    def test_error(self):
+        with self.assertRaises(AttributeError):
+            line_draw(self.object_a, self.object_c)
+        with self.assertRaises(TypeError):
+            line_draw(self.object_a, self.object_d)
         
     def test_inout(self):
         self.assertEqual(line_draw(self.object_a, self.object_b), ((1, -2, 1), (2, -2, 0), (3, -2, -1)), "line_draw(self.object_a, self.object_b), ((1, -2, 1), (2, -2, 0), (3, -2, -1)), failed")
@@ -674,6 +814,8 @@ class TestLineDraw(unittest.TestCase):
     def tearDown(self):
         self.object_a.dispose()
         self.object_b.dispose()
+        self.object_c.dispose()
+        self.object_d.dispose()
 
 # TestDistLimFloodFill ------------------------------------------------------ #
 class TestDistLimFloodFill(unittest.TestCase):
@@ -701,6 +843,9 @@ class TestDistLimFloodFill(unittest.TestCase):
             else:
                 obj.block = False
             self.obj_grp.add(obj)
+            
+    def test_error(self):
+        pass
         
     def test_inout(self):
         self.assertEqual(dist_lim_flood_fill(self.start_obj, 2, self.obj_grp, "block"), {(0,-2,2),(-1,-1,2),(0,-1,1),(0,0,0),(-2,1,1),(-2,2,0),(-1,1,0),(-1,2,-1),(0,1,-1),(1,1,-2)}, "dist_lim_flood_fill(self.start_obj, 2, self.obj_grp, 'block'), {(0,-2,2),(-1,-1,2),(0,-1,1),(0,0,0),(-2,1,1),(-2,2,0),(-1,1,0),(-1,2,-1),(0,1,-1),(1,1,-2)}, failed")
