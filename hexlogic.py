@@ -15,7 +15,7 @@ I plan on adding hextile specific pathfinding in the future.
 Dependencies:
 -------------
 settings
-    A custom python file containing the constants TILE_WIDTH and TILE_HEIGHT.
+    A python file containing the constants TILE_WIDTH and TILE_HEIGHT.
     
 Functions:
 ----------
@@ -63,7 +63,7 @@ dist_lim_flood_fill(start_obj:object, n:int, obj_grp:(list, set, pg.sprite.Group
     All cube coordinates within n distance from an object, factoring in block_var (variable if True blocks object).
 
 @author: Maximilian Hauser
-@sources: redblobgames.com (Amit Patel)
+@references: redblobgames.com (Amit Patel)
 https://www.redblobgames.com/grids/hexagons/
 https://www.redblobgames.com/grids/hexagons/implementation.html
 https://www.redblobgames.com/grids/hexagons/codegen/output/lib.py
@@ -74,6 +74,8 @@ https://www.redblobgames.com/grids/hexagons/codegen/output/lib.py
 # libraries ----------------------------------------------------------------- #
 import unittest
 from unittest.mock import Mock
+import numpy as np
+import pandas as pd
 
 # misc ---------------------------------------------------------------------- #
 from settings import TILE_WIDTH, TILE_HEIGHT
@@ -264,7 +266,7 @@ def set_qrs(obj:object, q:int, r:int, s:int) -> None:
         
     Raises:
     -------
-    AttributeError: If obj is missing q, r or s as attribute.
+    TypeError: If q, r or s is not an integer.
         
     Returns:
     --------
@@ -369,7 +371,7 @@ def neighbors(qrs:tuple) -> tuple:
     return nbors
     
 
-def distance(obj_a:object, obj_b:object) -> int:
+def distance(obj_a:(object, tuple), obj_b:(object, tuple), is_obj:bool=True) -> int:
     """
     Returns distance from one object to another in a cube coordinate system.
         
@@ -389,13 +391,17 @@ def distance(obj_a:object, obj_b:object) -> int:
     --------
     ab_dist(int): The distance between obj_a and obj_b in hexagon tiles.
     """
-
-    a_q = getattr(obj_a, "q")
-    a_r = getattr(obj_a, "r")
-    a_s = getattr(obj_a, "s")
-    b_q = getattr(obj_b, "q")
-    b_r = getattr(obj_b, "r")
-    b_s = getattr(obj_b, "s")
+    
+    if is_obj:
+        a_q = getattr(obj_a, "q")
+        a_r = getattr(obj_a, "r")
+        a_s = getattr(obj_a, "s")
+        b_q = getattr(obj_b, "q")
+        b_r = getattr(obj_b, "r")
+        b_s = getattr(obj_b, "s")
+    else:
+        a_q, a_r, a_s = obj_a
+        b_q, b_r, b_s = obj_b
         
     q_diff = abs(a_q - b_q)
     r_diff = abs(a_r - b_r)
@@ -531,14 +537,219 @@ def dist_lim_flood_fill(start_obj:object, n:int, obj_grp:(list, set), block_var:
                     for obj in obj_grp:
                             if (obj.q, obj.r, obj.s) == nbor_coords:
                                 nbor_obj = obj
-                    blocked = getattr(nbor_obj, block_var)
+                    blocked = getattr(nbor_obj, block_var, True)
                     if nbor_coords not in visited:
                         if not blocked:
                             visited.add(nbor_coords)
                             fringes[i].append(nbor_coords)
     
     return visited
+
+
+def create_graph_matrix(tile_grp:(list, set)) -> pd.DataFrame:
+    """
+    Creates a pandas dataframe, containing a directed, weighted graph.
+        
+    Parameters:
+    -----------
+    tile_grp : List, Set or SpriteGroup
+        A container containing objects adjacent to each other in a cube coordinate system (tiles in tilemap).
+        
+    Raises:
+    -------
+    AttributeError:
+    TypeError:
+        
+    Returns:
+    --------
+    matrix_df(pd.DataFrame): Two-dimensional, directed, weighted graph.
+    """
+    # individual tile coords for column/index names --------------------- #
+    idx = list()
     
+    for tile in tile_grp:
+        idx.append((tile.q, tile.r, tile.s))
+    
+    # creating a set with all connections ----------------------------------- #
+    edges = set()
+    
+    for tile in tile_grp:
+        tile_qrs = (tile.q, tile.r, tile.s)
+        t_nbors_set = neighbors((tile_qrs[0], tile_qrs[1], tile_qrs[2]))
+        for nbor in t_nbors_set:
+            nbor_qrs = (nbor[0], nbor[1], nbor[2])
+            for t in tile_grp:
+                if t.q == nbor[0] and t.r == nbor[1] and t.s == nbor[2]:
+                    if t.block_move is False and tile.block_move is False:
+                        edges.add((tile_qrs, nbor_qrs, tile.movement_cost, t.movement_cost))
+
+    map_matrix = np.identity(len(idx))
+    
+    matrix_df = pd.DataFrame(map_matrix, index=idx, columns=idx)
+    
+    for edge in edges:
+        # movement_cost defined by the tile moved onto ---------------------- #
+        # movement_cost if possible from edge[0] to edge[1] ----------------- #
+        matrix_df.at[edge[0], edge[1]] = edge[3]
+        # movement_cost if possible from edge[1] to edge[0] ----------------- #
+        matrix_df.at[edge[1], edge[0]] = edge[2]
+        
+    
+    matrix_df = matrix_df.astype("int64")
+    
+    return matrix_df   
+
+# graph based path finding algorithms --------------------------------------- #
+def breadth_first_search(start:tuple, goal:tuple, graph_matrix_df:pd.DataFrame) -> list:
+    """
+    Algorithm for searching a tree data structure for a node that satisfies a 
+    given property. It starts at the tree root and explores all nodes at the 
+    present depth prior to moving on to the nodes at the next depth level.
+    
+    Parameters:
+    -----------
+    
+    Raises:
+    -------
+    
+    Returns:
+    --------
+    """
+    frontier = list()
+    frontier.append(start)
+    came_from = dict() # path A->B is stored as came_from[B] == A
+    came_from[start] = None
+
+    while frontier:
+        current = frontier.pop(0)
+        
+        if current == goal:
+            break
+        else:
+            for nbor in neighbors(current):
+                if nbor not in came_from.keys():
+                    # movement_cost from row to column not 0 ---------------- #
+                    if nbor in graph_matrix_df.index.tolist():
+                        if graph_matrix_df.at[nbor, current] != 0:
+                            frontier.append(nbor)
+                            came_from[nbor] = current
+    
+    # follow the path from goal to start in came_from ----------------------- #
+    current = goal 
+    path = list()
+    while current != start: 
+        path.append(current)
+        current = came_from[current]
+    path.append(start)
+    path.reverse()
+    
+    return path
+
+
+def dijkstras_algorithm(start:tuple, goal:tuple, graph_matrix_df:pd.DataFrame) -> list:
+    """
+    Algorithm for searching a tree data structure for a node that satisfies a 
+    given property. It starts at the tree root and explores the nodes based on 
+    the cost of exploring each arm.
+    
+    Parameters:
+    -----------
+    
+    Raises:
+    -------
+    
+    Returns:
+    --------
+    """
+    frontier = list()
+    frontier.append((start, 0))
+    came_from = dict()
+    cost_so_far = dict()
+    came_from[start] = None
+    cost_so_far[start] = 0
+    
+    # while not all tiles have been procesed, pop first tile from list ------ #
+    while frontier:
+        current = frontier.pop(0)
+        
+        # if current qrs_coords equal goal coords, break out of loop -------- #
+        if current[0] == goal:
+            break
+        # else execute loop ------------------------------------------------- #
+        else:
+            for nbor in neighbors(current[0]):
+                if nbor in graph_matrix_df.index.tolist():
+                    if graph_matrix_df.at[nbor, current[0]] != 0:
+                        new_cost = cost_so_far[current[0]] + graph_matrix_df.at[nbor, current[0]]
+                        if nbor not in cost_so_far or new_cost < cost_so_far[nbor]:
+                            cost_so_far[nbor] = new_cost
+                            came_from[nbor] = current[0]
+                            frontier.append((nbor, new_cost))
+                            frontier.sort(key= lambda x:x[1] in frontier)
+                    
+    # follow the path from goal to start in came_from ----------------------- #
+    current = goal 
+    path = list()
+    while current != start: 
+        path.append(current)
+        current = came_from[current]
+    path.append(start)
+    path.reverse()
+    
+    return path
+               
+
+def a_star_algorithm(start:tuple, goal:tuple, graph_matrix_df:pd.DataFrame) -> list:
+    """
+    Modified version of Dijkstra’s Algorithm that is optimized for a single 
+    destination. It prioritizes paths that seem to be leading closer to a goal.
+    
+    Parameters:
+    -----------
+    
+    Raises:
+    -------
+    
+    Returns:
+    --------
+    """
+    frontier = list()
+    frontier.append((start, 0))
+    came_from = dict()
+    cost_so_far = dict()
+    came_from[start] = None
+    cost_so_far[start] = 0
+    
+    # while not all tiles have been procesed, pop first tile from list ------ #
+    while frontier:
+        current = frontier.pop(0)
+        
+        # if current qrs_coords equal goal coords, break out of loop -------- #
+        if current[0] == goal:
+            break
+        # else execute loop ------------------------------------------------- #
+        else:
+            for nbor in neighbors(current[0]):
+                if nbor in graph_matrix_df.index.tolist():
+                    if graph_matrix_df.at[nbor, current[0]] != 0:
+                        new_cost = cost_so_far[current[0]] + graph_matrix_df.at[nbor, current[0]]
+                        if nbor not in cost_so_far or new_cost < cost_so_far[nbor]:
+                            cost_so_far[nbor] = new_cost
+                            came_from[nbor] = current[0]
+                            priority = new_cost + distance(goal, nbor, is_obj=False)
+                            frontier.append((nbor, priority))
+                            frontier.sort(key= lambda x:x[1] in frontier)
+                    
+    # follow the path from goal to start in came_from ----------------------- #
+    current = goal 
+    path = list()
+    while current != start: 
+        path.append(current)
+        current = came_from[current]
+    path.append(start)
+    path.reverse()
+    
+    return path
         
 # unittests ----------------------------------------------------------------- #
 # TestLinint ---------------------------------------------------------------- #
@@ -574,6 +785,7 @@ class TestCartesianLinint(unittest.TestCase):
 
 # TestCubeLinint ------------------------------------------------------------ #
 class TestCubeLinint(unittest.TestCase):
+    
     def setUp(self):
         self.object_a = Mock()
         self.object_a.q = 1
@@ -625,6 +837,7 @@ class TestRoundHex(unittest.TestCase):
 
 # TestGetqrs ---------------------------------------------------------------- #
 class TestGetqrs(unittest.TestCase):
+    
     def setUp(self):
         self.object_a = Mock()
         self.object_a.q = 1
@@ -648,6 +861,7 @@ class TestGetqrs(unittest.TestCase):
 
 # TestSetqrs ---------------------------------------------------------------- #
 class TestSetqrs(unittest.TestCase):
+    
     def setUp(self):
         self.object = Mock()
         del self.object.q
@@ -713,6 +927,7 @@ class TestNeighbors(unittest.TestCase):
 
 # TestDistance -------------------------------------------------------------- #
 class TestDistance(unittest.TestCase):
+    
     def setUp(self):
         self.object_a = Mock()
         self.object_a.q = 1
@@ -748,6 +963,7 @@ class TestDistance(unittest.TestCase):
 
 # TestInRange --------------------------------------------------------------- #
 class TestInRange(unittest.TestCase):
+    
     def setUp(self):
         self.object_a = Mock()
         self.object_a.q = 1
@@ -774,6 +990,7 @@ class TestInRange(unittest.TestCase):
         self.assertEqual(len(in_range(self.object_a, 1)), 7, "len(in_range(object, 1)), 7, failed")
         self.assertEqual(len(in_range(self.object_a, 2)), 19, "len(in_range(object, 2)), 19, failed")
         self.assertEqual(len(in_range(self.object_a, 3)), 37, "len(in_range(object, 3)), 37, failed")
+        self.assertEqual(len(in_range(self.object_a, 4)), 61, "len(in_range(object, 4)), 61, failed")
         # test returned coordinatess vs expected ---------------------------- #
         self.assertEqual(in_range(self.object_a, 1), {(1,-1,0), (1,0,-1), (0,0,0), (0,-1,1), (1,-2,1), (2,-2,0), (2,-1,-1)}, "in_range(self.object, 1), {(1,-1,0), (1,0,-1), (0,0,0), (0,-1,1), (1,-2,1), (2,-2,0), (2,-1,-1)}, failed")
         
@@ -784,6 +1001,7 @@ class TestInRange(unittest.TestCase):
 
 # TestLineDraw -------------------------------------------------------------- #
 class TestLineDraw(unittest.TestCase):
+    
     def setUp(self):
         self.object_a = Mock()
         self.object_a.q = 1
@@ -819,6 +1037,7 @@ class TestLineDraw(unittest.TestCase):
 
 # TestDistLimFloodFill ------------------------------------------------------ #
 class TestDistLimFloodFill(unittest.TestCase):
+    
     def setUp(self):
         # start_obj --------------------------------------------------------- #
         self.start_obj = Mock()
@@ -826,6 +1045,15 @@ class TestDistLimFloodFill(unittest.TestCase):
         self.start_obj.r = 0
         self.start_obj.s = 0
         self.start_obj.block = False
+        # err_objects ------------------------------------------------------- #
+        self.err_object_a = Mock()
+        self.err_object_a.q = 0
+        self.err_object_a.r = "0"
+        self.err_object_a.s = 0
+        self.err_object_b = Mock()
+        self.err_object_b.q = 0
+        self.err_object_b.r = 0
+        del self.err_object_b.s
         # obj_grp containing all objects with 2 dist from start ------------- #
         self.obj_grp = set()
         # coords of all objects with distance 2 from start_obj -------------- #
@@ -845,13 +1073,18 @@ class TestDistLimFloodFill(unittest.TestCase):
             self.obj_grp.add(obj)
             
     def test_error(self):
-        pass
+        with self.assertRaises(AttributeError):
+            dist_lim_flood_fill(self.err_object_b, 2, self.obj_grp, "block")
+        with self.assertRaises(TypeError):
+            dist_lim_flood_fill(self.err_object_a, 2, self.obj_grp, "block")
         
     def test_inout(self):
         self.assertEqual(dist_lim_flood_fill(self.start_obj, 2, self.obj_grp, "block"), {(0,-2,2),(-1,-1,2),(0,-1,1),(0,0,0),(-2,1,1),(-2,2,0),(-1,1,0),(-1,2,-1),(0,1,-1),(1,1,-2)}, "dist_lim_flood_fill(self.start_obj, 2, self.obj_grp, 'block'), {(0,-2,2),(-1,-1,2),(0,-1,1),(0,0,0),(-2,1,1),(-2,2,0),(-1,1,0),(-1,2,-1),(0,1,-1),(1,1,-2)}, failed")
     
     def tearDown(self):
         self.start_obj.dispose()
+        self.err_object_a.dispose()
+        self.err_object_b.dispose()
         for obj in self.obj_grp:
             obj.dispose()
         del self.obj_grp
