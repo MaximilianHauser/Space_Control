@@ -72,6 +72,7 @@ https://www.redblobgames.com/grids/hexagons/codegen/output/lib.py
 
 # import section ------------------------------------------------------------ #
 # libraries ----------------------------------------------------------------- #
+from collections import namedtuple
 import unittest
 from unittest.mock import Mock
 import numpy as np
@@ -80,75 +81,206 @@ import pandas as pd
 # misc ---------------------------------------------------------------------- #
 from settings import TILE_WIDTH, TILE_HEIGHT
 
+# custom datatypes to ensure constraints ------------------------------------ #
+# error for a hexagonal_coordinate that violates the zero-sum-constraint ---- #
+class ConstraintViolation(ValueError):
+    """
+    Custom Error to be raised when a logical constraint is violated. 
+    HexCoords(1, 1, 2) would be a valid coordinate in a 3-dimensional coordinates
+    system, but the constraint q+r+s=0 is enforced, so all coordinates are on a 
+    plane horizontal and vertical to the viewer, so they can be used to
+    position hexagon-tiles on a screen.
+    """
+    pass
+
+
+# real_numbers for python built in types that means either integer of float - #
+"""
+Real number is a number that can be used to measure a continuous one-dimensional 
+quantity. Out of Pythons built-in Numeric Types, integers and floating point
+numbers satisfy this condition.
+"""
+
+
+# RectCoords object to ensure constraints without dependency on typing ------ #
+class RectCoords(namedtuple("RectCoords", "x y")):
+    """
+    Coordinates in a rectangular cartesian coordinate system. Superclass 
+    namedtuple is a fixed length structure with indices and named attributes.
+    """
+    def __new__(cls, x, y):
+        
+        if not isinstance(x, int|float):
+            raise TypeError("""Coordinate x needs to be of type integer
+                            or float.""")
+                            
+        if not isinstance(y, int|float):
+            raise TypeError("""Coordinate y needs to be of type integer
+                            or float.""")
+                            
+        return super().__new__(cls, x, y)
+
+
+# HexCoords object to ensure constraints without dependency on typing ------- #
+class HexCoords(namedtuple("HexCoords", "q r s")):
+    """
+    Coordinates in a three-dimensional cartesian coordinate system, limited by the 
+    constraint q + r + s = 0, to ensure a canonical coordinate on the plane drawn
+    by the constraint. Superclass namedtuple is a fixed length structure with 
+    indices and named attributes.
+    """
+    def __new__(cls, q, r, s):
+        if not isinstance(q, int|float):
+            raise TypeError("""Coordinate q needs to be of type integer
+                            or float.""")
+        if not isinstance(r, int|float):
+            raise TypeError("""Coordinate r needs to be of type integer
+                            or float.""")
+        if not isinstance(s, int|float):
+            raise TypeError("""Coordinate s needs to be of type integer
+                            or float.""")
+        if (q + r + s) != 0:
+            raise ConstraintViolation("""Constraint q + r + s = 0, ensures that 
+                                      there is one canonical coordinate for the 
+                                      relative position of a hexagontile on the 
+                                      plane being drawn by the constraint""")
+        return super().__new__(cls, q, r, s)
+
+
+# helper functions ---------------------------------------------------------- #
+def tuple_or_object(tuple_or_object:tuple|object, expected_len:int, return_coords_obj:bool=False) -> tuple:
+    """
+    """
+    # rectangular coordinates ----------------------------------------------- #
+    if expected_len == 2:
+        if isinstance(tuple_or_object, tuple):
+            if len(tuple_or_object) == 2:
+                x, y = tuple_or_object
+            else:
+                raise TypeError("""tuple_or_object needs to be either an object having attributes 
+                                x and y or a tuple of length 2""")
+        elif isinstance(tuple_or_object, (int, float, complex, str, list, range, bytes, 
+                               bytearray, memoryview, bool, dict, set, frozenset)):
+            raise TypeError("""tuple_or_object needs to be either an object having attributes 
+                            x and y or a tuple of length 2""")
+        else:
+            x = getattr(tuple_or_object, "x")
+            y = getattr(tuple_or_object, "y")
+        
+            
+        return (x, y) if not return_coords_obj else RectCoords(x, y)
+
+    # cube coordinates ------------------------------------------------------ #
+    elif expected_len == 3:
+        if isinstance(tuple_or_object, tuple):
+            if len(tuple_or_object) == 3:
+                q, r, s = tuple_or_object
+            else:
+                raise TypeError("""tuple_or_object needs to be either an object having attributes 
+                                q, r and s or a tuple of length 3""")
+        elif isinstance(tuple_or_object, (int, float, complex, str, list, range, bytes, 
+                               bytearray, memoryview, bool, dict, set, frozenset)):
+            raise TypeError("""tuple_or_object needs to be either an object having attributes 
+                            q, r and s or a tuple of length 3""")
+        else:
+            q = getattr(tuple_or_object, "q")
+            r = getattr(tuple_or_object, "r")
+            s = getattr(tuple_or_object, "s")
+
+    return (q, r, s) if not return_coords_obj else HexCoords(q, r, s)
+
 
 # Hexlogic functions -------------------------------------------------------- #
-def linint(a:int, b:int, t:float) -> float:
+def linint(a:int|float, b:int|float, t:int|float) -> int|float:
     """
-    Linear interpolation returns point at t of distance between a and b.
+    Linear interpolation returns point at t of distance between a and b on a 
+    line.
     
     Parameters:
     -----------
-    a : integer
+    a : real_number
         A real numeric value, representing a point on a line.
         
-    b : integer
+    b : real_number
         A real numeric value, representing a point on a line.
         
-    t : float
-        Float denominating the distance between a and b in percent.
+    t : real_number
+        Real number denominating the fractional distance between a and b.
+        t * 100 = distance between a and b in percent.
         
     Raises:
     -------
-    TypeError: If a, b or t is not numeric.
+    TypeError: If a, b or t is not an integer or float.
         
     Returns:
     --------
-    linint(float): Linear interpolation t part of the way from a to b.
+    linint(real_number): Linear interpolation t part of the way from a to b.
     """
+    if not isinstance(a, int|float):
+        raise TypeError("""a needs to be either of type integer or type float.""")
+    if not isinstance(b, int|float):
+        raise TypeError("""b needs to be either of type integer or type float.""")
+    if not isinstance(t, int|float):
+        raise TypeError("""t needs to be either of type integer or type float.""")
+    
     linint = a + (b - a) * t
             
     return linint
     
     
-def cartesian_linint(xy_a:tuple, xy_b:tuple, t:float) -> tuple:
+def rect_linint(xy_a:RectCoords|object, xy_b:RectCoords|object, t:int|float, 
+                return_coords_obj:bool=False) -> tuple|RectCoords:
     """
     Linear interpolation returns point at t distance between a and b in
-    a cartesian coordinates system.
+    a rectangular cartesian coordinates system.
         
     Parameters:
     -----------
-    xy_a : tuple
-        A tuple consisting of an integer for the x and y value.
+    xy_a : RectCoords|object
+        A tuple consisting of an integer or float for the x and y value,
+        or an object having a x and y attribute, the assigned values being an 
+        integer or float.
         
-    xy_b : tuple
-        A tuple consisting of an integer for the x and y value.
+    xy_b : RectCoords|object
+        A tuple consisting of an integer or float for the x and y value,
+        or an object having a x and y attribute, the assigned values being an 
+        integer or float.
         
-    t : float
-        Float denominating the distance between point a and b in percent.
+    t : real_number
+        Real number denominating the fractional distance between a and b.
+        t * 100 = distance between a and b in percent.
+        
+    return_coords_obj : bool
+        If True, returns the rect_linint as RectCoords(namedtuple), else as
+        a tuple of shape (x, y).
         
     Raises:
     -------
-    ValueError: If xy_a or xy_b is not a tuple.
-    UnboundLocalError:
-        If one of the tuples xy_a or xy_b contains more than 2 values
-        or either xy_a or xy_b is not a tuple.
+    TypeError: If xy_a or xy_b is not a 
+    AttributeError:
         
     Returns:
     --------
-    cartesian_linint(tuple): Linear interpolation t part of the way from a to b.
+    rect_linint(RectCoords|tuple): Linear interpolation t part of the way from a to b.
     """
-    x_a, y_a = xy_a
-    x_b, y_b = xy_b
+    (x_a, y_a) = tuple_or_object(xy_a, 2)
+    (x_b, y_b) = tuple_or_object(xy_b, 2)
+    
+    rc_a = RectCoords(x_a, y_a)
+    rc_b = RectCoords(x_b, y_b)
         
-    x = linint(x_a, x_b, t)
-    y = linint(y_a, y_b, t)
+    x = linint(rc_a.x, rc_b.x, t)
+    y = linint(rc_a.y, rc_b.y, t)
+    
+    x = int(x) if x.is_integer() else x
+    y = int(y) if y.is_integer() else y
+
+    rect_linint = RectCoords(x, y) if return_coords_obj else (x, y)
         
-    cartesian_linint = (x, y)
-        
-    return cartesian_linint
+    return rect_linint
     
 
-def cube_linint(obj_a:object, obj_b:object, t:float) -> tuple:
+def cube_linint(obj_a:object|HexCoords, obj_b:object|HexCoords, t:float) -> tuple:
     """
     Returns the hextile coordinates of a point situated at t part of the way from obj_a to obj_b.
         
@@ -160,8 +292,9 @@ def cube_linint(obj_a:object, obj_b:object, t:float) -> tuple:
     obj_b : object
         An object having a q, r and s attribute, with real number values.
         
-    t : float
-        Float denominating the distance between point a and b in percent.
+    t : real_number
+        Real number denominating the fractional distance between a and b.
+        t * 100 = distance between a and b in percent.
         
     Raises:
     -------
@@ -171,23 +304,47 @@ def cube_linint(obj_a:object, obj_b:object, t:float) -> tuple:
     --------
     linint_coords(tuple): The hextile coordinates of a point situated at the t part of the way from obj_a to obj_b.
     """
-    a_q = getattr(obj_a, "q")
-    b_q = getattr(obj_b, "q")
-    a_r = getattr(obj_a, "r")
-    b_r = getattr(obj_b, "r")
-    a_s = getattr(obj_a, "s")
-    b_s = getattr(obj_b, "s")
+    
+    (q_a, r_a, s_a) = tuple_or_object(obj_a, 3)
+    (q_b, r_b, s_b) = tuple_or_object(obj_a, 3)
+    
+    hc_a = HexCoords(q_a, r_a, s_a)
+    hc_b = HexCoords(q_b, r_b, s_b)
         
-    q = linint(a_q, b_q, t)
-    r = linint(a_r, b_r, t)
-    s = linint(a_s, b_s, t)
-        
+    q = linint(hc_a.q, hc_b.q, t)
+    r = linint(hc_a.r, hc_b.r, t)
+    s = linint(hc_a.s, hc_b.s, t)
+    
+    q = int(q) if q.is_integer() else q
+    r = int(r) if r.is_integer() else r
+    s = int(s) if s.is_integer() else s
+    
     linint_coords = (q, r, s)
         
     return linint_coords
 
 
-def round_hex(qrs:tuple) -> tuple:
+def round_tuple(container:dict|list|set|tuple|RectCoords, d:int=0) -> tuple:
+    """
+    Rounds each number in a container to the specified decimal, if None is 
+    specified to the nearest integer.
+    """
+    if isinstance(container, list|set|tuple):
+        rndd_lst = [round(x,d) if isinstance(x, float) else x for x in container]
+        if isinstance(container, list):
+            return rndd_lst
+        elif isinstance(container, set):
+            return set(rndd_lst)
+        elif isinstance(container, tuple):
+            return tuple(rndd_lst)
+    elif isinstance(container, dict):
+        pass
+    else:
+        raise TypeError("""container needs to be a general purpose built in 
+                        container, dict, list, set or tuple or a childclass""")
+        
+
+def round_hex(qrs:tuple|HexCoords) -> tuple:
     """
     Rounds each of the coordinates to the nearest integer.
         
@@ -255,7 +412,7 @@ def get_qrs(obj:object) -> tuple:
     return qrs
     
 
-def set_qrs(obj:object, q:int, r:int, s:int) -> None:
+def set_qrs(obj:object, q:int|float, r:int|float, s:int|float) -> None:
     """
     Set q r and s attribute of obj to specified values.
         
@@ -272,9 +429,9 @@ def set_qrs(obj:object, q:int, r:int, s:int) -> None:
     --------
     None
     """
-    q_isint = isinstance(q, int)
-    r_isint = isinstance(r, int)
-    s_isint = isinstance(s, int)
+    q_isint = isinstance(q, int|float)
+    r_isint = isinstance(r, int|float)
+    s_isint = isinstance(s, int|float)
     
     if q_isint and r_isint and s_isint:
         setattr(obj, "q", q)
@@ -282,10 +439,10 @@ def set_qrs(obj:object, q:int, r:int, s:int) -> None:
         setattr(obj, "s", s)
         
     else:
-        raise TypeError
+        raise TypeError("""q, r and s need to be of type integer or float""")
     
 
-def hex_to_pixel(qrs:tuple) -> tuple:
+def hex_to_pixel(qrs:HexCoords) -> RectCoords:
     """
     Converts cube coordinates to pixel coordinates.
     
@@ -313,7 +470,7 @@ def hex_to_pixel(qrs:tuple) -> tuple:
     return xy
     
 
-def pixel_to_hex(xy:tuple) -> tuple:
+def pixel_to_hex(xy:RectCoords) -> HexCoords:
     """
     Converts pixel coordinates to cube coordinates.
         
@@ -344,7 +501,7 @@ def pixel_to_hex(xy:tuple) -> tuple:
     return qrs
     
 
-def neighbors(qrs:tuple) -> tuple:
+def neighbors(qrs:HexCoords) -> tuple:
     """
     Returns a tuple of coordinates of neighboring hexagons.
         
@@ -371,7 +528,7 @@ def neighbors(qrs:tuple) -> tuple:
     return nbors
     
 
-def distance(obj_a:(object, tuple), obj_b:(object, tuple), is_obj:bool=True) -> int:
+def distance(obj_a:(object|HexCoords), obj_b:(object|HexCoords), is_obj:bool=True) -> int:
     """
     Returns distance from one object to another in a cube coordinate system.
         
@@ -599,6 +756,7 @@ def create_graph_matrix(tile_grp:(list, set)) -> pd.DataFrame:
     
     return matrix_df   
 
+
 # graph based path finding algorithms --------------------------------------- #
 def breadth_first_search(start:tuple, goal:tuple, graph_matrix_df:pd.DataFrame) -> list:
     """
@@ -769,19 +927,19 @@ class TestCartesianLinint(unittest.TestCase):
     
     def test_error(self):
         with self.assertRaises(ValueError):
-            cartesian_linint("(-3,1)", (2,3), 0.5)
-            cartesian_linint((-3,1), "(2,3)", 0.5)
-            cartesian_linint((-3,1), (2,3), "0.5")
-            cartesian_linint((-3,1,1), (2,3), 0.5)
-            cartesian_linint((-3,1), (2,3,0), 0.5)
+            rect_linint("(-3,1)", (2,3), 0.5)
+            rect_linint((-3,1), "(2,3)", 0.5)
+            rect_linint((-3,1), (2,3), "0.5")
+            rect_linint((-3,1,1), (2,3), 0.5)
+            rect_linint((-3,1), (2,3,0), 0.5)
         with self.assertRaises(TypeError):
-            cartesian_linint((-1), (2,3), 0.5)
-            cartesian_linint((-3,1), (3), 0.5)
-            cartesian_linint({"1":-3,"2":1}, (3), 0.5)
-            cartesian_linint({"1":-3,"2":1}, (3), (0.5))
+            rect_linint((-1), (2,3), 0.5)
+            rect_linint((-3,1), (3), 0.5)
+            rect_linint({"1":-3,"2":1}, (3), 0.5)
+            rect_linint({"1":-3,"2":1}, (3), (0.5))
             
     def test_inout(self):
-        self.assertEqual(cartesian_linint((-3,1), (2,3), 0.5), (-0.5, 2), "cartesian_linint((-3,1), (2,3), 0.5), (-0.5,2), failed")
+        self.assertEqual(rect_linint((-3,1), (2,3), 0.5), (-0.5, 2), "cartesian_linint((-3,1), (2,3), 0.5), (-0.5,2), failed")
 
 # TestCubeLinint ------------------------------------------------------------ #
 class TestCubeLinint(unittest.TestCase):
