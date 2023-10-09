@@ -2,7 +2,7 @@
 """
 Created on Sat Jul 22 15:30:43 2023
 
-@author: Maximilian
+@author: Maximilian Hauser
 """
 
 # import section ------------------------------------------------------------ #
@@ -157,16 +157,6 @@ class Battle(State):
         
         # initialize AI ----------------------------------------------------- #
         self.skynet = Skynet(self)
-        
-        # to be removed ----------------------------------------------------- #
-        graph_df = hl.create_graph_matrix(self.tile_group)
-        print(graph_df)
-        path = hl.breadth_first_search((2,0,-2), (2,4,-6), graph_df)
-        print(path)
-        path_2 = hl.dijkstras_algorithm((2,0,-2), (2,4,-6), graph_df)
-        print(path_2)
-        path_3 = hl.a_star_algorithm((2,0,-2), (2,4,-6), graph_df)
-        print(path_3)
 
 
     def event(self, event, delta):

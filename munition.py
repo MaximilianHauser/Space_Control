@@ -57,7 +57,7 @@ class Munition(pg.sprite.Sprite):
             current_tile = next(t for t in self.manager.tile_group if t.qrs == self.tiles_traversed[i])
             
             perc_traversed = (1 / len(self.tiles_traversed)) * i
-            current_xy = hl.cartesian_linint(launcher.rect.center, target.rect.center, perc_traversed)
+            current_xy = hl.rect_linint(launcher.rect.center, target.rect.center, perc_traversed)
             
             if i == 0:
                 current_phase = "launch"
