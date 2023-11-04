@@ -2,14 +2,11 @@
 """
 Created on Sat Oct 22 18:30:36 2022
 
-@author: Maximilian
+@author: Maximilian Hauser
 """
 
 # import section ------------------------------------------------------------ #
 import json
-import numpy as np
-import pandas as pd
-import hexlogic as hl
 from settings import WIN_WIDTH, WIN_HEIGHT, SCROLL_AREA, SCROLL_BUFFER, SCROLL_SPEED
 
     

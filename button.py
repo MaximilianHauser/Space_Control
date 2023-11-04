@@ -119,6 +119,7 @@ class Button(pg.sprite.Sprite):
             setattr(self, key, image)
     
     
+    # override sprite.image to allow use of different images based on state - #
     @property
     def image(self) -> pg.Surface:
         if self.enabled:

@@ -58,14 +58,14 @@ def is_activated_unit(unit_blufor_grp) -> object:
     
 # function determines, wether or not tile is within movement range ---------- #
 # of an activated blufor unit ----------------------------------------------- #
-def in_mov_range(tile:object, unit:object, tile_grp, block_var:str) -> bool:
+def in_mov_range(tile:object, unit:object, tile_grp, movement_var:str) -> bool:
         
     # determine variables for dist_lim_flood_fill --------------------------- #
     moves = unit.action_points
     obj_lst = tile_grp
         
     # returns list of coords within movement range -------------------------- #
-    visited = hl.dist_lim_flood_fill(unit, moves, obj_lst, block_var)
+    visited = hl.dist_lim_flood_fill(unit, moves, obj_lst, movement_var=movement_var)
     visited.remove((unit.q, unit.r, unit.s))
         
     # check if tile was visited in floodfil --------------------------------- #

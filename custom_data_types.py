@@ -2,7 +2,7 @@
 """
 Created on Sun Dec 18 17:48:33 2022
 
-@author: Maximilian
+@author: Maximilian Hauser
 """
 
 

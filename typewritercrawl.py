@@ -2,7 +2,7 @@
 """
 Created on Mon Jul 31 17:39:07 2023
 
-@author: Maximilian
+@author: Maximilian Hauser
 """
 
 # import section ------------------------------------------------------------ #

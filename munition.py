@@ -285,7 +285,7 @@ class Munition(pg.sprite.Sprite):
         else:
             self.kill()
         
-        munition_pos = hl.cartesian_linint(self.launcher.rect.center, self.target.rect.center, self.perc_traversed)
+        munition_pos = hl.rect_linint(self.launcher.rect.center, self.target.rect.center, self.perc_traversed)
         
         self.x = munition_pos[0]
         self.y = munition_pos[1]

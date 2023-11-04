@@ -8,8 +8,6 @@ Created on Sat Jul 22 15:30:43 2023
 # import section ------------------------------------------------------------ #
 # libraries ----------------------------------------------------------------- #
 import pygame as pg
-import numpy as np
-import pandas as pd
 
 # custom functions ---------------------------------------------------------- #
 import animations_logic as al
@@ -160,19 +158,23 @@ class Battle(State):
 
 
     def event(self, event, delta):
-        # post custom_event "victory" or "defeat" after checking conditions - #
-        game_status = self.resolver.update_gamestatus()
-        if game_status == "victory":
-            event_data = dict()
-            pg.event.post(pg.event.Event(self.E_VICTORY, event_data))
-        elif game_status == "defeat":
-            event_data = dict()
-            pg.event.post(pg.event.Event(self.E_DEFEAT, event_data))
-        else:
-            pass
-        
-        # pass events to observer ------------------------------------------- #
-        self.observer.event_mngr(event, delta)
+        # block events while movement or attack in progress ----------------- #
+        mun_sprite_lst = self.munition_group.sprites()
+        mov_sprite_lst = self.movement_group.sprites()
+        if not mun_sprite_lst and not mov_sprite_lst:
+            # post custom_event "victory" or "defeat" after checking conditions - #
+            game_status = self.resolver.update_gamestatus()
+            if game_status == "victory":
+                event_data = dict()
+                pg.event.post(pg.event.Event(self.E_VICTORY, event_data))
+            elif game_status == "defeat":
+                event_data = dict()
+                pg.event.post(pg.event.Event(self.E_DEFEAT, event_data))
+            else:
+                pass
+            
+            # pass events to observer ------------------------------------------- #
+            self.observer.event_mngr(event, delta)
         
     def update(self, delta):
         self.initiative_queque.check_unit_ap()
@@ -181,6 +183,7 @@ class Battle(State):
         self.all_sprites.update(delta)
         al.set_animation_state_tiles(self.tile_group, [self.unit_blufor_group, self.unit_redfor_group])
         
+        # block actions redfor while animation of movement or attack in prog  #
         mun_sprite_lst = self.munition_group.sprites()
         mov_sprite_lst = self.movement_group.sprites()
         if not mun_sprite_lst and not mov_sprite_lst:

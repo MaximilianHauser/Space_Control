@@ -79,7 +79,7 @@ class InitiativeQueque:
         # advance roundcounter and reset unit moves counting mechanics ------ #
         if False not in self.unit_moves_individual_status:
             self.unit_moves_individual_status = list()
-            self.game.round_counter += 1
+            self.manager.round_counter += 1
             for unit in self.unit_set:
                 self.unit_moves_round[unit.id][1] = 0
                 
