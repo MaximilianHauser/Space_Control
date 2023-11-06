@@ -27,7 +27,7 @@ import pygame as pg
 import gamelogic as gl # needed for functions executed from kwargs
 from munition import Munition
 from attribute_dicts.w_attr import w_dict
-from settings import UI_MAPINFO_LAYER, DEFAULT_FONTSIZE, UI_TRANSPARENCY
+from settings import UI_MAPINFO_LAYER, UI_TRANSPARENCY
 
 # DropdownMenu class -------------------------------------------------------- #
 class DropDownMenu(pg.sprite.Sprite):
@@ -147,8 +147,8 @@ class DropDownMenu(pg.sprite.Sprite):
         self.num_rows = len(self.attr_dict)
             
         self.width = width
-        self.heigt_option = DEFAULT_FONTSIZE
-        self.height_total = DEFAULT_FONTSIZE * self.num_rows
+        self.heigt_option = self.menu_font.point_size
+        self.height_total = self.menu_font.point_size * self.num_rows
         
         # surface for dropdown menu ----------------------------------------- #
         self.image = pg.Surface((self.width, self.height_total))
@@ -183,16 +183,16 @@ class DropDownMenu(pg.sprite.Sprite):
         for i in range(self.num_rows):
             
             if self.pressed_lst[i] == "hover":
-                button_image = pg.draw.rect(self.image, "darkslategray4", [0, i*DEFAULT_FONTSIZE+1, self.width, DEFAULT_FONTSIZE])
-                pg.draw.rect(self.image, "darkslategray1", [0, i*DEFAULT_FONTSIZE+1, self.width, DEFAULT_FONTSIZE], 2)
+                button_image = pg.draw.rect(self.image, "darkslategray4", [0, i*self.menu_font.point_size+1, self.width, self.menu_font.point_size])
+                pg.draw.rect(self.image, "darkslategray1", [0, i*self.menu_font.point_size+1, self.width, self.menu_font.point_size], 2)
                 
             elif self.pressed_lst[i] == "pressed":
-                button_image = pg.draw.rect(self.image, "darkslategray", [0, i*DEFAULT_FONTSIZE+1, self.width, DEFAULT_FONTSIZE])
-                pg.draw.rect(self.image, "darkslategray1", [0, i*DEFAULT_FONTSIZE+1, self.width, DEFAULT_FONTSIZE], 2)
+                button_image = pg.draw.rect(self.image, "darkslategray", [0, i*self.menu_font.point_size+1, self.width, self.menu_font.point_size])
+                pg.draw.rect(self.image, "darkslategray1", [0, i*self.menu_font.point_size+1, self.width, self.menu_font.point_size], 2)
                 
             elif self.pressed_lst[i] == "unpressed":
-                button_image = pg.draw.rect(self.image, "darkslategray3", [0, i*DEFAULT_FONTSIZE+1, self.width, DEFAULT_FONTSIZE])
-                pg.draw.rect(self.image, "darkslategray1", [0, i*DEFAULT_FONTSIZE+1, self.width, DEFAULT_FONTSIZE], 2)
+                button_image = pg.draw.rect(self.image, "darkslategray3", [0, i*self.menu_font.point_size+1, self.width, self.menu_font.point_size])
+                pg.draw.rect(self.image, "darkslategray1", [0, i*self.menu_font.point_size+1, self.width, self.menu_font.point_size], 2)
             
             try:
                 text = w_dict[list(self.attr_dict.keys())[i]]["ddm_name"]
@@ -201,7 +201,7 @@ class DropDownMenu(pg.sprite.Sprite):
                 
             text = self.menu_font.render(text, True, "white")
             
-            self.image.blit(text, (4, i*DEFAULT_FONTSIZE-2))
+            self.image.blit(text, (4, i*self.menu_font.point_size-2))
             
             self.rect_lst[i] = button_image
             

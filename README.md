@@ -3,7 +3,7 @@ The goal is to make a hextile, turn-based strategy game, without base building, 
 
 
 ## Current priority:  
-* [ ] fix displayed names in drop down menu
+* [ ] refactor drop down menu to a "generalized design"
 
 
 ## ToDo till mvp:  
@@ -11,7 +11,6 @@ The goal is to make a hextile, turn-based strategy game, without base building, 
 * [ ] implement a movement.py to handle movement animation from tile to neighbor
 * [ ] refactor munition.py __seriously it's a mess__
 * [ ] finish skynet.py to mvp
-* [ ] refactor drop down menu to a "generalized design"
 * [ ] go over each file and establish if mvp
 * [ ] implement a portrait function, to go along with textcrawl for in battle story advancement
 * [ ] implement a tracking of certain states in each mission, that trigger in game events
@@ -26,6 +25,9 @@ The goal is to make a hextile, turn-based strategy game, without base building, 
 * [x] eliminate dependency on NumPy and Pandas
 * [x] get battle.py back to run basics without error
 * [x] player input not blocked while munition object exists
+* [x] NoneTyp object has no attribute evasion when attacking empty tile
+* [x] fix size of single drop down menu button
+* [x] add basic state for options
 
 
 ## Tasks per file:  

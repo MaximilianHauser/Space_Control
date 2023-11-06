@@ -16,6 +16,7 @@ from engine import Engine
 # states -------------------------------------------------------------------- #
 from splashscreen import SplashScreen
 from mainmenu import MainMenu
+from options import Options
 from missionselect import MissionSelect
 from briefing import Briefing
 from battle import Battle
@@ -38,6 +39,7 @@ pg.display.set_icon(pg.image.load("./img/window_icon.png"))
 # initial state instances --------------------------------------------------- #
 splashscreen = None
 mainmenu = None
+options = None
 missionselect = None
 briefing = None
 battle = None
@@ -53,6 +55,10 @@ states = {
     "MAIN_MENU":
         {"constructor":MainMenu,
          "instance":mainmenu},
+        
+    "OPTIONS":
+        {"constructor":Options,
+         "instance":options},
         
     "MISSION_SELECT":
         {"constructor":MissionSelect,
@@ -73,7 +79,7 @@ states = {
     "CREDITS":
         {"constructor":Credits,
          "instance":credits}
-            }
+         }
 
 engine = Engine(screen, states, "SPLASH_SCREEN")
 engine.run()

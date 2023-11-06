@@ -1,0 +1,1 @@
+{"10": {"TRIGGER": "start_map", "TRIGGER_END": null, "DESCRIPTION": "block player input for 15 seconds", "OCCURENCE": "block_input, 15000", "DONE": false}, "100": {"TRIGGER": "unit_blufor, r<4 OR s>-6", "TRIGGER_END": "turns, 3", "DESCRIPTION": "munition from outside map travels to (0,0,0), (-1,1,0), (0,1,-1), (1,0,-1)", "OCCURENCE": "block_input, 15000", "DONE": false}}

@@ -22,6 +22,7 @@ from observer import Observer
 from win_conditions import ResolveBattleLogic
 from initiative_queque import InitiativeQueque
 from skynet import Skynet
+from eventslogic import EventsLogic
 
 # sprite objects ------------------------------------------------------------ #
 from button import Button
@@ -109,6 +110,9 @@ class Battle(State):
         # placeholder variable for AI --------------------------------------- #
         self.skynet = None
         
+        # placeholder variable for EventsLogic ------------------------------ #
+        self.events_logic = None
+        
         # UI initialization ------------------------------------------------- #   
         # End-Turn-Button --------------------------------------------------- #
         self.skip_turn_button = Button(self, "skip turn", WIN_WIDTH - 135, 400, "clicked_on", "skip_turn", ["all_sprites"], 
@@ -155,6 +159,9 @@ class Battle(State):
         
         # initialize AI ----------------------------------------------------- #
         self.skynet = Skynet(self)
+        
+        # initialize EventsLogic -------------------------------------------- #
+        self.events_logic = EventsLogic(self)
 
 
     def event(self, event, delta):

@@ -17,7 +17,7 @@ w_dict = {
  
     "b_light_coilgun":
         {   
-            "ddm_name": "light_coilgun",
+            "ddm_name": "light coilgun",
             "type": "projectile",
             "max_range": 3,
             "min_range": 0,
@@ -28,7 +28,7 @@ w_dict = {
         
     "b_medium_coilgun":
         {   
-            "ddm_name": "med_coilgun",
+            "ddm_name": "med coilgun",
             "type": "projectile",
             "max_range": 4,
             "min_range": 0,
@@ -39,7 +39,7 @@ w_dict = {
         
     "b_heavy_coilgun":
         {   
-            "ddm_name": "heavy_coilgun",
+            "ddm_name": "heavy coilgun",
             "type": "projectile",
             "max_range": 5,
             "min_range": 0,
@@ -50,7 +50,7 @@ w_dict = {
         
     "b_spinalmount_coilgun":
         {   
-            "ddm_name": "spinal_coilgun",
+            "ddm_name": "spinal coilgun",
             "type": "projectile",
             "max_range": 8,
             "min_range": 0,
@@ -61,7 +61,7 @@ w_dict = {
         
     "b_conventional_missile":
         {   
-            "ddm_name": "frag_missile",
+            "ddm_name": "frag missile",
             "type": "guided",
             "max_range": 6,
             "min_range": 0,
@@ -72,7 +72,7 @@ w_dict = {
         
     "b_shapedcharge_missile":
         {   
-            "ddm_name": "shaped_missile",
+            "ddm_name": "shaped missile",
             "type": "guided",
             "max_range": 6,
             "min_range": 0,
@@ -83,7 +83,7 @@ w_dict = {
         
     "b_conventional_torpedo":
         {   
-            "ddm_name": "frag_torp",
+            "ddm_name": "frag torp",
             "type": "guided",
             "max_range": 8,
             "min_range": 0,
@@ -94,7 +94,7 @@ w_dict = {
         
     "b_shapedcharge_torpedo":
         {   
-            "ddm_name": "shaped_torp",
+            "ddm_name": "shaped torp",
             "type": "guided",
             "max_range": 8,
             "min_range": 0,
@@ -105,7 +105,7 @@ w_dict = {
         
     "b_nuclear_torpedo":
         {   
-            "ddm_name": "nuclear_torp",
+            "ddm_name": "nuclear torp",
             "type": "guided",
             "max_range": 8,
             "min_range": 0,
@@ -116,7 +116,7 @@ w_dict = {
         
     "b_shapednuclear_torpedo":
         {   
-            "ddm_name": "shaped_n_torp",
+            "ddm_name": "shaped n torp",
             "type": "guided",
             "max_range": 8,
             "min_range": 0,
@@ -129,7 +129,7 @@ w_dict = {
     
     "r_light_plasma":
         {   
-            "ddm_name": "light_plasma",
+            "ddm_name": "light plasma",
             "type": "projectile",
             "max_range": 2,
             "min_range": 0,
@@ -140,7 +140,7 @@ w_dict = {
         
     "r_medium_plasma":
         {   
-            "ddm_name": "medium_plasma",
+            "ddm_name": "medium plasma",
             "type": "projectile",
             "max_range": 3,
             "min_range": 0,
@@ -151,7 +151,7 @@ w_dict = {
         
     "r_heavy_plasma":
         {   
-            "ddm_name": "heavy_plasma",
+            "ddm_name": "heavy plasma",
             "type": "projectile",
             "max_range": 4,
             "min_range": 0,
@@ -162,7 +162,7 @@ w_dict = {
         
     "r_spinalmount_plasma":
         {   
-            "ddm_name": "spinal_plasma",
+            "ddm_name": "spinal plasma",
             "type": "projectile",
             "max_range": 6,
             "min_range": 0,
@@ -173,7 +173,7 @@ w_dict = {
         
     "r_conventional_missile":
         {   
-            "ddm_name": "frag_missile",
+            "ddm_name": "frag missile",
             "type": "guided",
             "max_range": 5,
             "min_range": 0,
@@ -184,7 +184,7 @@ w_dict = {
         
     "r_shapedcharge_missile":
         {   
-            "ddm_name": "shaped_missile",
+            "ddm_name": "shaped missile",
             "type": "guided",
             "max_range": 5,
             "min_range": 0,
@@ -195,7 +195,7 @@ w_dict = {
         
     "r_conventional_torpedo":
         {   
-            "ddm_name": "frag_torp",
+            "ddm_name": "frag torp",
             "type": "guided",
             "max_range": 7,
             "min_range": 0,
@@ -206,7 +206,7 @@ w_dict = {
         
     "r_shapedcharge_torpedo":
         {   
-            "ddm_name": "shaped_torp",
+            "ddm_name": "shaped torp",
             "type": "guided",
             "max_range": 7,
             "min_range": 0,
@@ -217,7 +217,7 @@ w_dict = {
         
     "r_nuclear_torpedo":
         {   
-            "ddm_name": "nuclear_torp",
+            "ddm_name": "nuclear torp",
             "type": "guided",
             "max_range": 7,
             "min_range": 0,
@@ -228,7 +228,7 @@ w_dict = {
         
     "r_shapednuclear_torpedo":
         {   
-            "ddm_name": "shaped_n_torp",
+            "ddm_name": "shaped n torp",
             "type": "guided",
             "max_range": 7,
             "min_range": 0,

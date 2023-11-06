@@ -142,8 +142,11 @@ class Munition(pg.sprite.Sprite):
                     print("target does not have attr evasion")
                     
                     if hasattr(self.target, "unit"):
-                        print("target has attr unit")
-                        munition_evaded = True if (self.target.unit.evasion * len(self.tiles_traversed) > 1) and self.type != "guided" else False
+                        if self.target.unit is not None:
+                            print("target has attr unit")
+                            munition_evaded = True if (self.target.unit.evasion * len(self.tiles_traversed) > 1) and self.type != "guided" else False
+                        else:
+                            munition_evaded = True
                         
                         if munition_evaded:
                             print("munition_evaded: " + str(munition_evaded))
