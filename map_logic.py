@@ -62,7 +62,8 @@ def assign_qrs(map_raw):
             t = map_raw[r][q][0]
             if t is not None:
                 u = map_raw[r][q][1]
-                map_setup_lst.append((q, r, s, t, u))
+                triggers = map_raw[r][q][2] if len(map_raw[r][q]) == 3 else None
+                map_setup_lst.append((q, r, s, t, u, triggers))
 
     return map_setup_lst
 
@@ -91,3 +92,5 @@ def scroll_logic(manager, event, delta):
         if min_y > SCROLL_BUFFER:
             for sprite in manager.all_sprites:
                 sprite.y -= delta * SCROLL_SPEED
+
+

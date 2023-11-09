@@ -16,6 +16,8 @@ from settings import DEFAULT_FONTSIZE
 class State:
     def __init__(self):
         print("Initialising: " + str(self))
+        
+        self.total_runtime = 0
             
         self.done = False
         self.quit = False

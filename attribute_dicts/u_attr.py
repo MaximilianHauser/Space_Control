@@ -32,7 +32,7 @@ u_dict = {
             "ship_size_heavy" : True,
             "faction" : '"blufor"',
             
-            "max_health" : 10,
+            "max_health" : 24,
             "health" : 24,
             "armor" : 18,
             "initiative" : 8,

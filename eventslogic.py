@@ -7,6 +7,44 @@ Created on Mon Nov  6 13:33:17 2023
 
 # import section ------------------------------------------------------------ #
 import json
+import pygame as pg
+import hexlogic as hl
+from munition import Munition
+
+# custom errors, defined to refer to incorrect condition format ------------- #
+class ConditionFormatViolation(ValueError):
+    """
+    The format the conditions need to be in was violated.
+    """
+    pass
+
+# mock launcher object for Munition spawn occurence ------------------------- #
+class MockLauncher(pg.sprite.Sprite):
+    
+    def __init__(self, q, r, s, weapon_type):
+        pg.sprite.Sprite.__init__(self)
+        
+        self.q = q
+        self.r = r
+        self.s = s
+        
+        self.qrs = (q,r,s)
+        
+        x, y = hl.hex_to_pixel(self.qrs)
+        self.x = x
+        self.y = y
+        
+        self.action_points = 99
+        self.ammunition = dict()
+        self.ammunition[weapon_type] = 99
+        
+        self.faction = "redfor"
+        
+        self.image = pg.Surface((5, 5))
+        self.image.fill("red")
+        self.rect = self.image.get_rect()
+        self.rect.center = (self.x, self.y)
+        
 
 # eventslogic class --------------------------------------------------------- #
 class EventsLogic:
@@ -16,13 +54,13 @@ class EventsLogic:
         self.manager = manager
         self.unit_set = set()
         
-        spritegroup_lst = [manager.unit_blufor_group, manager.unit_redfor_group]
+        spritegroup_lst = [self.manager.unit_blufor_group, self.manager.unit_redfor_group]
         for group in spritegroup_lst:
             for unit in group:
                 self.unit_set.add(unit)
         
         # set for events not yet triggered ---------------------------------- #
-        self.events_not_done_or_active = set()
+        self.ids_not_done_or_active = set()
         
         # set for currently active events ----------------------------------- #
         self.currently_active_events = set()
@@ -35,42 +73,186 @@ class EventsLogic:
         json_o.close()
         
         for key in self.battle_events_dict.keys():
-            self.events_not_done_or_active.add(key)
+            self.ids_not_done_or_active.add(key)
+            
+        # conditions tree for interpreting passed trigger ------------------- #
+        self.conditions_tree = {
+                                "unit_blufor":{
+                                    "coordinate",
+                                    "coordinates",
+                                    "health_rel",
+                                    "health_abs",
+                                    },
+                                
+                                "unit_redfor":{
+                                    "coordinate",
+                                    "coordinates",
+                                    "health_rel",
+                                    "health_abs",
+                                    },
+                                
+                                "blufor":{
+                                    "health_rel",
+                                    "health_abs",
+                                    "num_rel",
+                                    "num_abs"
+                                    },
+                                
+                                "redfor":{
+                                    "health_rel",
+                                    "health_abs",
+                                    "num_rel",
+                                    "num_abs"
+                                    },
+                                
+                                "countdown":{
+                                    "ticks",
+                                    "moves",
+                                    "rounds"
+                                    }
+                                }
+    
 
+    def check_condition_validity(self, condition):
+        split_condition = condition.split(":")
+        if split_condition[1] not in self.conditions_tree[split_condition[0]]:
+            raise ConditionFormatViolation("""Either trigger_type or trigger_subject is not in the correct format.""")
+            
+            
+    def interpret_condition(self, event_id, stage):
+        # get trigger condition --------------------------------------------- #
+        trigger_raw = self.battle_events_dict[event_id][stage]
+        split_by_condition = trigger_raw.split()
+        
+        num_building_blocks = len(split_by_condition)
+        # test if format is valid ------------------------------------------- #
+        if num_building_blocks % 2 == 0:
+            raise ConditionFormatViolation("""The format of the TRIGGER needs to 
+                                           be condition_1 AND condition_2 AND ...""")
+        
+        elif not all(map(lambda x:x in ("AND","OR"), split_by_condition[1::2])) and num_building_blocks != 1:
+            raise ConditionFormatViolation("""The conditions need to be connected 
+                                           with either AND or OR.""")
+        else:
+            conditions = split_by_condition[0::2]
+            for condition in conditions:
+                self.check_condition_validity(condition)
                 
-    def event_done(self, event_id):
+                condition_split = condition.split(":")
+                if condition_split[0] in ("unit_blufor", "unit_redfor"):
+                    triggered = self.single_unit_eoconst(event_id, condition)
+                elif condition_split[0] == "countdown":
+                    triggered = self.countdown_eoconst(event_id, condition)
+                    
+        return triggered
+        
+        
+    # condition enforcement functions --------------------------------------- #
+    def single_unit_eoconst(self, event_id, condition):
         """
-        Remove event_id from self.events_not_done_or_active when TRIGGER_END 
-        condition met or is None.
+        Checks if TRIGGER condition is met, returns Boolean.
         """
-        pass
-    
-    
-    def event_triggered(self, event_id):
-        """
-        Check if event_id TRIGGER (conditions) met.
-        """
-        pass
+        # condition split into TYPE, SPECIFIC_CONDITION, SPECIFIC_VALUE ----- #
+        condition_split = condition.split(":")
+        faction = condition_split[0]
+        specific = condition_split[1]
+        value = condition_split[2]
+        
+        # specific is a set containing 1+ coordinates ----------------------- #
+        if specific == "coordinates":
+            # test for each unit with faction blufor if on coords ----------- #
+            for unit in self.unit_set:
+                if unit.faction == faction[-6:] and (unit.q,unit.r,unit.s) in eval(value) and unit.event_triggers == event_id:
+                    return event_id
+
+            # return False if no unit is on coords described in set --------- #
+            return False
+                    
+        # specific is health rel or abs ------------------------------------- #
+        elif specific[:7] == "health":
+            if specific[-3:] == "rel":
+                for unit in self.unit_set:
+                    if unit.faction == faction[-6:] and (unit.health / unit.max_health) <= eval(value) and unit.event_triggers == event_id:
+                        return event_id
+                return False
             
+            elif specific[-3:] == "abs":
+                for unit in self.unit_set:
+                    if unit.faction == faction[-6:] and unit.health <= eval(value) and unit.event_triggers == event_id:
+                        return event_id
+                return False
+        
     
-    def event_occurences(self, event_id):
+    def countdown_eoconst(self, event_id, condition):
         """
-        Execute event occurences.
+        Checks if TRIGGER condition is met, returns Boolean.
         """
-        pass
-    
-    
-    class EventLifespan:
-        def __int__(self, event_id):
-            
-            self.c_seconds = 0
-            self.c_moves = 0
-            self.c_rounds = 0
-            
-            
-        def event_ended(self):
-            """
-            Check if event has ended and stop occurences if True.
-            """
+        # condition split into COUNTDOWN, METRIC, VALUE --------------------- #
+        condition_split = condition.split(":")
+        countdown = condition_split[0]
+        metric = condition_split[1]
+        value = condition_split[2]
+        
+        if metric == "ticks":
+            if self.manager.total_runtime >= float(value):
+                return event_id
+        
+        elif metric == "moves":
             pass
+        
+        elif metric == "rounds":
+            if self.manager.round_counter >= int(value):
+                return event_id
+            
+            
+    def interpret_occurence(self, event_id):
+        occurence = self.battle_events_dict[event_id]["OCCURENCE"]
+        print(occurence[:14])
+        if occurence == "block_input":
+            pass
+        elif occurence[:14] == "spawn_munition":
+            occurence_split = occurence.split("(")[1]
+            stripped = occurence_split[:-1]
+            variables = stripped.split(",")
+            weapon_type = variables[0]
+            launcher_coords = variables[1].split("|")
+            target_coords = variables[2].split("|")
+            target_tuple = (int(target_coords[0]), int(target_coords[1]), int(target_coords[2]))
+            print(next(t for t in self.manager.tile_group if t.qrs == target_tuple).unit)
+            print("#####################1")
+            munition = Munition(self.manager, weapon_type, MockLauncher(int(launcher_coords[0]), int(launcher_coords[1]), int(launcher_coords[2]), weapon_type), next(t for t in self.manager.tile_group if t.qrs == target_tuple).unit if next(t for t in self.manager.tile_group if t.qrs == target_tuple).unit else next(t for t in self.manager.tile_group if t.qrs == target_tuple))
+            print("###########")
+            print(munition.target)
+    
+    
+    def eventlogic_loop(self):
+        # move event_if from ids_not_done_or_active to currently_active ----- #
+        triggerd_ids = set()
+        for event_id in self.ids_not_done_or_active:
+            triggerd = self.interpret_condition(event_id, "TRIGGER")
+            if triggerd:
+                print(triggerd)
+                triggerd_ids.add(triggerd)
+        for event_id in triggerd_ids:
+            self.ids_not_done_or_active.remove(event_id)
+            self.currently_active_events.add(event_id)
+        # execute event function -------------------------------------------- #
+        for event_id in self.currently_active_events:
+            print("start occurence: ", event_id)
+            self.interpret_occurence(event_id)
+        # delete if DONE ---------------------------------------------------- #
+        done_ids = set()
+        for event_id in self.currently_active_events:
+            done = self.interpret_condition(event_id, "DONE")
+            if done:
+                print(done)
+                done_ids.add(done)
+        for done_id in done_ids:
+            self.currently_active_events.remove(done_id)
+        
+    
+
+            
+            
+
             

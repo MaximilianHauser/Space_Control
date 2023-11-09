@@ -10,7 +10,7 @@ import json
 
 # define map ---------------------------------------------------------------- #
 # format is as follows: ----------------------------------------------------- #
-# [terrain, unit] ----------------------------------------------------------- #
+# [terrain, unit, event_id (if unit is used as trigger)] -------------------- #
 test_map = [
     
     [[None], [None], ["s", "r_cc"], ["s", None], ["s", None]],
@@ -21,7 +21,7 @@ test_map = [
     
     [["s", None], ["m", None], ["s", None], ["s", None], [None]],
     
-    [["s", None], ["s", None], ["s", "b_cc"], [None], [None]]
+    [["s", None], ["s", None], ["s", "b_cc", "100"], [None], [None]]
     
             ]
 
@@ -50,23 +50,41 @@ victory_conditions_dict = {
 
 # battle events organized as follows: --------------------------------------- #
 # ID : { TRIGGER, TRIGGER_END, DESCRIPTION, OCCURENCES } -------------------- #
+"""
+The format for TRIGGER is as follows:
+    condition_1 AND condition_2
+    condition_1 OR condition_2
+    
+    Conditions need to be seperated by whitespace, more than one condition,
+    need to be connected by AND or OR.
+    
+The format for a condition with TRIGGER is as follows:
+    trigger_type:trigger_subject:specific_value
+    
+Valid trigger_types and trigger_subjects in relation:
+    unit_blufor, unit_redfor: coordinates, health_rel, health_abs
+    countdown: ticks, moves, rounds
+    
+Specific_value needs to be entered as Integer, Float or Set.
+
+"""
+
+
 battle_events = {
     
-    10 :
+   "10" :
         {
-            "TRIGGER":"start_map",
-            "TRIGGER_END":None,
+            "TRIGGER":"countdown:ticks:20",
             "DESCRIPTION":"block player input for 15 seconds",
-            "OCCURENCE":"block_input, 15000",
-            "DONE":False
+            "OCCURENCE":"block_input",
+            "DONE":"countdown:ticks:25"
             },
-    100 :
+   "100" :
         {
-            "TRIGGER":"unit_blufor, r<4 OR s>-6",
-            "TRIGGER_END":"turns, 3",
-            "DESCRIPTION":"munition from outside map travels to (0,0,0), (-1,1,0), (0,1,-1), (1,0,-1)",
-            "OCCURENCE":"block_input, 15000",
-            "DONE":False
+            "TRIGGER":"unit_blufor:coordinates:((4,2,-6),(4,1,-5))",
+            "DESCRIPTION":"munition fired from (0,2,-2) to (4,2,-6), type medium plasma",
+            "OCCURENCE":"spawn_munition(r_medium_plasma,0|2|-2,4|2|-6)",
+            "DONE":"countdown:ticks:0"
             }
                     }
 

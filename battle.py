@@ -141,7 +141,7 @@ class Battle(State):
         
         # sprite initialization --------------------------------------------- #
         for i in range(len(map_setup_lst)):
-            q, r, s, t, u = map_setup_lst[i]
+            q, r, s, t, u, triggers = map_setup_lst[i]
             
             # adding map logic to running_dict ------------------------------ #
             self.map_running_dict.update({(q,r,s):[t,u]})
@@ -151,8 +151,8 @@ class Battle(State):
             self.observer.subscribe(pg.MOUSEBUTTONDOWN, tile)
             
             if u != None:
-                Unit(self, q, r, s, u)
-                
+                Unit(self, q, r, s, u, event_triggers=triggers)
+        
         # initialize initiative_queque -------------------------------------- #
         self.initiative_queque = InitiativeQueque(self)
         self.initiative_queque.set_unit_attr(activated = True)
@@ -184,8 +184,10 @@ class Battle(State):
             self.observer.event_mngr(event, delta)
         
     def update(self, delta):
+        self.total_runtime += delta
         self.initiative_queque.check_unit_ap()
         self.skynet.get_situation()
+        self.events_logic.eventlogic_loop()
         
         self.all_sprites.update(delta)
         al.set_animation_state_tiles(self.tile_group, [self.unit_blufor_group, self.unit_redfor_group])
@@ -193,8 +195,8 @@ class Battle(State):
         # block actions redfor while animation of movement or attack in prog  #
         mun_sprite_lst = self.munition_group.sprites()
         mov_sprite_lst = self.movement_group.sprites()
-        if not mun_sprite_lst and not mov_sprite_lst:
-            self.skynet.red_active_next_action()
+        # if not mun_sprite_lst and not mov_sprite_lst:
+        #     self.skynet.red_active_next_action()
             
         # connected states -------------------------------------------------- #
         if self.clicked_on == "victory":

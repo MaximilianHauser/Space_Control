@@ -107,7 +107,7 @@ class Unit(pg.sprite.Sprite):
    
     """
     newid = itertools.count(0,1)
-    def __init__(self, game:object, q:int, r:int, s:int, u:str) -> object:
+    def __init__(self, game:object, q:int, r:int, s:int, u:str, *, event_triggers=None) -> object:
         pg.sprite.Sprite.__init__(self)
         self.game = game
         self.id = next(self.newid)
@@ -126,7 +126,9 @@ class Unit(pg.sprite.Sprite):
             
         if u[0] == "b":
             self.game.unit_blufor_group.add(self)
-            
+        
+        self.event_triggers = event_triggers
+        
         x, y = hl.hex_to_pixel((q,r,s))
         self.x = x + WIN_WIDTH / 2
         self.y = y + WIN_HEIGHT / 2

@@ -3,7 +3,7 @@ The goal is to make a hextile, turn-based strategy game, without base building, 
 
 
 ## Current priority:  
-* [ ] refactor drop down menu to a "generalized design"
+* [ ] Munition spawned by eventlogic targets tile, should target unit it was triggered by
 
 
 ## ToDo till mvp:  
@@ -18,6 +18,7 @@ The goal is to make a hextile, turn-based strategy game, without base building, 
 * [ ] figure out where to get all the sprites needed for actually animating that stuff
 * [ ] animated backgrounds? either like "life in adventure loading screen" or full small movie (file size? time to make?)
 * [ ] implement a "tidy" folder structure
+* [ ] refactor drop down menu to a "generalized design"
 
 
 ## Done:
