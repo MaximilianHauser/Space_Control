@@ -3,13 +3,12 @@ The goal is to make a hextile, turn-based strategy game, without base building, 
 
 
 ## Current priority:  
-* [ ] Munition spawned by eventlogic targets tile, should target unit it was triggered by
+* [ ] fix image tint in movement.py
 
 
 ## ToDo till mvp:  
 * [ ] try to minimize cross dependencies in architecture
-* [ ] implement a movement.py to handle movement animation from tile to neighbor
-* [ ] refactor munition.py __seriously it's a mess__
+* [ ] refactor munition.py
 * [ ] finish skynet.py to mvp
 * [ ] go over each file and establish if mvp
 * [ ] implement a portrait function, to go along with textcrawl for in battle story advancement
@@ -19,6 +18,8 @@ The goal is to make a hextile, turn-based strategy game, without base building, 
 * [ ] animated backgrounds? either like "life in adventure loading screen" or full small movie (file size? time to make?)
 * [ ] implement a "tidy" folder structure
 * [ ] refactor drop down menu to a "generalized design"
+* [ ] automatically center map on strongest blufor ship at start
+* [ ] build in line of sight condition for ciws (hexlogic linedraw, mc>0 for each except [0])
 
 
 ## Done:
@@ -29,6 +30,9 @@ The goal is to make a hextile, turn-based strategy game, without base building, 
 * [x] NoneTyp object has no attribute evasion when attacking empty tile
 * [x] fix size of single drop down menu button
 * [x] add basic state for options
+* [x] Munition spawned by eventlogic targets tile, should target unit it was triggered by
+* [x] refactor munition.py __seriously it's a mess__
+* [x] implement a movement.py to handle movement animation from tile to neighbor
 
 
 ## Tasks per file:  
@@ -73,5 +77,6 @@ intended functionality, with as little dependencies as possible and no major ref
 |typewritercrawl.py         | [ ] |                                            |
 |unit.py                    | [ ] |                                            |
 |win_conditions.py          | [ ] |                                            |
-
+|custom_distributions.py    | [ ] |                                            |
+|movement.py                | [ ] |                                            |
 

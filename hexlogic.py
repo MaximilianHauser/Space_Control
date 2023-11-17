@@ -18,16 +18,16 @@ of each hexagon. Like in the example given below. When using Pygame-CE it is
 recommended to use square images and draw a hexagon on them. An example of a 
 64x64 tile is provided. Currently the package does not support drawing hexagons.
 
-      +s \        / -r
-          \  _   /                   A: ( q=0, r=0, s=0 )
+     +s \         / -r
+         \   _   /                   A: ( q=0, r=0, s=0 )
          _ / B \ _                   B: ( q=0, r=-1, s=1 )
        / G \ _ / C \                 C: ( q=1, r=-1, s=0 )
  -q __ \ _ / A \ _ / __ +q           D: ( q=1, r=0, s=-1 )
        / F \ _ / D \                 E: ( q=0, r=1, s=-1 )
        \ _ / E \ _ /                 F: ( q=-1, r=1, s=0 )
            \ _ /                     G: ( q=-1, r=0, s=1 )
-         /      \
-     +r /        \ -s
+         /       \
+     +r /         \ -s
 
 Contains all hextile logic, specified as logic handling the relationship 
 between cartesian coordinates and cube coordinates, for the purpose of defining 
@@ -126,6 +126,10 @@ hex_to_pixel(qrs:object|tuple|HexCoords, *, tile_width:int=64, tile_height:int=6
 pixel_to_hex(xy:object|tuple|RectCoords, *, tile_width:int=64, tile_height:int=64,
              return_coords_obj:bool=False) -> tuple|HexCoords:
     Converts pixel coordinates to cube coordinates.
+    
+getobj(container:set|list|tuple, attribute:str, value, *, return_set=False) -> object|set:
+    Returns an object or a Set containing all Objects from a container having a
+    specific value for an attribute.
     
 neighbors(qrs:object|tuple|HexCoords) -> set:
     Return a List of coordinates of neighboring hexagons.
@@ -1256,6 +1260,55 @@ def pixel_to_hex(xy:object|tuple|RectCoords, *, tile_width:int=64, tile_height:i
     qrs = HexCoords(q,r,s) if return_coords_obj else (q,r,s)
         
     return qrs
+
+
+def getobj(container:set|list|tuple, attribute:str, value, *, return_set=False) -> object|set:
+    """
+    Returns an object or a Set containing all Objects from a container having a
+    specific value for an attribute. If return_set is set to True returns a set 
+    even if only one object is returned.
+    
+    Parameters:
+    -----------
+    container : Set | List | Tuple
+        Built in Container or childclass therof containing the Objects that are 
+        to be filtered based on the define Attribute and its value.
+    
+    attribute : String
+        Name of the Attribute which an object needs to posess to be considered 
+        as a return.
+    
+    value : Any Type
+        Value that the defined Attribute needs to have to be considered as a 
+        return.
+    
+    return_set : Boolean, optional
+        If True the function will return a Set containing the object that passed 
+        the filter even if it's just a single object or return an empty Set if 
+        no object passed the filter.
+    
+    Raises:
+    -------
+    Not tested for errors.
+    
+    Returns:
+    --------
+    filtered(Set|Object)
+        A Set containing all the Objects having an Attribute with Value "value".
+        Or an Object having an Attribute with Value "value", if only one met the 
+        condition and return_set is False.
+    """
+    filtered = set()
+    
+    for obj in container:
+        if hasattr(obj, attribute):
+            if getattr(obj, attribute) == value:
+                filtered.add(obj)
+                
+    if len(filtered) == 1 and return_set is False:
+        return filtered.pop()
+    else:
+        return filtered
     
 
 def neighbors(qrs:object|tuple|HexCoords) -> set:

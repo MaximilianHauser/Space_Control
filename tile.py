@@ -30,6 +30,7 @@ import animations_logic as al
 
 # sprite objects ------------------------------------------------------------ #
 from dropdownmenu import DropDownMenu
+from movement import Movement
 from attribute_dicts.t_attr import t_dict
 
 # misc ---------------------------------------------------------------------- #
@@ -204,6 +205,7 @@ class Tile(pg.sprite.Sprite):
         self.ciws_dict = gl.get_ciws_cover(self)
                     
         # updates position -------------------------------------------------- #
+        self.qrs = (self.q, self.r, self.s)
         self.rect.center = (self.x, self.y)
     
     # checks if click is touching tile and click cooldown ------------------- #
@@ -293,7 +295,7 @@ class Tile(pg.sprite.Sprite):
                         in_range = gl.in_mov_range(self, blufor_activated, self.manager.tile_group, "block_move")
                         neighbor = ((self.q, self.r, self.s)) in hl.neighbors((blufor_activated.q, blufor_activated.r, blufor_activated.s))
                         if in_range and neighbor:
-                            gl.move_unit(self, blufor_activated)
+                            Movement(self.manager, self, blufor_activated)
                 
             if event.button == 3:
                 

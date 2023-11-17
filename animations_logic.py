@@ -12,7 +12,6 @@ import pygame as pg
 import hexlogic as hl
 import gamelogic as gl
 
-
     
 # tinting a sprite in a certain colorshade ------------------------------ #
 def tint_image(image, color):

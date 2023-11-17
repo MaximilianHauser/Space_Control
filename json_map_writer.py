@@ -82,8 +82,8 @@ battle_events = {
    "100" :
         {
             "TRIGGER":"unit_blufor:coordinates:((4,2,-6),(4,1,-5))",
-            "DESCRIPTION":"munition fired from (0,2,-2) to (4,2,-6), type medium plasma",
-            "OCCURENCE":"spawn_munition(r_medium_plasma,0|2|-2,4|2|-6)",
+            "DESCRIPTION":"munition fired from (0,2,-2) to (4,2,-6), type nuclear torpedo",
+            "OCCURENCE":"spawn_munition(r_nuclear_torpedo,0|2|-2,4|2|-6)",
             "DONE":"countdown:ticks:0"
             }
                     }

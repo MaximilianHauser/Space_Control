@@ -21,6 +21,9 @@ Functions:
 """
 
 # import section ------------------------------------------------------------ #
+# libraries ----------------------------------------------------------------- #
+import re
+
 # custom functions ---------------------------------------------------------- #
 import hexlogic as hl
 
@@ -70,14 +73,6 @@ def in_mov_range(tile:object, unit:object, tile_grp, movement_var:str) -> bool:
         
     # check if tile was visited in floodfil --------------------------------- #
     return hl.get_qrs(tile) in visited
-    
-    
-# handles unit movement, subtraction of action points ----------------------- #
-def move_unit(clicked_tile:object, unit_on_tile:object) -> None:
-        
-    distance_movement = hl.distance(unit_on_tile, clicked_tile)
-    hl.set_qrs(unit_on_tile, clicked_tile.q, clicked_tile.r, clicked_tile.s)
-    unit_on_tile.action_points -= distance_movement
         
     
 # determine if unit_b is in weapon range of unit_a -------------------------- #
@@ -145,20 +140,23 @@ def get_group_total_munition_dmg(sprite_group) -> int:
     
 # get ciws cover dict for tile ---------------------------------------------- #
 def get_ciws_cover(tile:object) -> dict:
-        
+    """
+    Updates a tiles ciws_dict, containing all units that cover that field with 
+    their ciws.
+    """
     ciws_units = set()
     ciws_dict = dict()
-        
+    
     # get units of attacked faction ----------------------------------------- #
-    spritegroup_lst = [tile.manager.unit_blufor_group, tile.manager.unit_redfor_group]
-    for group in spritegroup_lst:
-        for unit in group:
-            ciws_units.add(unit)
+    ciws_units = collect_from_attrs_pattern(tile.manager, "^unit_.*_group$")
                 
     # get units covering tile ----------------------------------------------- #
     for unit in ciws_units:
-        if unit.ciws_range >= hl.distance(unit, tile):
-            ciws_dict.update({unit.id:{"dmg":unit.ciws_dmg, "range":unit.ciws_range, "faction":unit.faction, "qrs":unit.qrs}})
+        if unit.ciws_range >= hl.distance(unit, tile) and unit.ciws_charge > 0:
+            line_of_sight = hl.line_draw(unit, tile)
+            # if all tiles on the los aren't blocked ------------------------ #
+            if all(t for t in tile.manager.tile_group if t.qrs in line_of_sight[1:]):
+                ciws_dict.update({unit.id:{"dmg":unit.ciws_dmg, "range":unit.ciws_range, "faction":unit.faction, "qrs":unit.qrs}})
         
     return ciws_dict            
     
@@ -193,14 +191,33 @@ def get_kwargs_ddm(tile, blufor_activated, blufor_grp, tile_grp):
         
     return kwargs_dct
 
-# munition class related logic ---------------------------------------------- #
-def munition_ciws_calc():
-    pass
 
-def munition_target_dmg():
-    pass
-
-def munition_launch():
-    pass
-
-
+# get unit > tile > coords as target ---------------------------------------- #
+def get_coords_occupancy(manager, coords_in):
+    q_str, r_str, s_str = (int(coords_in[0]), int(coords_in[1]), int(coords_in[2]))
+    coords = hl.tuple_or_object((q_str, r_str, s_str), 3)
+    
+    unit_blufor = hl.getobj(manager.unit_blufor_group, "qrs", coords, return_set=True)
+    unit_redfor = hl.getobj(manager.unit_redfor_group, "qrs", coords, return_set=True)
+    tile = hl.getobj(manager.tile_group, "qrs", coords, return_set=True)
+    
+    if unit_blufor:
+        return unit_blufor
+    elif unit_redfor:
+        return unit_redfor
+    elif tile:
+        return tile
+    else:
+        return None
+    
+    
+# add all elements stored in values(containers) of properties to a set ------ #
+def collect_from_attrs_pattern(top_obj:object, pattern:str) -> set:
+    matched = set()
+    for property, value in vars(top_obj).items():
+        if re.fullmatch(pattern, property):
+            for element in value:
+                matched.add(element)
+    return matched
+    
+    

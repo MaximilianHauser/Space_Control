@@ -174,7 +174,7 @@ class Unit(pg.sprite.Sprite):
         if self.health <= 0:
             self.kill()
         
+        # updates position -------------------------------------------------- #
         self.qrs = (self.q, self.r, self.s)
-        
         self.rect.center = (self.x, self.y)
 

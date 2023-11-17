@@ -10,9 +10,14 @@ Created on Sun Nov 13 18:46:34 2022
 
 
 # import section ------------------------------------------------------------ #
+# libraries ----------------------------------------------------------------- #
 import pygame as pg
+
+# custom functions ---------------------------------------------------------- #
 import hexlogic as hl
 import gamelogic as gl
+
+# sprite objects ------------------------------------------------------------ #
 from munition import Munition
 
 
@@ -117,5 +122,5 @@ class Skynet:
     def red_active_next_action(self):
         if self.activated_red != None:
             print(self.situation)
-            Munition(self.manager, "r_nuclear_torpedo", next(u for u in self.manager.unit_redfor_group if u.activated == True), next(t for t in self.manager.tile_group if t.qrs == (2,4,-6)).unit if next(t for t in self.manager.tile_group if t.qrs == (2,4,-6)).unit else next(t for t in self.manager.tile_group if t.qrs == (2,4,-6)))
+            Munition(self.manager, "r_nuclear_torpedo", next(u for u in self.manager.unit_redfor_group if u.activated == True), gl.get_coords_occupancy((2, 4, -6), self.manager))
         

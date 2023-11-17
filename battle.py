@@ -187,7 +187,6 @@ class Battle(State):
         self.total_runtime += delta
         self.initiative_queque.check_unit_ap()
         self.skynet.get_situation()
-        self.events_logic.eventlogic_loop()
         
         self.all_sprites.update(delta)
         al.set_animation_state_tiles(self.tile_group, [self.unit_blufor_group, self.unit_redfor_group])
@@ -222,6 +221,8 @@ class Battle(State):
             self.clicked_on = "victory"
         elif event.type == self.E_DEFEAT:
             self.clicked_on = "defeat"
+        # not actually pg.event related, handles ingame occurences ---------- #    
+        self.events_logic.eventlogic_loop()
 
     def to_debriefing_v(self):
         self.next_state = "DEBRIEFING"

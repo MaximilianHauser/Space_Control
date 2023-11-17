@@ -6,10 +6,17 @@ Created on Mon Nov  6 13:33:17 2023
 """
 
 # import section ------------------------------------------------------------ #
+# libraries ----------------------------------------------------------------- #
 import json
 import pygame as pg
+
+# custom functions ---------------------------------------------------------- #
 import hexlogic as hl
+import gamelogic as gl
+
+# sprite objects ------------------------------------------------------------ #
 from munition import Munition
+
 
 # custom errors, defined to refer to incorrect condition format ------------- #
 class ConditionFormatViolation(ValueError):
@@ -21,18 +28,27 @@ class ConditionFormatViolation(ValueError):
 # mock launcher object for Munition spawn occurence ------------------------- #
 class MockLauncher(pg.sprite.Sprite):
     
-    def __init__(self, q, r, s, weapon_type):
+    def __init__(self, manager, coords, weapon_type):
         pg.sprite.Sprite.__init__(self)
         
-        self.q = q
-        self.r = r
-        self.s = s
+        self.manager = manager
         
-        self.qrs = (q,r,s)
+        obj_on_coords = gl.get_coords_occupancy(self.manager, coords)
         
-        x, y = hl.hex_to_pixel(self.qrs)
-        self.x = x
-        self.y = y
+        if obj_on_coords:
+            obj = obj_on_coords.pop()
+            mock_coords = (obj.q, obj.r, obj.s)
+        else:
+            mock_coords = coords
+        
+        self.q = mock_coords[0]
+        self.r = mock_coords[1]
+        self.s = mock_coords[2]
+        
+        self.qrs = mock_coords
+
+        self.x = [t for t in self.manager.tile_group if t.qrs == (self.q, self.r, self.s)][0].x
+        self.y = [t for t in self.manager.tile_group if t.qrs == (self.q, self.r, self.s)][0].y
         
         self.action_points = 99
         self.ammunition = dict()
@@ -140,7 +156,7 @@ class EventsLogic:
                 
                 condition_split = condition.split(":")
                 if condition_split[0] in ("unit_blufor", "unit_redfor"):
-                    triggered = self.single_unit_eoconst(event_id, condition)
+                    triggered = self.unit_eoconst(event_id, condition)
                 elif condition_split[0] == "countdown":
                     triggered = self.countdown_eoconst(event_id, condition)
                     
@@ -148,9 +164,10 @@ class EventsLogic:
         
         
     # condition enforcement functions --------------------------------------- #
-    def single_unit_eoconst(self, event_id, condition):
+    def unit_eoconst(self, event_id, condition):
         """
-        Checks if TRIGGER condition is met, returns Boolean.
+        Checks if TRIGGER condition is met for each unit having the trigger assigned
+        to the event_triggers attribute, returns Boolean.
         """
         # condition split into TYPE, SPECIFIC_CONDITION, SPECIFIC_VALUE ----- #
         condition_split = condition.split(":")
@@ -218,11 +235,7 @@ class EventsLogic:
             launcher_coords = variables[1].split("|")
             target_coords = variables[2].split("|")
             target_tuple = (int(target_coords[0]), int(target_coords[1]), int(target_coords[2]))
-            print(next(t for t in self.manager.tile_group if t.qrs == target_tuple).unit)
-            print("#####################1")
-            munition = Munition(self.manager, weapon_type, MockLauncher(int(launcher_coords[0]), int(launcher_coords[1]), int(launcher_coords[2]), weapon_type), next(t for t in self.manager.tile_group if t.qrs == target_tuple).unit if next(t for t in self.manager.tile_group if t.qrs == target_tuple).unit else next(t for t in self.manager.tile_group if t.qrs == target_tuple))
-            print("###########")
-            print(munition.target)
+            Munition(self.manager, weapon_type, MockLauncher(self.manager, launcher_coords, weapon_type), gl.get_coords_occupancy(self.manager, target_tuple).pop())
     
     
     def eventlogic_loop(self):
