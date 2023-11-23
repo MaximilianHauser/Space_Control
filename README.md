@@ -3,7 +3,7 @@ The goal is to make a hextile, turn-based strategy game, without base building, 
 
 
 ## Current priority:  
-* [ ] fix image tint in movement.py
+
 
 
 ## ToDo till mvp:  
@@ -18,8 +18,9 @@ The goal is to make a hextile, turn-based strategy game, without base building, 
 * [ ] animated backgrounds? either like "life in adventure loading screen" or full small movie (file size? time to make?)
 * [ ] implement a "tidy" folder structure
 * [ ] refactor drop down menu to a "generalized design"
-* [ ] automatically center map on strongest blufor ship at start
 * [ ] build in line of sight condition for ciws (hexlogic linedraw, mc>0 for each except [0])
+* [ ] apparently a 7*7 map reveals the point a map is not loaded instantly, need some kind of loading screen (use threading or multiprocessing?)
+* [ ] start thinking about optimization, need a debug mode with framerate etc.
 
 
 ## Done:
@@ -33,6 +34,10 @@ The goal is to make a hextile, turn-based strategy game, without base building, 
 * [x] Munition spawned by eventlogic targets tile, should target unit it was triggered by
 * [x] refactor munition.py __seriously it's a mess__
 * [x] implement a movement.py to handle movement animation from tile to neighbor
+* [x] fix image tint in movement.py
+* [x] fix KeyError: (2, 2, -4) in skynet.get_chokepoints (coords set of matrix contained coordinates not connected)
+* [x] switched blocked movement to negative movement_cost
+* [x] automatically center map ~~on strongest blufor ship~~ at start
 
 
 ## Tasks per file:  

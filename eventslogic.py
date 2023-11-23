@@ -21,7 +21,7 @@ from munition import Munition
 # custom errors, defined to refer to incorrect condition format ------------- #
 class ConditionFormatViolation(ValueError):
     """
-    The format the conditions need to be in was violated.
+    The format the conditions needs to be in was violated.
     """
     pass
 

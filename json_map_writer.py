@@ -13,17 +13,26 @@ import json
 # [terrain, unit, event_id (if unit is used as trigger)] -------------------- #
 test_map = [
     
-    [[None], [None], ["s", "r_cc"], ["s", None], ["s", None]],
+    [[None], [None], [None], ["b", None], ["s", None], ["s", None], ["s", None]],
     
-    [[None], ["s", None], ["s", None], ["b", None], ["s", None]],
+    [[None], [None], ["s", None], ["b", None], ["s", None], ["s", None], ["s", None]],
     
-    [["s", None], ["a", None], ["b", None], ["a", None], ["s", None]],
+    [[None], ["s", None], ["s", "r_cc"], ["s", None], ["s", None], ["s", None], ["s", None]],
     
-    [["s", None], ["m", None], ["s", None], ["s", None], [None]],
+    [["s", None], ["s", None], ["s", None], ["b", None], ["s", None], ["s", None], ["s", None]],
     
-    [["s", None], ["s", None], ["s", "b_cc", "100"], [None], [None]]
+    [["s", None], ["a", None], ["b", None], ["a", None], ["s", None], ["s", None], [None]],
+    
+    [["s", None], ["m", None], ["s", None], ["s", None], ["s", None], [None], [None]],
+    
+    [["s", None], ["s", None], ["s", "b_cc", "100"], ["s", None], [None], [None], [None]]
     
             ]
+
+
+
+
+
 
 # set victory conditons ----------------------------------------------------- #
 victory_conditions_dict = {

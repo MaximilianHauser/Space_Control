@@ -323,7 +323,7 @@ class GraphMatrix:
     GraphMatrix(object): 
         Two-dimensional, directed, weighted graph, stored in a Dictionary.
     """
-    def __init__(self, tile_grp:list|set):
+    def __init__(self, tile_group:list|set):
         # contains all directional movement costs --------------------------- #
         self.matrix_dict = dict()
         # contains all coordinates connected to another coordinate ---------- #
@@ -332,12 +332,12 @@ class GraphMatrix:
         # creating a set with all connections ------------------------------- #
         edges = set()
         
-        for tile in tile_grp:
+        for tile in tile_group:
             tile_qrs = tuple_or_object(tile, 3, return_coords_obj=False)
             t_nbors_tuple = neighbors((tile_qrs[0], tile_qrs[1], tile_qrs[2]))
             for nbor in t_nbors_tuple:
                 nbor_qrs = (nbor[0], nbor[1], nbor[2])
-                for t in tile_grp:
+                for t in tile_group:
                     t_coords = tuple_or_object(t, 3, return_coords_obj=False)
                     if t_coords[0] == nbor[0] and t_coords[1] == nbor[1] and t_coords[2] == nbor[2]:
                         edges.add((tile_qrs, nbor_qrs, tile.movement_cost, t.movement_cost))
@@ -354,7 +354,13 @@ class GraphMatrix:
                 self.matrix_dict[edge[1]].update({edge[0]:edge[2]})
             else:
                 self.matrix_dict.update({edge[1]:{edge[0]:edge[2]}})
-                                      
+            # add edge coordinats to set connected coordinates -------------- #
+            if edge[2] >= 0:
+                self.matrix_coords.add(edge[0])
+            if edge[3] >= 0:
+                self.matrix_coords.add(edge[1])
+        print("hexlogic.GraphMatrix.matrix_coords")
+        print(self.matrix_coords)
         
     def update_entry(self, from_coord:object|tuple|HexCoords, 
                      to_coord:object|tuple|HexCoords, movement_cost:int|float) -> None:
@@ -407,7 +413,7 @@ class GraphMatrix:
         try:
             movement_cost = self.matrix_dict[from_c][to_c]
         except KeyError:
-            movement_cost = 0
+            movement_cost = -1
         
         return movement_cost
     
@@ -442,6 +448,7 @@ class GraphMatrix:
             
         ConstraintViolation: 
             If the q+r+s=0 constraint is violated.
+            Also if the goal tile has negative movement cost.
         
         Returns:
         --------
@@ -449,6 +456,10 @@ class GraphMatrix:
         """
         start = tuple_or_object(start, 3, return_coords_obj=False)
         goal = tuple_or_object(goal, 3, return_coords_obj=False)
+        
+        nbors_goal = neighbors(goal)
+        if not any([True for nbor in nbors_goal if self.get_movement_cost(nbor, goal) >= 0]):
+            raise ConstraintViolation("The goal is not a valid tile to move onto, it has negative movement_cost")
         
         frontier = list()
         frontier.append(start)
@@ -465,7 +476,7 @@ class GraphMatrix:
                     if nbor not in came_from.keys():
                         # movement_cost from row to column not 0 ---------------- #
                         if nbor in self.connected(current):
-                            if self.get_movement_cost(current, nbor) != 0:
+                            if self.get_movement_cost(current, nbor) >= 0:
                                 frontier.append(nbor)
                                 came_from[nbor] = current
         
@@ -511,6 +522,7 @@ class GraphMatrix:
             
         ConstraintViolation: 
             If the q+r+s=0 constraint is violated.
+            Also if the goal tile has negative movement cost.
         
         Returns:
         --------
@@ -518,6 +530,10 @@ class GraphMatrix:
         """
         start = tuple_or_object(start, 3, return_coords_obj=False)
         goal = tuple_or_object(goal, 3, return_coords_obj=False)
+        
+        nbors_goal = neighbors(goal)
+        if not any([True for nbor in nbors_goal if self.get_movement_cost(nbor, goal) >= 0]):
+            raise ConstraintViolation("The goal is not a valid tile to move onto, it has negative movement_cost")
         
         frontier = list()
         frontier.append((start, 0))
@@ -536,7 +552,7 @@ class GraphMatrix:
             # else execute loop ------------------------------------------------- #
             else:
                 for nbor in neighbors(current[0]):
-                    if self.get_movement_cost(current[0], nbor) != 0:
+                    if self.get_movement_cost(current[0], nbor) >= 0:
                         new_cost = cost_so_far[current[0]] + self.get_movement_cost(current[0], nbor)
                         if nbor not in cost_so_far or new_cost < cost_so_far[nbor]:
                             cost_so_far[nbor] = new_cost
@@ -584,6 +600,7 @@ class GraphMatrix:
             
         ConstraintViolation: 
             If the q+r+s=0 constraint is violated.
+            Also if the goal tile has negative movement cost.
         
         Returns:
         --------
@@ -592,6 +609,10 @@ class GraphMatrix:
         start = tuple_or_object(start, 3, return_coords_obj=False)
         goal = tuple_or_object(goal, 3, return_coords_obj=False)
         
+        nbors_goal = neighbors(goal)
+        if not any([True for nbor in nbors_goal if self.get_movement_cost(nbor, goal) >= 0]):
+            raise ConstraintViolation("The goal is not a valid tile to move onto, it has negative movement_cost")
+        
         frontier = list()
         frontier.append((start, 0))
         came_from = dict()
@@ -599,17 +620,17 @@ class GraphMatrix:
         came_from[start] = None
         cost_so_far[start] = 0
         
-        # while not all tiles have been procesed, pop first tile from list ------ #
+        # while not all tiles have been procesed, pop first tile from list -- #
         while frontier:
             current = frontier.pop(0)
             
-            # if current qrs_coords equal goal coords, break out of loop -------- #
+            # if current qrs_coords equal goal coords, break out of loop ---- #
             if current[0] == goal:
                 break
-            # else execute loop ------------------------------------------------- #
+            # else execute loop --------------------------------------------- #
             else:
                 for nbor in neighbors(current[0]):
-                    if self.get_movement_cost(current[0], nbor) != 0:
+                    if self.get_movement_cost(current[0], nbor) >= 0:
                         new_cost = cost_so_far[current[0]] + self.get_movement_cost(current[0], nbor)
                         if nbor not in cost_so_far or new_cost < cost_so_far[nbor]:
                             cost_so_far[nbor] = new_cost
@@ -617,8 +638,8 @@ class GraphMatrix:
                             priority = new_cost + distance(goal, nbor)
                             frontier.append((nbor, priority))
                             frontier.sort(key= lambda x:x[1] in frontier)
-                        
-        # follow the path from goal to start in came_from ----------------------- #
+        
+        # follow the path from goal to start in came_from ------------------- #
         current = goal 
         path = list()
         while current != start: 
@@ -1262,7 +1283,7 @@ def pixel_to_hex(xy:object|tuple|RectCoords, *, tile_width:int=64, tile_height:i
     return qrs
 
 
-def getobj(container:set|list|tuple, attribute:str, value, *, return_set=False) -> object|set:
+def getobj(container:set|list|tuple, attribute:str, value, *, return_set:bool=True) -> object|set:
     """
     Returns an object or a Set containing all Objects from a container having a
     specific value for an attribute. If return_set is set to True returns a set 
@@ -1303,10 +1324,11 @@ def getobj(container:set|list|tuple, attribute:str, value, *, return_set=False) 
     for obj in container:
         if hasattr(obj, attribute):
             if getattr(obj, attribute) == value:
-                filtered.add(obj)
-                
-    if len(filtered) == 1 and return_set is False:
-        return filtered.pop()
+                filtered.add(obj)     
+        
+    if len(filtered) == 1 and return_set == False:
+        out = filtered.pop()
+        return out
     else:
         return filtered
     

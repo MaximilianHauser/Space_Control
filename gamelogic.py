@@ -30,6 +30,9 @@ import hexlogic as hl
 # game mechanic properties -------------------------------------------------- #
 from attribute_dicts.w_attr import w_dict
 
+# misc ---------------------------------------------------------------------- #
+from settings import WIN_WIDTH, WIN_HEIGHT
+
     
 # function determines, wether or not a unit is on the tile ------------------ #
 # and if there is, assigns the unit as attribute to the tile ---------------- #
@@ -194,12 +197,11 @@ def get_kwargs_ddm(tile, blufor_activated, blufor_grp, tile_grp):
 
 # get unit > tile > coords as target ---------------------------------------- #
 def get_coords_occupancy(manager, coords_in):
-    q_str, r_str, s_str = (int(coords_in[0]), int(coords_in[1]), int(coords_in[2]))
-    coords = hl.tuple_or_object((q_str, r_str, s_str), 3)
+    coords = hl.tuple_or_object(coords_in, 3)
     
-    unit_blufor = hl.getobj(manager.unit_blufor_group, "qrs", coords, return_set=True)
-    unit_redfor = hl.getobj(manager.unit_redfor_group, "qrs", coords, return_set=True)
-    tile = hl.getobj(manager.tile_group, "qrs", coords, return_set=True)
+    unit_blufor = hl.getobj(manager.unit_blufor_group, "qrs", coords, return_set=False)
+    unit_redfor = hl.getobj(manager.unit_redfor_group, "qrs", coords, return_set=False)
+    tile = hl.getobj(manager.tile_group, "qrs", coords, return_set=False)
     
     if unit_blufor:
         return unit_blufor
@@ -219,5 +221,18 @@ def collect_from_attrs_pattern(top_obj:object, pattern:str) -> set:
             for element in value:
                 matched.add(element)
     return matched
+    
+    
+# centers map on an object or it's center ----------------------------------- #
+def center_map(manager, coords):
+    center_tile = hl.getobj(manager.tile_group, "qrs", coords, return_set=False)
+    center_xy = hl.tuple_or_object(center_tile, 2)
+    
+    screen_center = (WIN_WIDTH / 2, WIN_HEIGHT / 2)
+    corr_needed = (center_xy[0] - screen_center[0], center_xy[1] - screen_center[1])
+    
+    for sprite in manager.all_sprites:
+        sprite.x -= corr_needed[0]
+        sprite.y -= corr_needed[1]
     
     

@@ -6,7 +6,10 @@ Created on Sat Oct 22 18:30:36 2022
 """
 
 # import section ------------------------------------------------------------ #
+# libraries ----------------------------------------------------------------- #
 import json
+
+# misc ---------------------------------------------------------------------- #
 from settings import WIN_WIDTH, WIN_HEIGHT, SCROLL_AREA, SCROLL_BUFFER, SCROLL_SPEED
 
     
@@ -69,27 +72,42 @@ def assign_qrs(map_raw):
 
 
 def scroll_logic(manager, event, delta):
+    """
+    Provides scrolling logic by relatively changing the position of all_sprites.
+    """
     
     mouse_pos_x, mouse_pos_y = event.pos
     max_x, min_x, max_y, min_y = get_map_borders(manager.tile_group)
     
+    # cursor is at left edge of the screen ---------------------------------- #
     if mouse_pos_x < SCROLL_AREA:
-        if max_x < WIN_WIDTH - SCROLL_BUFFER:
+        # if left map border <= SCROLL_BUFFER ------------------------------- #
+        if min_x <= SCROLL_BUFFER:
+            # scroll left (move sprites right) ------------------------------ #
             for sprite in manager.all_sprites:
                 sprite.x += delta * SCROLL_SPEED
     
+    # cursor is at right edge of the screen --------------------------------- #
     if mouse_pos_x > WIN_WIDTH - SCROLL_AREA:
-        if min_x > SCROLL_BUFFER:
+        # if right map border >= WIN_WIDTH - SCROLL_BUFFER ------------------ #
+        if max_x >= WIN_WIDTH - SCROLL_BUFFER:
+            # scroll right (move sprites left) ------------------------------ #
             for sprite in manager.all_sprites:
                 sprite.x -= delta * SCROLL_SPEED
     
+    # cursor is at top edge of the screen ----------------------------------- #
     if mouse_pos_y < SCROLL_AREA:
-        if max_y < WIN_HEIGHT - SCROLL_BUFFER:
+        # if top map border <= SCROLL_BUFFER -------------------------------- #
+        if min_y <= SCROLL_BUFFER:
+            # scroll up (move sprites down) --------------------------------- #
             for sprite in manager.all_sprites:
                 sprite.y += delta * SCROLL_SPEED
     
+    # cursor is at bottom edge of the screen -------------------------------- #
     if mouse_pos_y > WIN_HEIGHT - SCROLL_AREA:
-        if min_y > SCROLL_BUFFER:
+        # if bottom map border >= WIN_HEIGHT - SCROLL_BUFFER ---------------- #
+        if max_y >= WIN_HEIGHT - SCROLL_BUFFER:
+            # scroll down (move sprites up) --------------------------------- #
             for sprite in manager.all_sprites:
                 sprite.y -= delta * SCROLL_SPEED
 

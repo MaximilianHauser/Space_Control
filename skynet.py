@@ -12,6 +12,8 @@ Created on Sun Nov 13 18:46:34 2022
 # import section ------------------------------------------------------------ #
 # libraries ----------------------------------------------------------------- #
 import pygame as pg
+import math
+from collections import Counter
 
 # custom functions ---------------------------------------------------------- #
 import hexlogic as hl
@@ -50,8 +52,7 @@ class Skynet:
         self.obj_coords_b = None
         
         # choke points between objectives ----------------------------------- #
-        self.no_chokepoints_soft = 0
-        self.no_chokepoints_hard = 0
+        self.chokepoints = list()
         
         # units that cannot escape (%?) damage the next blue turn ----------- #
         self.commited_units = 0
@@ -113,7 +114,23 @@ class Skynet:
     
     # get number of chokepoints --------------------------------------------- #
     def get_chokepoints(self):
-        pass
+        """
+        Chokepoints defined as top 5% most traveled tiles if any possible route 
+        is traveled once, meaning from any tile to any other possible tile.
+        """
+        stepped_on_tile_lst = list()
+        
+        for coords_from in self.manager.map_graph_matrix.matrix_coords:
+            for coords_to in self.manager.map_graph_matrix.matrix_coords:
+                stepped_on = self.manager.map_graph_matrix.a_star_algorithm(coords_from, coords_to)
+                for stepped in stepped_on:
+                    stepped_on_tile_lst.append(stepped)
+        
+        chokepoints_dict = Counter(stepped_on_tile_lst) 
+        
+        top_5_perc = int(math.ceil(len(self.manager.map_graph_matrix.matrix_coords) * 0.05))
+        self.chokepoints = chokepoints_dict.most_common(top_5_perc)
+
     
     # get units commited to engagement -------------------------------------- #
     def get_commited_red(self):

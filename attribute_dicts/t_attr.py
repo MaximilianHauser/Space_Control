@@ -40,7 +40,7 @@ t_dict = {
     "a":
         {
             "original_image" : "manager.sprite_asteroids",
-            "movement_cost" : 0,
+            "movement_cost" : 2,
             "dmg_to_light" : 0,
             "dmg_to_medium" : 0.5,
             "dmg_to_heavy" : 0.05,
@@ -52,7 +52,7 @@ t_dict = {
     "b":
         {
             "original_image" : "manager.sprite_big_roid",
-            "movement_cost" : 0,
+            "movement_cost" : -1,
             "dmg_to_light" : 0,
             "dmg_to_medium" : 0,
             "dmg_to_heavy" : 0,

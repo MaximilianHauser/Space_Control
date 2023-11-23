@@ -30,7 +30,7 @@ from tile import Tile
 from unit import Unit
 
 # misc ---------------------------------------------------------------------- #
-from settings import WIN_WIDTH, TILE_WIDTH, TILE_HEIGHT, UI_TRANSPARENCY
+from settings import WIN_WIDTH, WIN_HEIGHT, TILE_WIDTH, TILE_HEIGHT, UI_TRANSPARENCY
 
 
 # battle state -------------------------------------------------------------- #
@@ -107,6 +107,9 @@ class Battle(State):
         # placeholder variable for initiative_queque ------------------------ #
         self.initiative_queque = None
         
+        # placeholder variable for map_graph_matrix ------------------------- #
+        self.map_graph_matrix = None
+        
         # placeholder variable for AI --------------------------------------- #
         self.skynet = None
         
@@ -130,6 +133,9 @@ class Battle(State):
         self.persistent = {"selected_mission":self.selected_mission, 
                            "battle_conclusion":self.battle_conclusion}
         
+        # battle properties ------------------------------------------------- #
+        self.map_scrollable = None
+        
     
     def startup(self, persistent):
         self.persistent.update(persistent)
@@ -150,6 +156,8 @@ class Battle(State):
             tile = Tile(self, q, r, s, t)
             self.observer.subscribe(pg.MOUSEBUTTONDOWN, tile)
             
+            print(tile.qrs, tile.movement_cost)
+            
             if u != None:
                 Unit(self, q, r, s, u, event_triggers=triggers)
         
@@ -157,12 +165,27 @@ class Battle(State):
         self.initiative_queque = InitiativeQueque(self)
         self.initiative_queque.set_unit_attr(activated = True)
         
+        # initialize map_graph_matrix --------------------------------------- #
+        self.map_graph_matrix = hl.GraphMatrix(self.tile_group)
+        
         # initialize AI ----------------------------------------------------- #
         self.skynet = Skynet(self)
+        self.skynet.get_chokepoints()
         
         # initialize EventsLogic -------------------------------------------- #
         self.events_logic = EventsLogic(self)
-
+        
+        # center map on something ------------------------------------------- #
+        gl.center_map(self, (3,3,-6))
+        
+        # battle properties setup ------------------------------------------- #
+        max_x, min_x, max_y, min_y = ml.get_map_borders(self.tile_group)
+        if max_x - min_x > WIN_WIDTH or max_y - min_y > WIN_HEIGHT:
+            scrollable = True
+        else:
+            scrollable = False
+            
+        self.map_scrollable = scrollable
 
     def event(self, event, delta):
         # block events while movement or attack in progress ----------------- #
@@ -215,7 +238,8 @@ class Battle(State):
     def handle_events(self, event, delta):
         # map scroll mechanic ----------------------------------------------- #
         if event.type == pg.MOUSEMOTION or event.type == self.E_IDLE:
-            ml.scroll_logic(self, event, delta)
+            if self.map_scrollable:
+                ml.scroll_logic(self, event, delta)
         # victory and defeat events, change state --------------------------- #
         elif event.type == self.E_VICTORY:
             self.clicked_on = "victory"

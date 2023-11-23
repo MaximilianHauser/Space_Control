@@ -33,7 +33,7 @@ class Munition(pg.sprite.Sprite):
         self.manager = manager
         
         self.launcher = launcher
-        self.target = target
+        self.target = gl.get_coords_occupancy(self.manager, target)
         
         self.q = launcher.q
         self.r = launcher.r

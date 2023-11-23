@@ -51,11 +51,12 @@ class Movement(pg.sprite.Sprite):
         
         # movemnt animation specific variables ------------------------------ #
         self.perc_traversed = 0
-        self.speed = 30
+        self.speed = 50
         
         # image and animation variables ------------------------------------- #
         self.image = pg.Surface((5, 5))
         self.image.fill("white")
+
         self.rect = self.image.get_rect()
         self.rect.center = (self.x, self.y)
         
@@ -81,10 +82,11 @@ class Movement(pg.sprite.Sprite):
     def set_animation(self):
         x = (-0.5 + self.perc_traversed) * 2
         r = 0
+        a = 255
         g = custom_cauchy_distribution(x) * 100 + 150
         b = custom_cauchy_distribution(x) * 100 + 150
-        color = (r, g, b)
-        al.tint_image(self.image, color)
+        color = (r, g, b, a)
+        self.image.fill(color)
     
         
     def update(self, delta) -> None:
@@ -100,8 +102,9 @@ class Movement(pg.sprite.Sprite):
         
         self.rect.center = (self.x, self.y)
             
-        # set animation based on state -------------------------------------- #
+        # set animation based perc_traveled --------------------------------- #
         self.set_animation()
+    
     
     def check_movement_validity(self):
         nbors = hl.neighbors(self.unit.qrs)
