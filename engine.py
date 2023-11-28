@@ -7,8 +7,11 @@ Created on Thu Jul 20 18:20:51 2023
 
 # import section ------------------------------------------------------------ #
 # libraries ----------------------------------------------------------------- #
+import os
 import sys
 import pygame as pg
+
+import map_logic as ml
 
 # misc ---------------------------------------------------------------------- #
 from settings import FPS
@@ -52,7 +55,16 @@ class Engine:
         self.state.leave()
         self.state_name = next_state
         persistent = self.state.persistent
-        self.states[self.state_name]["instance"] = self.states[self.state_name]["constructor"]()
+        # load attr from file using loading screen if state_startup.py exists #
+        startup_dict_path = ".\\" + str(self.states[self.state_name]["constructor"].__name__).lower() + "_startup.json"
+        if os.path.isfile(startup_dict_path):
+            print("_startup.py file exists")
+            attr_dict = ml.load_from_json(startup_dict_path)
+            print(attr_dict)
+            self.states[self.state_name]["instance"] = self.states[self.state_name]["constructor"](attr_dict=attr_dict)
+        else:
+            self.states[self.state_name]["instance"] = self.states[self.state_name]["constructor"]()
+            
         self.state = self.states[self.state_name]["instance"]
         self.state.startup(persistent)
         self.states[self.previous_state]["instance"] = None
@@ -74,3 +86,4 @@ class Engine:
             self.update(self.delta)
             self.draw()
             pg.display.update()
+

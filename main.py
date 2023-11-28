@@ -48,6 +48,7 @@ credits = None
 
 # states dictionary --------------------------------------------------------- #
 states = {
+    
     "SPLASH_SCREEN":
         {"constructor":SplashScreen,
          "instance":splashscreen},
@@ -79,6 +80,7 @@ states = {
     "CREDITS":
         {"constructor":Credits,
          "instance":credits}
+        
          }
 
 engine = Engine(screen, states, "SPLASH_SCREEN")

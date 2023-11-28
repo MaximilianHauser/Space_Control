@@ -14,7 +14,7 @@ from settings import DEFAULT_FONTSIZE
 
 # State class template ------------------------------------------------------ #
 class State:
-    def __init__(self):
+    def __init__(self, *, attr_dict:dict=False):
         print("Initialising: " + str(self))
         
         self.total_runtime = 0
@@ -36,6 +36,11 @@ class State:
         self.font_coalition = pg.font.Font("img/coalition.ttf", DEFAULT_FONTSIZE)
         self.font_smallcaps = pg.font.Font("img/berlinsmallcaps.ttf", DEFAULT_FONTSIZE)
 
+        if attr_dict:
+            self.attr_dict = attr_dict
+            for k, v in attr_dict:
+                setattr(self, k, None)
+                print(k)
     
     def leave(self):
         # carry over persistant variables ----------------------------------- #
@@ -52,6 +57,9 @@ class State:
     
     def startup(self, persistent):
         self.persistent.update(persistent)
+        if hasattr(self, "attr_dict"):
+            for k, v in self.attr_dict:
+                print(k, v)
 
     def event(self, event, delta):
         pass

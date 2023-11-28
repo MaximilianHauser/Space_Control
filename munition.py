@@ -131,7 +131,8 @@ class Munition(pg.sprite.Sprite):
                     # apply ciws to munition -------------------------------- #
                     self.calc_and_apply_ciws_cover(i, coords)
                     print("tile is empty")
-                    self.logic_dict[self.tiles_traversed[i]]["state"] = "traversing"
+                    if self.armor > 0:
+                        self.logic_dict[self.tiles_traversed[i]]["state"] = "traversing"
         
         print("")
         for key in self.logic_dict.keys():

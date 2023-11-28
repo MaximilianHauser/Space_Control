@@ -38,25 +38,25 @@ class Battle(State):
     def __init__(self):
         super(Battle, self).__init__()
         
-        # background images --------------------------------------------- #
+        # background images ------------------------------------------------- #
         self.background_battle = pg.image.load('./img/background_battle.png')
         
-        # spritesheets -------------------------------------------------- #
+        # spritesheets ------------------------------------------------------ #
         self.terrain_sheet = sl.Spritesheet('img/hex_terrain_sheet.png')
         self.blufor_sheet = sl.Spritesheet('img/hex_blufor_sheet.png')
         self.redfor_sheet = sl.Spritesheet('img/hex_redfor_sheet.png')
         
-        # terrain sprites ----------------------------------------------- #
+        # terrain sprites --------------------------------------------------- #
         self.sprite_space = self.terrain_sheet.get_sprite(0, 0, TILE_WIDTH, TILE_HEIGHT)
         self.sprite_asteroids = self.terrain_sheet.get_sprite(65, 0, TILE_WIDTH, TILE_HEIGHT)
         self.sprite_big_roid = self.terrain_sheet.get_sprite(130, 0, TILE_WIDTH, TILE_HEIGHT)
         self.sprite_micro_roids = self.terrain_sheet.get_sprite(195, 0, TILE_WIDTH, TILE_HEIGHT)
         self.sprite_tile_mask = self.terrain_sheet.get_sprite(260, 0, TILE_WIDTH, TILE_HEIGHT)
         
-        # unit sprites -------------------------------------------------- #
-        # BLUFOR -------------------------------------------------------- #
+        # unit sprites ------------------------------------------------------ #
+        # BLUFOR ------------------------------------------------------------ #
         self.sprite_blufor_CC = self.blufor_sheet.get_sprite(65, 0, TILE_WIDTH, TILE_HEIGHT)
-        # REDFOR -------------------------------------------------------- #
+        # REDFOR ------------------------------------------------------------ #
         self.sprite_redfor_CC = self.redfor_sheet.get_sprite(65, 0, TILE_WIDTH, TILE_HEIGHT)
         
         # setup sprite groups ----------------------------------------------- #
@@ -156,8 +156,6 @@ class Battle(State):
             tile = Tile(self, q, r, s, t)
             self.observer.subscribe(pg.MOUSEBUTTONDOWN, tile)
             
-            print(tile.qrs, tile.movement_cost)
-            
             if u != None:
                 Unit(self, q, r, s, u, event_triggers=triggers)
         
@@ -203,7 +201,7 @@ class Battle(State):
             else:
                 pass
             
-            # pass events to observer ------------------------------------------- #
+            # pass events to observer --------------------------------------- #
             self.observer.event_mngr(event, delta)
         
     def update(self, delta):
@@ -217,8 +215,8 @@ class Battle(State):
         # block actions redfor while animation of movement or attack in prog  #
         mun_sprite_lst = self.munition_group.sprites()
         mov_sprite_lst = self.movement_group.sprites()
-        # if not mun_sprite_lst and not mov_sprite_lst:
-        #     self.skynet.red_active_next_action()
+        if not mun_sprite_lst and not mov_sprite_lst:
+            self.skynet.red_active_next_action()
             
         # connected states -------------------------------------------------- #
         if self.clicked_on == "victory":

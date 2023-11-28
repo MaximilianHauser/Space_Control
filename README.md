@@ -3,7 +3,7 @@ The goal is to make a hextile, turn-based strategy game, without base building, 
 
 
 ## Current priority:  
-
+* [ ] apparently a 7*7 map reveals the point a map is not loaded instantly, need some kind of loading screen (use threading or multiprocessing?)
 
 
 ## ToDo till mvp:  
@@ -19,7 +19,6 @@ The goal is to make a hextile, turn-based strategy game, without base building, 
 * [ ] implement a "tidy" folder structure
 * [ ] refactor drop down menu to a "generalized design"
 * [ ] build in line of sight condition for ciws (hexlogic linedraw, mc>0 for each except [0])
-* [ ] apparently a 7*7 map reveals the point a map is not loaded instantly, need some kind of loading screen (use threading or multiprocessing?)
 * [ ] start thinking about optimization, need a debug mode with framerate etc.
 
 

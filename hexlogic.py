@@ -359,8 +359,7 @@ class GraphMatrix:
                 self.matrix_coords.add(edge[0])
             if edge[3] >= 0:
                 self.matrix_coords.add(edge[1])
-        print("hexlogic.GraphMatrix.matrix_coords")
-        print(self.matrix_coords)
+
         
     def update_entry(self, from_coord:object|tuple|HexCoords, 
                      to_coord:object|tuple|HexCoords, movement_cost:int|float) -> None:
